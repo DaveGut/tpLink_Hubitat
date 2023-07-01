@@ -1,3 +1,5 @@
+# WORK IN PROGRESS.  DO NOT USE UNTIL THIS NOTICE IS REMOVED.
+
 # tapoHubitat
 TP-Link TAPO device integration for Hubitat Environment.
 ## Initial Development.  Need user feedback.
