@@ -8,9 +8,9 @@ TP-Link TAPO device integration for Hubitat Environment.
  	Robot Vacuum Cleaner.  Not in Support Plan.
 
 ### Not currently supported Tapo Hub connected devices:
-	a.	Remot Dimmer Switch (S200D).  Will install as newWiFi device.  Need developerData to finish development.
- 	b.	Switch (S210, S220).  Will install as newWiFi device.  Need developerData to finish development.
-  	c.	TRV Device.  Will install as newWiFi device.  Need developerData to finish development.
+	Remot Dimmer Switch (S200D).  Will install as newWiFi device.  Need developerData to finish development.
+ 	Switch (S210, S220).  Will install as newWiFi device.  Need developerData to finish development.
+  	TRV Device.  Will install as newWiFi device.  Need developerData to finish development.
 
 ### Testing by developer.
 The developer did not procure a copy of each device.  Testing was based on Device Type (i.e., color bulh, dimming bulb, plug, switch.  For untested devices, commands were derived from available data on gitHub.  Confidence is high, but not 100%.
@@ -19,7 +19,7 @@ The developer did not procure a copy of each device.  Testing was based on Devic
 
 	Installation:
  	App description:
-  	Installed Device Informationn:
+  	Installed Device Information:
    	RSA / AES Security Note: 
 	
  	
