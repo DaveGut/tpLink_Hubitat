@@ -25,7 +25,7 @@
 ##	Install devices via the Tapo Application
 
 	a.	Open a Log Page to view messages/errors during the installation process.
- 	b.  Create/Open the App in Hubitat using "add user app"
+ 	b.	Create/Open the App in Hubitat using "add user app"
  	c.	If you use non-standard IP segments, update by selecting Modify LAN Configuraiton
   		and update the segment.
 	d.	Select Enter/Update tpLink Credentials.  This is required for logging onto the
