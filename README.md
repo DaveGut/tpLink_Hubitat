@@ -18,11 +18,11 @@ TP-Link TAPO device integration for Hubitat Environment.
 
 Installation: https://github.com/DaveGut/tapoHubitat/blob/main/Docs/TapoInstallation.md
 
-App description:
+App description: Pending Development
 
-Installed Device Information:
+Installed Device Information: Pending Development
 
-RSA / AES Security Note: 
+RSA / AES Security Note: Pending Development
 
  
 GitHub data used in development.  I greatly appreciate the data provided in the below repositories in getting this implementation completed.
