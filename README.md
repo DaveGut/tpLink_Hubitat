@@ -15,10 +15,15 @@ TP-Link TAPO device integration for Hubitat Environment.
   	TRV Device.  Will install as newWiFi device.  Need developerData to finish development.
 
 ## Documentation:
+
 Installation: https://github.com/DaveGut/tapoHubitat/blob/main/Docs/TapoInstallation.md
+
 App description:
+
 Installed Device Information:
+
 RSA / AES Security Note: 
+
  
 GitHub data used in development.  I greatly appreciate the data provided in the below repositories in getting this implementation completed.
 
