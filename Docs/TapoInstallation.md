@@ -1,51 +1,81 @@
-# HubiThings Replica Samsung Dishwasher
+# Tapo Integration Installation
 
-## NOTE: Some functions may not work.  Samsung has chosen to disable non-SmartThings access (on certain devices) to Start, Pause, and Set Operation Time functions for "safety" reasons.
-Link to SmartThings Article:  https://community.smartthings.com/t/samsung-oven-apis-for-setting-cooking-mode-setpoint-cooking-time/251558/7?u=gutheinz
+## Install app and driver code
 
-## Remote control Note.
-Remote control must be enabled on the washer panel prior to controlling the washer.  The attributes will be correct regardless.  You must follow the same pre-control procedures on this driver as you do for control via the SmartThings application.
+	a.	Use Hubitat Package Manager
+ 		NOTE: HPM INSTALL NOT CURRENTLY ACTIVE
+ 		1.	Search for Keyword
+   		2.	Will automatically load App, 'tapoNewWifiDevice" and 'tapoHub-NewType' drivers.
+	 	3.	Select driver for your device based on description in HPM.
+   	b.	Manual Installation
+		1.	Use links in list at bottom of page to get to raw code.
+  		2.	Copy and paste this data to a new app or new driver page
+		3.	Install Application and two manditory drivers: 'tapoNewWifiDevice" 
+  			and 'tapoHub-NewType'
+  		4.	Install drivers for device type.
 
-## General troubleshooting recommendations for HubiThings Replica devices.
-* Open the Hubitat Apps page and look at the parent-chile HubiThings Replica for any indications of issues. Expected result:  
-  * HubiThings Replica  
-  * HubiThings OAuth ea3-5122 : Authorized
-* Go to the SmartThings App and assure the failing function is working within that app.
-  * If not, the issue is likely within SmartThings itself and further Hubitat troubleshooting is not warranted.
-* From the Hubitat Devices page, device's edit page,
-  * Open a separate logging window
-  * Select the device command "Configure".  This will take about a minute to complete.
-  * Review the log page for any WARNING or ERROR logs.  If there are some, copy log page and send to the developer.
-  * Go to the data section of the driver (or parent) and verify that critical data has passed to the device.  If not, contact the developer.
-  * Data (with first several characters as an example):
-    * capabilities: {"components":[{"id":  (this is a very large amount of data)
-    * commands: {"replicaEvent":[{"name":
-    * description: {"name":
-    * replica: {"deviceId"
-    * rules: {"version":1,"components":[{
-    * triggers: {
- * Recheck problemmatic function:
-   * Open NEW logging window
-   * Execute problemmatic function and note exactly what the anomolous behavior is.
-   * If fuction still fails, send Command Executed, anomolous behavior, and logs to developer.
+##	Install device into the Tapo phone application (iPhone / Android)
 
-## Main Device Command Description:
-* Configure: Reloads and updates the device and child device configuration to current.  Used as a first troubleshooting step.
-* Refresh: Request a full refresh of the device and then update to attributes.
-* Run: Start the washer.
-  * Remote control must be enabled.
-  * Attribute: machineState, value "run".
-* Pause: Pause the washer.
-  * Remote control must be enabled.
-  * Attribute: machineState, value "pause".
-* Stop: Stop the washer.
-  * Remote control must be enabled.
-  * Attribute: machineState, value "stop".
+	a.  Use manufacturer's instruction.
+ 	b.	Matter devices.  Need verification all functions work if installed vi Matter to 
+  		non-Tapo Application
+  	c.	After installation, CREATE a STATIC IP (DHCP Reservation) for the device on 
+   		your WiFi Router.
 
-# Appreciation:
-### Bloodtick_Jones: Development of a great SmartThings API interface app and supporting my peculiar needs.
+##	Install devices via the Tapo Application
 
-# Contributions
-I do not take contributions for my developments.  If you find the my integrations to be of value, you may make a donation to the charity of your choice or perform an act of kindness for a stranger!
+	a.	Open a Log Page to view messages/errors during the installation process.
+ 	b.  Create/Open the App in Hubitat using "add user app"
+ 	c.	If you use non-standard IP segments, update by selecting Modify LAN Configuraiton
+  		and update the segment.
+	d.	Select Enter/Update tpLink Credentials.  This is required for logging onto the
+ 		individual devices.  After the credentials created, additional commands will appear
+   		in the app.
+	 	NOTE: Credentials are used during installation. If incorrect, install will fail.
+   	e.	Select "Add Tapo Devices".  It will take around 30 seconds to obtain the device data.
+	f.	From the Add Tapo Devices to Hubitat page, select the devices to install from the 
+ 		drop-down list.  Then select Next.
+   	g.	Exit the app (press done on the Tapo Device Installation page.
+	h.	Go th the Hubitat Devices Page and insure all devices installed and basically working.
+ 		Note:  The log page has logs that validate your selections and errors encountered.
 
-Note: This readme will be updated as problems and resolutions are developed by users.
+## Link to driver and app code.
+
+  Application: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/App/tapoInstallation.groovy
+
+  ### Manditory Drivers
+
+  NEW Wifi Device: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoNewWifiDevice.groovy
+
+  NEW tapoHub-connected Device: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub_NewType.groovy
+
+  ### Wifi Connected Devices
+  
+  Plug: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoPlug.groovy
+
+  Plug - Dimmable: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoDimmableSwitch.groovy
+
+  PLug - Energy Monitor: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoEMPlug.groovy
+
+  Bulb - Color: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoColorBulb.groovy
+
+  Bulb - Dimmable: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoDimmableBulb.groovy
+
+  Light Strip: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoLightStrip.groovy
+
+  Light Switch: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoSwitch.groovy
+
+  Light Switch - Dimmable: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoDimmableSwitch.groovy
+
+  Tapo Hub: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub.groovy
+
+  ### Tapo Hub Connected Devices
+
+  Button (no dimmer): https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub_Button.groovy
+
+  Contact Sensor: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub_Contact.groovy
+
+  Motion Sensor: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub_Motion.groovy
+
+  Temp-Humidity Sensor: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub_TempHumidity.groovy
+  
