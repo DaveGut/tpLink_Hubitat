@@ -7,7 +7,7 @@ def type() {return "tapoDimmableSwitch" }
 
 metadata {
 	definition (name: type(), namespace: "davegut", author: "Dave Gutheinz", 
-				importUrl: "https://raw.githubusercontent.com/DaveGut/HubitatActive/master/TapoDevices/DeviceDrivers/${type()}.groovy") 
+				importUrl: "https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/${type()}.groovy")
 	{
 		capability "Switch"
 		capability "Switch Level"
@@ -198,120 +198,125 @@ def deviceLogin() { // library marker davegut.tapoCommon, line 46
 	} else { // library marker davegut.tapoCommon, line 64
 		logData << [handshakeData: handshakeData] // library marker davegut.tapoCommon, line 65
 	} // library marker davegut.tapoCommon, line 66
-	return logData // library marker davegut.tapoCommon, line 67
-} // library marker davegut.tapoCommon, line 68
+	pauseExecution(2000) // library marker davegut.tapoCommon, line 67
+	return logData // library marker davegut.tapoCommon, line 68
+} // library marker davegut.tapoCommon, line 69
 
-def handshake() { // library marker davegut.tapoCommon, line 70
-	Map handshakeData = [method: "handshakeData"] // library marker davegut.tapoCommon, line 71
-	Map cmdBody = [ method: "handshake", params: [ key: publicPem()]] // library marker davegut.tapoCommon, line 72
-	def uri = "http://${getDataValue("deviceIp")}/app" // library marker davegut.tapoCommon, line 73
-	def respData = syncPost(uri, cmdBody) // library marker davegut.tapoCommon, line 74
+def handshake() { // library marker davegut.tapoCommon, line 71
+	Map handshakeData = [method: "handshakeData"] // library marker davegut.tapoCommon, line 72
+	Map cmdBody = [ method: "handshake", params: [ key: publicPem()]] // library marker davegut.tapoCommon, line 73
+	def uri = "http://${getDataValue("deviceIp")}/app" // library marker davegut.tapoCommon, line 74
+	def respData = syncPost(uri, cmdBody) // library marker davegut.tapoCommon, line 75
 
-	if (respData.respStatus == "OK") { // library marker davegut.tapoCommon, line 76
-		if (respData.data.error_code == 0) { // library marker davegut.tapoCommon, line 77
-			String deviceKey = respData.data.result.key // library marker davegut.tapoCommon, line 78
-			def aesArray = readDeviceKey(deviceKey) // library marker davegut.tapoCommon, line 79
-			if (aesArray == "ERROR") { // library marker davegut.tapoCommon, line 80
-				logData: [readDeviceKey: "FAILED"] // library marker davegut.tapoCommon, line 81
-				handshakeData << [respStatus: "Failed decoding deviceKey", // library marker davegut.tapoCommon, line 82
-								  deviceKey: deviceKey] // library marker davegut.tapoCommon, line 83
-			} else { // library marker davegut.tapoCommon, line 84
-				handshakeData << [respStatus: "OK"] // library marker davegut.tapoCommon, line 85
-				def cookieHeader = respData.headers["set-cookie"].toString() // library marker davegut.tapoCommon, line 86
-				def cookie = cookieHeader.substring(cookieHeader.indexOf(":") +1, cookieHeader.indexOf(";")) // library marker davegut.tapoCommon, line 87
-				handshakeData << [cookie: cookie, aesKey: aesArray] // library marker davegut.tapoCommon, line 88
-			} // library marker davegut.tapoCommon, line 89
-		} else { // library marker davegut.tapoCommon, line 90
-			handshakeData << [respStatus: "Command Error", data: respData.data] // library marker davegut.tapoCommon, line 91
-		} // library marker davegut.tapoCommon, line 92
-	} else { // library marker davegut.tapoCommon, line 93
-		handshakeData << respData // library marker davegut.tapoCommon, line 94
-	} // library marker davegut.tapoCommon, line 95
-	return handshakeData // library marker davegut.tapoCommon, line 96
-} // library marker davegut.tapoCommon, line 97
+	if (respData.respStatus == "OK") { // library marker davegut.tapoCommon, line 77
+		if (respData.data.error_code == 0) { // library marker davegut.tapoCommon, line 78
+			String deviceKey = respData.data.result.key // library marker davegut.tapoCommon, line 79
+			def aesArray = readDeviceKey(deviceKey) // library marker davegut.tapoCommon, line 80
+			if (aesArray == "ERROR") { // library marker davegut.tapoCommon, line 81
+				logData: [readDeviceKey: "FAILED"] // library marker davegut.tapoCommon, line 82
+				handshakeData << [respStatus: "Failed decoding deviceKey", // library marker davegut.tapoCommon, line 83
+								  deviceKey: deviceKey] // library marker davegut.tapoCommon, line 84
+			} else { // library marker davegut.tapoCommon, line 85
+				handshakeData << [respStatus: "OK"] // library marker davegut.tapoCommon, line 86
+				def cookieHeader = respData.headers["set-cookie"].toString() // library marker davegut.tapoCommon, line 87
+				def cookie = cookieHeader.substring(cookieHeader.indexOf(":") +1, cookieHeader.indexOf(";")) // library marker davegut.tapoCommon, line 88
+				handshakeData << [cookie: cookie, aesKey: aesArray] // library marker davegut.tapoCommon, line 89
+			} // library marker davegut.tapoCommon, line 90
+		} else { // library marker davegut.tapoCommon, line 91
+			handshakeData << [respStatus: "Command Error", data: respData.data] // library marker davegut.tapoCommon, line 92
+		} // library marker davegut.tapoCommon, line 93
+	} else { // library marker davegut.tapoCommon, line 94
+		handshakeData << respData // library marker davegut.tapoCommon, line 95
+	} // library marker davegut.tapoCommon, line 96
+	return handshakeData // library marker davegut.tapoCommon, line 97
+} // library marker davegut.tapoCommon, line 98
 
-def readDeviceKey(deviceKey) { // library marker davegut.tapoCommon, line 99
-	String privateKey = parent.privateKey() // library marker davegut.tapoCommon, line 100
-	Map logData = [privateKey: privateKey] // library marker davegut.tapoCommon, line 101
-	def response = "ERROR" // library marker davegut.tapoCommon, line 102
-	try { // library marker davegut.tapoCommon, line 103
-		byte[] privateKeyBytes = privateKey.decodeBase64() // library marker davegut.tapoCommon, line 104
-		byte[] deviceKeyBytes = deviceKey.getBytes("UTF-8").decodeBase64() // library marker davegut.tapoCommon, line 105
-    	Cipher instance = Cipher.getInstance("RSA/ECB/PKCS1Padding") // library marker davegut.tapoCommon, line 106
-		instance.init(2, KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes))) // library marker davegut.tapoCommon, line 107
-		byte[] cryptoArray = instance.doFinal(deviceKeyBytes) // library marker davegut.tapoCommon, line 108
-		response = cryptoArray // library marker davegut.tapoCommon, line 109
-		logData << [cryptoArray: "REDACTED for logs", status: "OK"] // library marker davegut.tapoCommon, line 110
-		logDebug("readDeviceKey: ${logData}") // library marker davegut.tapoCommon, line 111
-	} catch (e) { // library marker davegut.tapoCommon, line 112
-		logData << [status: "READ ERROR", data: e] // library marker davegut.tapoCommon, line 113
-		logWarn("readDeviceKey: ${logData}") // library marker davegut.tapoCommon, line 114
-	} // library marker davegut.tapoCommon, line 115
-	return response // library marker davegut.tapoCommon, line 116
-} // library marker davegut.tapoCommon, line 117
+def readDeviceKey(deviceKey) { // library marker davegut.tapoCommon, line 100
+	String privateKey = parent.privateKey() // library marker davegut.tapoCommon, line 101
+	Map logData = [privateKey: privateKey] // library marker davegut.tapoCommon, line 102
+	def response = "ERROR" // library marker davegut.tapoCommon, line 103
+	try { // library marker davegut.tapoCommon, line 104
+		byte[] privateKeyBytes = privateKey.decodeBase64() // library marker davegut.tapoCommon, line 105
+		byte[] deviceKeyBytes = deviceKey.getBytes("UTF-8").decodeBase64() // library marker davegut.tapoCommon, line 106
+    	Cipher instance = Cipher.getInstance("RSA/ECB/PKCS1Padding") // library marker davegut.tapoCommon, line 107
+		instance.init(2, KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes))) // library marker davegut.tapoCommon, line 108
+		byte[] cryptoArray = instance.doFinal(deviceKeyBytes) // library marker davegut.tapoCommon, line 109
+		response = cryptoArray // library marker davegut.tapoCommon, line 110
+		logData << [cryptoArray: "REDACTED for logs", status: "OK"] // library marker davegut.tapoCommon, line 111
+		logDebug("readDeviceKey: ${logData}") // library marker davegut.tapoCommon, line 112
+	} catch (e) { // library marker davegut.tapoCommon, line 113
+		logData << [status: "READ ERROR", data: e] // library marker davegut.tapoCommon, line 114
+		logWarn("readDeviceKey: ${logData}") // library marker davegut.tapoCommon, line 115
+	} // library marker davegut.tapoCommon, line 116
+	return response // library marker davegut.tapoCommon, line 117
+} // library marker davegut.tapoCommon, line 118
 
-def loginDevice(cookie, cryptoArray) { // library marker davegut.tapoCommon, line 119
-	Map tokenData = [method: "loginDevice"] // library marker davegut.tapoCommon, line 120
-	def credentials = parent.getCredentials() // library marker davegut.tapoCommon, line 121
-	def uri = "http://${getDataValue("deviceIp")}/app" // library marker davegut.tapoCommon, line 122
-	String cmdBody = """{"method": "login_device", "params": {"password": "${credentials.encPassword}", "username": "${credentials.encUsername}"}, "requestTimeMils": 0}""" // library marker davegut.tapoCommon, line 123
-	Map reqBody = [method: "securePassthrough", params: [request: encrypt(cmdBody, cryptoArray)]] // library marker davegut.tapoCommon, line 124
-	def respData = syncPost(uri, reqBody, cookie) // library marker davegut.tapoCommon, line 125
-	if (respData.respStatus == "OK") { // library marker davegut.tapoCommon, line 126
-		if (respData.data.error_code == 0) { // library marker davegut.tapoCommon, line 127
-			def cmdResp = decrypt(respData.data.result.response, cryptoArray) // library marker davegut.tapoCommon, line 128
-			cmdResp = new JsonSlurper().parseText(cmdResp) // library marker davegut.tapoCommon, line 129
-			if (cmdResp.error_code == 0) { // library marker davegut.tapoCommon, line 130
-				tokenData << [respStatus: "OK", token: cmdResp.result.token] // library marker davegut.tapoCommon, line 131
-			} else { // library marker davegut.tapoCommon, line 132
-				tokenData << [respStatus: "Error in cmdResp", data: cmdResp] // library marker davegut.tapoCommon, line 133
-			} // library marker davegut.tapoCommon, line 134
-		} else { // library marker davegut.tapoCommon, line 135
-			tokenData << [respStatus: "Error in respData,data", data: respData.data] // library marker davegut.tapoCommon, line 136
-		} // library marker davegut.tapoCommon, line 137
-	} else { // library marker davegut.tapoCommon, line 138
-		tokenData << [respStatus: "Error in respData", data: respData] // library marker davegut.tapoCommon, line 139
-	} // library marker davegut.tapoCommon, line 140
-	return tokenData // library marker davegut.tapoCommon, line 141
-} // library marker davegut.tapoCommon, line 142
+def loginDevice(cookie, cryptoArray) { // library marker davegut.tapoCommon, line 120
+	Map tokenData = [method: "loginDevice"] // library marker davegut.tapoCommon, line 121
+	def credentials = parent.getCredentials() // library marker davegut.tapoCommon, line 122
+	def uri = "http://${getDataValue("deviceIp")}/app" // library marker davegut.tapoCommon, line 123
+	String cmdBody = """{"method": "login_device", "params": {"password": "${credentials.encPassword}", "username": "${credentials.encUsername}"}, "requestTimeMils": 0}""" // library marker davegut.tapoCommon, line 124
+	Map reqBody = [method: "securePassthrough", params: [request: encrypt(cmdBody, cryptoArray)]] // library marker davegut.tapoCommon, line 125
+	def respData = syncPost(uri, reqBody, cookie) // library marker davegut.tapoCommon, line 126
+	if (respData.respStatus == "OK") { // library marker davegut.tapoCommon, line 127
+		if (respData.data.error_code == 0) { // library marker davegut.tapoCommon, line 128
+			def cmdResp = decrypt(respData.data.result.response, cryptoArray) // library marker davegut.tapoCommon, line 129
+			cmdResp = new JsonSlurper().parseText(cmdResp) // library marker davegut.tapoCommon, line 130
+			if (cmdResp.error_code == 0) { // library marker davegut.tapoCommon, line 131
+				tokenData << [respStatus: "OK", token: cmdResp.result.token] // library marker davegut.tapoCommon, line 132
+			} else { // library marker davegut.tapoCommon, line 133
+				tokenData << [respStatus: "Error in cmdResp", data: cmdResp] // library marker davegut.tapoCommon, line 134
+			} // library marker davegut.tapoCommon, line 135
+		} else { // library marker davegut.tapoCommon, line 136
+			tokenData << [respStatus: "Error in respData,data", data: respData.data] // library marker davegut.tapoCommon, line 137
+		} // library marker davegut.tapoCommon, line 138
+	} else { // library marker davegut.tapoCommon, line 139
+		tokenData << [respStatus: "Error in respData", data: respData] // library marker davegut.tapoCommon, line 140
+	} // library marker davegut.tapoCommon, line 141
+	return tokenData // library marker davegut.tapoCommon, line 142
+} // library marker davegut.tapoCommon, line 143
 
-def refresh() { // library marker davegut.tapoCommon, line 144
-	logDebug("refresh") // library marker davegut.tapoCommon, line 145
-	state.commsCheck = true // library marker davegut.tapoCommon, line 146
-	runIn(10, checkForError) // library marker davegut.tapoCommon, line 147
-	securePassthrough([method: "get_device_info"], true, "refresh") // library marker davegut.tapoCommon, line 148
-} // library marker davegut.tapoCommon, line 149
+def refresh() { // library marker davegut.tapoCommon, line 145
+	logDebug("refresh") // library marker davegut.tapoCommon, line 146
+	state.commsCheck = true // library marker davegut.tapoCommon, line 147
+	runIn(10, checkForError) // library marker davegut.tapoCommon, line 148
+	securePassthrough([method: "get_device_info"], true, "refresh") // library marker davegut.tapoCommon, line 149
+} // library marker davegut.tapoCommon, line 150
 
-def checkForError() { // library marker davegut.tapoCommon, line 151
-	if (state.commsCheck && device.currentValue("commsError") == "OK") { // library marker davegut.tapoCommon, line 152
-		//	Try device login to generate error.  Will only do this once. // library marker davegut.tapoCommon, line 153
-		def loginStatus = deviceLogin() // library marker davegut.tapoCommon, line 154
-		if (!loginStatus.cookie) { // library marker davegut.tapoCommon, line 155
-			updateAttr("commsError", "failedHandshake") // library marker davegut.tapoCommon, line 156
-			log.error "COMMS ERROR: <b>Check Public/Private keys and device IP</b>" // library marker davegut.tapoCommon, line 157
-			state.COMMSERROR = "<b>Check Public/Private keys and device IP</b>" // library marker davegut.tapoCommon, line 158
-		} else if (!loginStatus.deviceToken) { // library marker davegut.tapoCommon, line 159
-			updateAttr("commsError", "failedLogin") // library marker davegut.tapoCommon, line 160
-			log.error "COMMS ERROR: <b>Check login credentials</b>" // library marker davegut.tapoCommon, line 161
-			state.COMMSERROR = "<b>Check login credentials</b>" // library marker davegut.tapoCommon, line 162
-		} // library marker davegut.tapoCommon, line 163
-	} else if (state.commsCheck == false && device.currentValue("commsError") != "OK") { // library marker davegut.tapoCommon, line 164
-		updateAttr("commsError", "OK") // library marker davegut.tapoCommon, line 165
-		logInfo("checkForError: Executing updated() to assure login methods are properly scheduled") // library marker davegut.tapoCommon, line 166
-		state.remove("COMMSERROR") // library marker davegut.tapoCommon, line 167
-		updated() // library marker davegut.tapoCommon, line 168
-	} // library marker davegut.tapoCommon, line 169
-} // library marker davegut.tapoCommon, line 170
-
-//	===== Utilities ===== // library marker davegut.tapoCommon, line 172
-def getAesKey() { // library marker davegut.tapoCommon, line 173
-	return new JsonSlurper().parseText(aesKey) // library marker davegut.tapoCommon, line 174
+def checkForError() { // library marker davegut.tapoCommon, line 152
+	if (state.commsCheck && device.currentValue("commsError") == "OK") { // library marker davegut.tapoCommon, line 153
+		updateDeviceIps(device.getDeviceNetworkId()) // library marker davegut.tapoCommon, line 154
+		//	Try device login to generate error.  Will only do this once. // library marker davegut.tapoCommon, line 155
+		def loginStatus = deviceLogin() // library marker davegut.tapoCommon, line 156
+		if (!loginStatus.cookie) { // library marker davegut.tapoCommon, line 157
+			updateAttr("commsError", "failedHandshake") // library marker davegut.tapoCommon, line 158
+			log.error "COMMS ERROR: <b>Check Public/Private keys and device IP</b>" // library marker davegut.tapoCommon, line 159
+			state.COMMSERROR = "<b>Check Public/Private keys and device IP</b>" // library marker davegut.tapoCommon, line 160
+		} else if (!loginStatus.deviceToken) { // library marker davegut.tapoCommon, line 161
+			updateAttr("commsError", "failedLogin") // library marker davegut.tapoCommon, line 162
+			log.error "COMMS ERROR: <b>Check login credentials</b>" // library marker davegut.tapoCommon, line 163
+			state.COMMSERROR = "<b>Check login credentials</b>" // library marker davegut.tapoCommon, line 164
+		} else { // library marker davegut.tapoCommon, line 165
+//			updated() // library marker davegut.tapoCommon, line 166
+		} // library marker davegut.tapoCommon, line 167
+	} else if (state.commsCheck == false && device.currentValue("commsError") != "OK") { // library marker davegut.tapoCommon, line 168
+		updateAttr("commsError", "OK") // library marker davegut.tapoCommon, line 169
+		logInfo("checkForError: Executing updated() to assure login methods are properly scheduled") // library marker davegut.tapoCommon, line 170
+		state.remove("COMMSERROR") // library marker davegut.tapoCommon, line 171
+		//	Assure all scheduled events are properly scheduled. // library marker davegut.tapoCommon, line 172
+		updated() // library marker davegut.tapoCommon, line 173
+	} // library marker davegut.tapoCommon, line 174
 } // library marker davegut.tapoCommon, line 175
 
-def publicPem() { // library marker davegut.tapoCommon, line 177
-	def pem = "-----BEGIN PUBLIC KEY-----\n${parent.publicKey()}-----END PUBLIC KEY-----\n" // library marker davegut.tapoCommon, line 178
-	return pem // library marker davegut.tapoCommon, line 179
+//	===== Utilities ===== // library marker davegut.tapoCommon, line 177
+def getAesKey() { // library marker davegut.tapoCommon, line 178
+	return new JsonSlurper().parseText(aesKey) // library marker davegut.tapoCommon, line 179
 } // library marker davegut.tapoCommon, line 180
+
+def publicPem() { // library marker davegut.tapoCommon, line 182
+	def pem = "-----BEGIN PUBLIC KEY-----\n${parent.publicKey()}-----END PUBLIC KEY-----\n" // library marker davegut.tapoCommon, line 183
+	return pem // library marker davegut.tapoCommon, line 184
+} // library marker davegut.tapoCommon, line 185
 
 // ~~~~~ end include (1326) davegut.tapoCommon ~~~~~
 

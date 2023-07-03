@@ -8,7 +8,7 @@ def driverVer() { return parent.driverVer() }
 
 metadata {
 	definition (name: type(), namespace: "davegut", author: "Dave Gutheinz", 
-				importUrl: "https://raw.githubusercontent.com/DaveGut/HubitatActive/master/TapoDevices/DeviceDrivers/${type()}.groovy") 
+				importUrl: "https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/${type()}.groovy")
 	{
 		capability "Sensor"
 		capability "Temperature Measurement"

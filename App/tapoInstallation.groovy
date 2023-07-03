@@ -1,21 +1,14 @@
 /*	Kasa Integration Application
 	Copyright Dave Gutheinz
-License:  https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/License.md
-===== Link to list of changes =====
-	https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/Changes.pdf
-===== Link to Documentation =====
-	https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/Documentation.pdf
 
-Version 2.3.5-1
-No changes.
 ===================================================================================================*/
 def nameSpace() { return "davegut" }
-def appVersion() { return "2.3.5-1" }
+def appVersion() { return "B0.1" }
 import groovy.json.JsonSlurper
 import java.security.MessageDigest
 
 definition(
-	name: "Tapo Installation",
+	name: "tapoInstallation",
 	namespace: nameSpace(),
 	author: "Dave Gutheinz",
 	description: "Application to install TP-Link Tapo bulbs, plugs, and switches.",
@@ -24,8 +17,8 @@ definition(
 	iconX2Url: "",
 	installOnOpen: true,
 	singleInstance: true,
-	documentationLink: "",
-	importUrl: ""
+	documentationLink: "https://github.com/DaveGut/tapoHubitat/blob/main/README.md",
+	importUrl: "https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/App/tapoInstallation.groovy"
 )
 
 preferences {

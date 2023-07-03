@@ -8,7 +8,7 @@ def driverVer() { return parent.driverVer() }
 
 metadata {
 	definition (name: type(), namespace: "davegut", author: "Dave Gutheinz", 
-				importUrl: "https://raw.githubusercontent.com/DaveGut/HubitatActive/master/TapoDevices/DeviceDrivers/${type()}.groovy") 
+				importUrl: "https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/${type()}.groovy")
 	{
 		capability "Sensor"
 		attribute "lastTrigger", "string"
@@ -17,11 +17,9 @@ metadata {
 		attribute "reportInterval", "number"
 		attribute "lowBattery", "string"
 		attribute "status", "string"
-		
-		command "test"
 	}
 	preferences {
-		input ("buttonPollInt", "enum", title: "Poll interval for sensors (seconds)",
+		input ("buttonPollInt", "enum", title: "Poll interval for button (seconds)",
 			   options: ["5 sec", "10 sec", "15 sec", "30 sec", "1 min", "5 min"], 
 			   defaultValue: "30 sec")
 		input ("sensorReportInt", "enum", title: "Sensor report interval (secs) (impacts battery life)",
@@ -63,9 +61,6 @@ def setButtonPoll() {
 
 //	Parse Methods
 def devicePollParse(childData, data=null) {
-//	childData = childData.find{ it.mac == device.getDeviceNetworkId() }
-//	log.trace childData
-	//	No parsable data in this data.
 }
 
 def parseTriggerLog(triggerData, data=null) {
@@ -74,8 +69,11 @@ def parseTriggerLog(triggerData, data=null) {
 		if (device.currentValue("lastTriggerNo") != triggerLog.start_id) {
 			updateAttr("lastTriggerNo", triggerLog.start_id)
 			def thisTrigger = triggerLog.logs.find{ it.id == triggerLog.start_id }
-			sendEvent(name: "lastTrigger", value: thisTrigger.event, isStateChange: true)
-//			updateAttr("lastTrigger", thisTrigger.event)
+			def trigger = thisTrigger.event
+			if (trigger == "rotation") {
+				trigger = thisTrigger.params.rotate_deg
+			}
+			sendEvent(name: "lastTrigger", value: trigger, isStateChange: true)
 			updateAttr("triggerTimestamp", thisTrigger.timestamp)
 		}
 	} else {
