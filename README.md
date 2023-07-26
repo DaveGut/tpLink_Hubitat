@@ -1,4 +1,4 @@
-# tapoHubitat
+# TPLINK HUBITAT
 TP-Link TAPO device integration for Hubitat Environment.
 ## Initial Development.  Need user feedback.
 
