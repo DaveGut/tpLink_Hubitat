@@ -40,41 +40,37 @@
 
 ## Link to driver and app code.
 
-  Application: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/App/tapoInstallation.groovy
+  Application: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/App/tapo_device_install.groovy
 
   ### Manditory Drivers
 
-  NEW Wifi Device: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoNewWifiDevice.groovy
-
-  NEW tapoHub-connected Device: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub_NewType.groovy
+  NEW Wifi Device: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_newType.groovy
+  
+  NEW tapoHub-connected Device: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_newType.groovy
 
   ### Wifi Connected Devices
   
-  Plug: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoPlug.groovy
+  Plug-Switch: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug.groovy
 
-  Plug - Dimmable: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoDimmableSwitch.groovy
+  Dimming Plug-Switch: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_dimmer.groovy
 
-  PLug - Energy Monitor: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoEMPlug.groovy
+  Energy Monitor Plug: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_em.groovy
 
-  Bulb - Color: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoColorBulb.groovy
+  Color Bulb: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_bulb_color.groovy
 
-  Bulb - Dimmable: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoDimmableBulb.groovy
+  Dimming (Mono) Bulb: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_bulb_dimmer.groovy
 
-  Light Strip: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoLightStrip.groovy
+  Light Strip: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_bulb_lightStrip.groovy
 
-  Light Switch: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoSwitch.groovy
-
-  Light Switch - Dimmable: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoDimmableSwitch.groovy
-
-  Tapo Hub: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub.groovy
+  Tapo Hub: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub.groovy
 
   ### Tapo Hub Connected Devices
 
-  Button (no dimmer): https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub_Button.groovy
+  Button (no dimmer): https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_button.groovy
 
-  Contact Sensor: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub_Contact.groovy
+  Contact Sensor: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_contact.groovy
 
-  Motion Sensor: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub_Motion.groovy
+  Motion Sensor: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_motion.groovy
 
-  Temp-Humidity Sensor: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/Drivers/tapoHub_TempHumidity.groovy
+  Temp-Humidity Sensor: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_newType.groovy
   
