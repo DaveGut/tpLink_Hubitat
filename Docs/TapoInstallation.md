@@ -3,7 +3,7 @@
 ## Install app and driver code
 	a.	Use Hubitat Package Manager
  		NOTE: HPM INSTALL NOT CURRENTLY ACTIVE
- 		1.	Search for Keyword
+ 		1.	Search for Tag Lights and Switches
    		2.	Will automatically load App, plus the  tapoNewWifiDevice and 
      			tapoHub-NewType drivers.
 	 	3.	Select driver for your device based on description in HPM.
