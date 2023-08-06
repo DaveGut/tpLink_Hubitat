@@ -35,8 +35,11 @@
 	f.	From the Add Tapo Devices to Hubitat page, select the devices to install 
  		from the drop-down list.  Then select Next.
    	g.	Exit the app (press done on the Tapo Device Installation page.
-	h.	Go th the Hubitat Devices Page and insure all devices installed and working.
+	h.	Go to the Hubitat Devices Page and insure all devices installed and working.
  		Note:  The log page has logs of success and failures.
+   ## Tapo Device Children (Hub-connected or Multi-Plug)
+   	a.	Open the Device's edit page,
+    	b.	Select preference "install Children"
 
 ## Link to driver and app code.
 
