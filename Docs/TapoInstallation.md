@@ -39,7 +39,8 @@
  		Note:  The log page has logs of success and failures.
    ## Tapo Device Children (Hub-connected or Multi-Plug)
    	a.	Open the Device's edit page,
-    	b.	Select preference "install Children"
+    	b.	Select prefernece "Install Child Devices"
+    	b.	Save preferences.
 
 ## Link to driver and app code.
 
