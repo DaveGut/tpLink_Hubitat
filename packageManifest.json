@@ -1,11 +1,11 @@
 {
   "packageName": "Tapo Plugs, Switches and Bulbs",
   "author": "David Gutheinz",
-  "version": "1.0",
+  "version": "1.1",
   "minimumHEVersion": "2.3.5",
   "documentationLink": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/App/tapo_device_install.groovy",
   "communityLink": "https://community.hubitat.com/t/tp-link-tapo-devices/121084",
-  "dateReleased": "2023-07-26",
+  "dateReleased": "2023-08-09",
   "apps": [
     {
       "id": "67e55c13-d454-4cbe-b64e-d806dc482b39",
