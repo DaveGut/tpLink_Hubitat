@@ -7,7 +7,7 @@ def gitPath() { return "DaveGut/tpLink_Hubitat/main/Drivers/" }
 def driverVer() { return parent.driverVer() }
 
 metadata {
-	definition (name: type(), namespace: "davegut", author: "Dave Gutheinz", 
+	definition (name: "tpLink_hub_motion", namespace: "davegut", author: "Dave Gutheinz", 
 				importUrl: "https://raw.githubusercontent.com/${gitPath()}${type()}.groovy")
 	{
 		capability "Motion Sensor"
