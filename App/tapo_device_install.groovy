@@ -3,13 +3,14 @@
 ===================================================================================================*/
 def appName() { return "tapo_device_install" }
 def appVersion() { return "1.1" }
+def nameSpace() { return "davegut" }
 def gitPath() { return "DaveGut/tpLink_Hubitat/main/App/" }
 import groovy.json.JsonSlurper
 import java.security.MessageDigest
 
 definition(
 	name: "tapo_device_install",
-	namespace: "davegut",
+	namespace: nameSpace(),
 	author: "Dave Gutheinz",
 	description: "Application to install TP-Link Tapo bulbs, plugs, and switches.",
 	category: "Convenience",
@@ -395,7 +396,7 @@ def addDevices() {
 			}
 			try {
 				addChildDevice(
-					"davegut",
+					nameSpace(),
 					device.value.driver,
 					device.key,
 					[
@@ -406,6 +407,7 @@ def addDevices() {
 				)
 				addedDevices << ["${device.key}": [label: alias, ip: device.value.ip]]
 			} catch (error) {
+				log.debug error
 				status = "ERROR"
 				failedAdds << ["${device.key}": [label: alias, driver: device.value.driver]]
 			}
