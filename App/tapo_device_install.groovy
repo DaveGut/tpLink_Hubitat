@@ -395,7 +395,7 @@ def addDevices() {
 			}
 			try {
 				addChildDevice(
-					nameSpace(),
+					"davegut",
 					device.value.driver,
 					device.key,
 					[
