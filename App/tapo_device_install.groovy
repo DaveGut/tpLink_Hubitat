@@ -485,9 +485,11 @@ def distSmartFindResp(response) {
 	def brand = "KASA"
 	if (appName() == "tapo_device_install") { brand = "TAPO" }
 	if (response instanceof Map) {
-		resp = parseLanMessage(response.description)
+		def resp = parseLanMessage(response.description)
 		if (resp.type == "LAN_TYPE_UDPCLIENT") {
-			Map payloadData = getConnectData(resp)
+			byte[] payloadByte = hubitat.helper.HexUtils.hexStringToByteArray(resp.payload.drop(32)) 
+			String payloadString = new String(payloadByte)
+			Map payload = new JsonSlurper().parseText(payloadString).result
 			if (payloadData.device_type.contains(brand)) {
 				def dni = payloadData.mac.replaceAll("-", "")
 				def devIp = payloadData.ip
@@ -496,12 +498,14 @@ def distSmartFindResp(response) {
 		}
 	} else {
 		response.each {
-			resp = parseLanMessage(it.description)
+			def resp = parseLanMessage(it.description)
 			if (resp.type == "LAN_TYPE_UDPCLIENT") {
-				Map payloadData = getConnectData(resp)
-				if (payloadData.device_type.contains(brand)) {
-					def dni = payloadData.mac.replaceAll("-", "")
-					def devIp = payloadData.ip
+				byte[] payloadByte = hubitat.helper.HexUtils.hexStringToByteArray(resp.payload.drop(32)) 
+				String payloadString = new String(payloadByte)
+				Map payload = new JsonSlurper().parseText(payloadString).result
+				if (payload.device_type.contains(brand)) {
+					def dni = payload.mac.replaceAll("-", "")
+					def devIp = payload.ip
 					ipList << ["${dni}": devIp]
 				}
 			}
@@ -956,97 +960,99 @@ def getDeviceIp(response) { // library marker davegut.lib_tpLink_discovery, line
 			byte[] payloadByte = hubitat.helper.HexUtils.hexStringToByteArray(respData.payload.drop(32))  // library marker davegut.lib_tpLink_discovery, line 39
 			String payloadString = new String(payloadByte) // library marker davegut.lib_tpLink_discovery, line 40
 			Map payload = new JsonSlurper().parseText(payloadString).result // library marker davegut.lib_tpLink_discovery, line 41
-			if (payload.device_type.contains(brand)) { // library marker davegut.lib_tpLink_discovery, line 42
-				devIp = payload.ip // library marker davegut.lib_tpLink_discovery, line 43
-				logDebug("getDeviceIp: [status: found_${brand}_device, payload: ${payload}]") // library marker davegut.lib_tpLink_discovery, line 44
-			} else { // library marker davegut.lib_tpLink_discovery, line 45
-				logDebug("getDeviceIp: [status: not_${brand}_device, payload: ${payload}]") // library marker davegut.lib_tpLink_discovery, line 46
-			} // library marker davegut.lib_tpLink_discovery, line 47
-		} // library marker davegut.lib_tpLink_discovery, line 48
-	} catch (err) { // library marker davegut.lib_tpLink_discovery, line 49
-		logWarn("getDevIp: [status: ERROR, respData: ${resData}, error: ${err}]") // library marker davegut.lib_tpLink_discovery, line 50
-	} // library marker davegut.lib_tpLink_discovery, line 51
-	return devIp // library marker davegut.lib_tpLink_discovery, line 52
-} // library marker davegut.lib_tpLink_discovery, line 53
+			Map payloadData = [type: payload.device_type, model: payload.device_model,  // library marker davegut.lib_tpLink_discovery, line 42
+							   mac: payload.mac, ip: payload.ip] // library marker davegut.lib_tpLink_discovery, line 43
+			if (payload.device_type.contains(brand)) { // library marker davegut.lib_tpLink_discovery, line 44
+				devIp = payload.ip // library marker davegut.lib_tpLink_discovery, line 45
+				logInfo("getDeviceIp: [TAPOdevice: ${payloadData}]") // library marker davegut.lib_tpLink_discovery, line 46
+			} else { // library marker davegut.lib_tpLink_discovery, line 47
+				logInfo("getDeviceIp: [KASAdevice: ${payloadData}]") // library marker davegut.lib_tpLink_discovery, line 48
+			} // library marker davegut.lib_tpLink_discovery, line 49
+		} // library marker davegut.lib_tpLink_discovery, line 50
+	} catch (err) { // library marker davegut.lib_tpLink_discovery, line 51
+		logWarn("getDevIp: [status: ERROR, respData: ${resData}, error: ${err}]") // library marker davegut.lib_tpLink_discovery, line 52
+	} // library marker davegut.lib_tpLink_discovery, line 53
+	return devIp // library marker davegut.lib_tpLink_discovery, line 54
+} // library marker davegut.lib_tpLink_discovery, line 55
 
-def getAllSmartDeviceData(List ipList) { // library marker davegut.lib_tpLink_discovery, line 55
-	Map logData = [:] // library marker davegut.lib_tpLink_discovery, line 56
-	ipList.each { devIp -> // library marker davegut.lib_tpLink_discovery, line 57
-		Map devData = [:] // library marker davegut.lib_tpLink_discovery, line 58
-		def cmdResp = getSmartDeviceData([method: "get_device_info"], devIp) // library marker davegut.lib_tpLink_discovery, line 59
-		if (cmdResp == "ERROR") { // library marker davegut.lib_tpLink_discovery, line 60
-			devData << [status: "ERROR", data: "Failure in getSmartDeviceData"] // library marker davegut.lib_tpLink_discovery, line 61
-		} else { // library marker davegut.lib_tpLink_discovery, line 62
-			if (cmdResp.result.type.contains("SMART")) { // library marker davegut.lib_tpLink_discovery, line 63
-				devData << [status: "OK"] // library marker davegut.lib_tpLink_discovery, line 64
-				parseSmartDeviceData(cmdResp.result) // library marker davegut.lib_tpLink_discovery, line 65
-			} else { // library marker davegut.lib_tpLink_discovery, line 66
-				if (cmdResp.result.type) { // library marker davegut.lib_tpLink_discovery, line 67
-					devData << [status: "OK", devType: cmdResp.result.type, devIp: cmdResp.result.ip] // library marker davegut.lib_tpLink_discovery, line 68
-				} else { // library marker davegut.lib_tpLink_discovery, line 69
-					devData << [status: "ERROR", data: cmdResp] // library marker davegut.lib_tpLink_discovery, line 70
-				} // library marker davegut.lib_tpLink_discovery, line 71
-			} // library marker davegut.lib_tpLink_discovery, line 72
-		} // library marker davegut.lib_tpLink_discovery, line 73
-		logData << [devIp: devData] // library marker davegut.lib_tpLink_discovery, line 74
-		pauseExecution(200) // library marker davegut.lib_tpLink_discovery, line 75
-	} // library marker davegut.lib_tpLink_discovery, line 76
-	if (!logData.toString().contains("ERROR")) { // library marker davegut.lib_tpLink_discovery, line 77
-		logDebug("getSmartDeviceData: ${logData}") // library marker davegut.lib_tpLink_discovery, line 78
-	} else { // library marker davegut.lib_tpLink_discovery, line 79
-		logWarn("getSmartDeviceData: ${logData}") // library marker davegut.lib_tpLink_discovery, line 80
-	} // library marker davegut.lib_tpLink_discovery, line 81
-	pauseExecution(5000) // library marker davegut.lib_tpLink_discovery, line 82
-	state.findingDevices = "done" // library marker davegut.lib_tpLink_discovery, line 83
-} // library marker davegut.lib_tpLink_discovery, line 84
+def getAllSmartDeviceData(List ipList) { // library marker davegut.lib_tpLink_discovery, line 57
+	Map logData = [:] // library marker davegut.lib_tpLink_discovery, line 58
+	ipList.each { devIp -> // library marker davegut.lib_tpLink_discovery, line 59
+		Map devData = [:] // library marker davegut.lib_tpLink_discovery, line 60
+		def cmdResp = getSmartDeviceData([method: "get_device_info"], devIp) // library marker davegut.lib_tpLink_discovery, line 61
+		if (cmdResp == "ERROR") { // library marker davegut.lib_tpLink_discovery, line 62
+			devData << [status: "ERROR", data: "Failure in getSmartDeviceData"] // library marker davegut.lib_tpLink_discovery, line 63
+		} else { // library marker davegut.lib_tpLink_discovery, line 64
+			if (cmdResp.result.type.contains("SMART")) { // library marker davegut.lib_tpLink_discovery, line 65
+				devData << [status: "OK"] // library marker davegut.lib_tpLink_discovery, line 66
+				parseSmartDeviceData(cmdResp.result) // library marker davegut.lib_tpLink_discovery, line 67
+			} else { // library marker davegut.lib_tpLink_discovery, line 68
+				if (cmdResp.result.type) { // library marker davegut.lib_tpLink_discovery, line 69
+					devData << [status: "OK", devType: cmdResp.result.type, devIp: cmdResp.result.ip] // library marker davegut.lib_tpLink_discovery, line 70
+				} else { // library marker davegut.lib_tpLink_discovery, line 71
+					devData << [status: "ERROR", data: cmdResp] // library marker davegut.lib_tpLink_discovery, line 72
+				} // library marker davegut.lib_tpLink_discovery, line 73
+			} // library marker davegut.lib_tpLink_discovery, line 74
+		} // library marker davegut.lib_tpLink_discovery, line 75
+		logData << [devIp: devData] // library marker davegut.lib_tpLink_discovery, line 76
+		pauseExecution(200) // library marker davegut.lib_tpLink_discovery, line 77
+	} // library marker davegut.lib_tpLink_discovery, line 78
+	if (!logData.toString().contains("ERROR")) { // library marker davegut.lib_tpLink_discovery, line 79
+		logDebug("getSmartDeviceData: ${logData}") // library marker davegut.lib_tpLink_discovery, line 80
+	} else { // library marker davegut.lib_tpLink_discovery, line 81
+		logWarn("getSmartDeviceData: ${logData}") // library marker davegut.lib_tpLink_discovery, line 82
+	} // library marker davegut.lib_tpLink_discovery, line 83
+	pauseExecution(5000) // library marker davegut.lib_tpLink_discovery, line 84
+	state.findingDevices = "done" // library marker davegut.lib_tpLink_discovery, line 85
+} // library marker davegut.lib_tpLink_discovery, line 86
 
-def deviceLogin(devIp) { // library marker davegut.lib_tpLink_discovery, line 86
-	Map logData = [:] // library marker davegut.lib_tpLink_discovery, line 87
-	def handshakeData = handshake(devIp) // library marker davegut.lib_tpLink_discovery, line 88
-	if (handshakeData.respStatus == "OK") { // library marker davegut.lib_tpLink_discovery, line 89
-		Map credentials = [encUsername: encUsername, encPassword: encPassword] // library marker davegut.lib_tpLink_discovery, line 90
-		def tokenData = loginDevice(handshakeData.cookie, handshakeData.aesKey,  // library marker davegut.lib_tpLink_discovery, line 91
-									credentials, devIp) // library marker davegut.lib_tpLink_discovery, line 92
-		if (tokenData.respStatus == "OK") { // library marker davegut.lib_tpLink_discovery, line 93
-			logData << [rsaKeys: handshakeData.rsaKeys, // library marker davegut.lib_tpLink_discovery, line 94
-						cookie: handshakeData.cookie, // library marker davegut.lib_tpLink_discovery, line 95
-						aesKey: handshakeData.aesKey, // library marker davegut.lib_tpLink_discovery, line 96
-						token: tokenData.token] // library marker davegut.lib_tpLink_discovery, line 97
-		} else { // library marker davegut.lib_tpLink_discovery, line 98
-			logData << [tokenData: tokenData] // library marker davegut.lib_tpLink_discovery, line 99
-		} // library marker davegut.lib_tpLink_discovery, line 100
-	} else { // library marker davegut.lib_tpLink_discovery, line 101
-		logData << [handshakeData: handshakeData] // library marker davegut.lib_tpLink_discovery, line 102
-	} // library marker davegut.lib_tpLink_discovery, line 103
-	return logData // library marker davegut.lib_tpLink_discovery, line 104
-} // library marker davegut.lib_tpLink_discovery, line 105
+def deviceLogin(devIp) { // library marker davegut.lib_tpLink_discovery, line 88
+	Map logData = [:] // library marker davegut.lib_tpLink_discovery, line 89
+	def handshakeData = handshake(devIp) // library marker davegut.lib_tpLink_discovery, line 90
+	if (handshakeData.respStatus == "OK") { // library marker davegut.lib_tpLink_discovery, line 91
+		Map credentials = [encUsername: encUsername, encPassword: encPassword] // library marker davegut.lib_tpLink_discovery, line 92
+		def tokenData = loginDevice(handshakeData.cookie, handshakeData.aesKey,  // library marker davegut.lib_tpLink_discovery, line 93
+									credentials, devIp) // library marker davegut.lib_tpLink_discovery, line 94
+		if (tokenData.respStatus == "OK") { // library marker davegut.lib_tpLink_discovery, line 95
+			logData << [rsaKeys: handshakeData.rsaKeys, // library marker davegut.lib_tpLink_discovery, line 96
+						cookie: handshakeData.cookie, // library marker davegut.lib_tpLink_discovery, line 97
+						aesKey: handshakeData.aesKey, // library marker davegut.lib_tpLink_discovery, line 98
+						token: tokenData.token] // library marker davegut.lib_tpLink_discovery, line 99
+		} else { // library marker davegut.lib_tpLink_discovery, line 100
+			logData << [tokenData: tokenData] // library marker davegut.lib_tpLink_discovery, line 101
+		} // library marker davegut.lib_tpLink_discovery, line 102
+	} else { // library marker davegut.lib_tpLink_discovery, line 103
+		logData << [handshakeData: handshakeData] // library marker davegut.lib_tpLink_discovery, line 104
+	} // library marker davegut.lib_tpLink_discovery, line 105
+	return logData // library marker davegut.lib_tpLink_discovery, line 106
+} // library marker davegut.lib_tpLink_discovery, line 107
 
-def getSmartDeviceData(cmdBody, devIp) { // library marker davegut.lib_tpLink_discovery, line 107
-	def cmdResp = "ERROR" // library marker davegut.lib_tpLink_discovery, line 108
-	def loginData = deviceLogin(devIp) // library marker davegut.lib_tpLink_discovery, line 109
-	Map logData = [cmdBody: cmdBody, devIp: devIp, token: loginData.token, aeskey: loginData.aesKey, cookie: loginData.cookie] // library marker davegut.lib_tpLink_discovery, line 110
-	if (loginData.token == null) { // library marker davegut.lib_tpLink_discovery, line 111
-		logData << [respStatus: "FAILED", reason: "Check Credentials"] // library marker davegut.lib_tpLink_discovery, line 112
-	} else { // library marker davegut.lib_tpLink_discovery, line 113
-		def uri = "http://${devIp}/app?token=${loginData.token}" // library marker davegut.lib_tpLink_discovery, line 114
-		cmdBody = JsonOutput.toJson(cmdBody).toString() // library marker davegut.lib_tpLink_discovery, line 115
-		Map reqBody = [method: "securePassthrough", // library marker davegut.lib_tpLink_discovery, line 116
-					   params: [request: encrypt(cmdBody, loginData.aesKey)]] // library marker davegut.lib_tpLink_discovery, line 117
-		def respData = syncPost(uri, reqBody, loginData.cookie) // library marker davegut.lib_tpLink_discovery, line 118
-		if (respData.status == "OK") { // library marker davegut.lib_tpLink_discovery, line 119
-			logData << [respStatus: "OK"] // library marker davegut.lib_tpLink_discovery, line 120
-			respData = respData.resp.data.result.response // library marker davegut.lib_tpLink_discovery, line 121
-			cmdResp = new JsonSlurper().parseText(decrypt(respData, loginData.aesKey)) // library marker davegut.lib_tpLink_discovery, line 122
-		} else { // library marker davegut.lib_tpLink_discovery, line 123
-			logData << respData // library marker davegut.lib_tpLink_discovery, line 124
-		} // library marker davegut.lib_tpLink_discovery, line 125
-	} // library marker davegut.lib_tpLink_discovery, line 126
-	if (logData.respStatus == "OK") { // library marker davegut.lib_tpLink_discovery, line 127
-		logDebug("getSmartDeviceData: ${logData}") // library marker davegut.lib_tpLink_discovery, line 128
-	} else { // library marker davegut.lib_tpLink_discovery, line 129
-		logWarn("getSmartDeviceData: ${logData}") // library marker davegut.lib_tpLink_discovery, line 130
-	} // library marker davegut.lib_tpLink_discovery, line 131
-	return cmdResp // library marker davegut.lib_tpLink_discovery, line 132
-} // library marker davegut.lib_tpLink_discovery, line 133
+def getSmartDeviceData(cmdBody, devIp) { // library marker davegut.lib_tpLink_discovery, line 109
+	def cmdResp = "ERROR" // library marker davegut.lib_tpLink_discovery, line 110
+	def loginData = deviceLogin(devIp) // library marker davegut.lib_tpLink_discovery, line 111
+	Map logData = [cmdBody: cmdBody, devIp: devIp, token: loginData.token, aeskey: loginData.aesKey, cookie: loginData.cookie] // library marker davegut.lib_tpLink_discovery, line 112
+	if (loginData.token == null) { // library marker davegut.lib_tpLink_discovery, line 113
+		logData << [respStatus: "FAILED", reason: "Check Credentials"] // library marker davegut.lib_tpLink_discovery, line 114
+	} else { // library marker davegut.lib_tpLink_discovery, line 115
+		def uri = "http://${devIp}/app?token=${loginData.token}" // library marker davegut.lib_tpLink_discovery, line 116
+		cmdBody = JsonOutput.toJson(cmdBody).toString() // library marker davegut.lib_tpLink_discovery, line 117
+		Map reqBody = [method: "securePassthrough", // library marker davegut.lib_tpLink_discovery, line 118
+					   params: [request: encrypt(cmdBody, loginData.aesKey)]] // library marker davegut.lib_tpLink_discovery, line 119
+		def respData = syncPost(uri, reqBody, loginData.cookie) // library marker davegut.lib_tpLink_discovery, line 120
+		if (respData.status == "OK") { // library marker davegut.lib_tpLink_discovery, line 121
+			logData << [respStatus: "OK"] // library marker davegut.lib_tpLink_discovery, line 122
+			respData = respData.resp.data.result.response // library marker davegut.lib_tpLink_discovery, line 123
+			cmdResp = new JsonSlurper().parseText(decrypt(respData, loginData.aesKey)) // library marker davegut.lib_tpLink_discovery, line 124
+		} else { // library marker davegut.lib_tpLink_discovery, line 125
+			logData << respData // library marker davegut.lib_tpLink_discovery, line 126
+		} // library marker davegut.lib_tpLink_discovery, line 127
+	} // library marker davegut.lib_tpLink_discovery, line 128
+	if (logData.respStatus == "OK") { // library marker davegut.lib_tpLink_discovery, line 129
+		logDebug("getSmartDeviceData: ${logData}") // library marker davegut.lib_tpLink_discovery, line 130
+	} else { // library marker davegut.lib_tpLink_discovery, line 131
+		logWarn("getSmartDeviceData: ${logData}") // library marker davegut.lib_tpLink_discovery, line 132
+	} // library marker davegut.lib_tpLink_discovery, line 133
+	return cmdResp // library marker davegut.lib_tpLink_discovery, line 134
+} // library marker davegut.lib_tpLink_discovery, line 135
 
 // ~~~~~ end include (1370) davegut.lib_tpLink_discovery ~~~~~
