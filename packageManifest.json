@@ -1,0 +1,113 @@
+{
+  "packageName": "Tapo Plugs, Switches and Bulbs",
+  "author": "David Gutheinz",
+  "version": "1.0",
+  "minimumHEVersion": "2.3.5",
+  "documentationLink": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/App/tapo_device_install.groovy",
+  "communityLink": "https://community.hubitat.com/t/tp-link-tapo-devices/121084",
+  "dateReleased": "2023-07-26",
+  "apps": [
+    {
+      "id": "67e55c13-d454-4cbe-b64e-d806dc482b39",
+      "name": "Tapo Integration",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/App/tapo_device_install.groovy",
+      "required": true,
+      "oauth": false,
+      "primary": true
+    }
+  ],
+  "drivers": [
+    {
+      "id": "380579db-772f-4566-9f0d-fc218a61cfbb",
+      "name": "Color Bulb",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_bulb_color.groovy",
+      "required": false
+    },
+    {
+      "id": "25006678-a861-431c-aa49-e478a3f55a45",
+      "name": "Dimming Bulb",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_bulb_dimmer.groovy",
+      "required": false
+    },
+    {
+      "id": "9aa0e3bd-6014-48d3-bd63-911f061ea301",
+      "name": "Light Strip",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_bulb_lightStrip.groovy",
+      "required": false
+    },
+    {
+      "id": "3999e47c-b686-4e3a-a53b-4a10327d2721",
+      "name": "Hub",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub.groovy",
+      "required": false
+    },
+    {
+      "id": "d4d36a2d-0222-4985-9582-1d572461237b",
+      "name": "Button Sensor",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_button.groovy",
+      "required": false
+    },
+    {
+      "id": "1dfc5a6e-4b72-4193-a1b2-07b9b0326251",
+      "name": "Contact Sensor",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_contact.groovy",
+      "required": false
+    },
+    {
+      "id": "60a298a1-f39b-413d-aff5-7c3aa50eee34",
+      "name": "Motion Sensor",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_motion.groovy",
+      "required": false
+    },
+    {
+      "id": "bdf735a9-870a-4622-bf19-fc751662416b",
+      "name": "New Sensor",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_newType.groovy",
+      "required": true
+    },
+    {
+      "id": "7a04dd81-0476-4027-942a-45bae4695583",
+      "name": "temperature",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_tempHumidity.groovy",
+      "required": false
+    },
+    {
+      "id": "6e68c889-d90b-4cf8-94c6-5d7987d827a3",
+      "name": "New Wifi Device",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_newType.groovy",
+      "required": true
+    },
+    {
+      "id": "6ec7f047-bfb8-4c29-a375-75f3342ad6a3",
+      "name": "Plug-Switch",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug.groovy",
+      "required": false
+    },
+    {
+      "id": "c929612c-3564-4962-9bec-807d723a0da0",
+      "name": "Dimming Plug-Switch",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_dimmer.groovy",
+      "required": false
+    },
+    {
+      "id": "314f88ca-7f0e-415e-acd5-341a5bb46faa",
+      "name": "Energy Monitor Plug",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_em.groovy",
+      "required": false
+    }
+  ]
+}
