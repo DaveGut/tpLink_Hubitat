@@ -1,3 +1,9 @@
+# DO NOT USE.
+TP-Link has updated device firmware for some devices to utilize a different handshake/security protocol.  I am currently working on a modification to accommodate this change,
+
+Some previously installed devices may not work for the above reason.  Some devices may not be installed due to errors in the handshake while installing.
+
+
 # TPLINK HUBITAT
 TP-Link TAPO device integration for Hubitat Environment.
 ## Initial Development.  Need user feedback.
