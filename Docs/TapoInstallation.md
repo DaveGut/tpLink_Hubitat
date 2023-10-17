@@ -45,12 +45,6 @@
 
   Application: https://raw.githubusercontent.com/DaveGut/tapoHubitat/main/App/tapo_device_install.groovy
 
-  ### Manditory Drivers
-
-  NEW Wifi Device: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_newType.groovy
-  
-  NEW tapoHub-connected Device: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_newType.groovy
-
   ### Wifi Connected Devices
   
   Plug-Switch: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug.groovy
@@ -58,6 +52,10 @@
   Dimming Plug-Switch: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_dimmer.groovy
 
   Energy Monitor Plug: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_em.groovy
+
+  Multiple Plug Parent:  https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_multi.groovy
+
+  Multiple Plug Child: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_multi_child.groovy
 
   Color Bulb: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_bulb_color.groovy
 
