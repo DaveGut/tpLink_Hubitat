@@ -3,10 +3,8 @@ TP-Link TAPO device integration for Hubitat Environment.
 ## Initial Development.  Need user feedback.
 
 ### Wifi connected devices not currently supported:
-	a.	Multi Device Outlets (P135, P300, P400M) .  Will install as newWiFi device.  
- 		Need developerData to finish development.
-	b.	Smart Cameras.  Not in Support Plan.
- 	c.	Robot Vacuum Cleaner.  Not in Support Plan.
+	a.	Smart Cameras.  Not in Support Plan.
+ 	b.	Robot Vacuum Cleaner.  Not in Support Plan.
 
 ### Tapo Hub connected devices not currently supported:
 	a.	Remote Dimmer Switch (S200D).  Will install as new device.  Need 
