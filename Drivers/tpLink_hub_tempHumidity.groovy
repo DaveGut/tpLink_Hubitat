@@ -1,10 +1,16 @@
-/*	TP-Link SMART API / PROTOCOL DRIVER SERIES for plugs, switches, bulbs, hubs and Hub-connected devices.
+/*	TP-Link TAPO plug, switches, lights, hub, and hub sensors.
 		Copyright Dave Gutheinz
 License:  https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/License.md
+
+Updates from previous version.
+a.	Added Klap protocol with associated auto-use logic.
+b.	Streamlined comms error processing and synched process to app find device.
+c.	Added driver for Multi-plug to set.
+d.	Added additional preferences (as appropriate) to child devices (sensors, multi-plug outlets)
+e.	Added battery state attribute to sensors.
 =================================================================================================*/
-def type() {return "tpLink_hub_tempHumidity" }
 def gitPath() { return "DaveGut/tpLink_Hubitat/main/Drivers/" }
-def driverVer() { return parent.driverVer() }
+def type() {return "tpLink_hub_tempHumidity" }
 
 metadata {
 	definition (name: "tpLink_hub_tempHumidity", namespace: "davegut", author: "Dave Gutheinz", 
@@ -13,6 +19,17 @@ metadata {
 		capability "Sensor"
 		capability "Temperature Measurement"
 		attribute "humidity", "number"
+		attribute "lowBattery", "string"
+	}
+	preferences {
+		input ("nameSync", "enum", title: "Synchronize Names",
+			   options: ["none": "Don't synchronize",
+						 "device" : "TP-Link device name master",
+						 "Hubitat" : "Hubitat label master"],
+			   defaultValue: "none")
+		input ("developerData", "bool", title: "Get Data for Developer", defaultValue: false)
+		input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false)
+		input ("infoLog", "bool", title: "Enable information logging",defaultValue: true)
 	}
 }
 
@@ -26,6 +43,7 @@ def updated() {
 	def logData = [:]
 	logData << setLogsOff()
 	logData << [status: "OK"]
+	if (developerData) { getDeveloperData() }
 	if (logData.status == "ERROR") {
 		logError("updated: ${logData}")
 	} else {
@@ -43,9 +61,9 @@ def devicePollParse(childData, data=null) {
 				  unit: childData.current_temp_unit)
 		sendEvent(name: "humidity", childData.current_humidity)
 	}
-}
-
-def parseTriggerLog(resp, data) {
+	if (device.currentValue("lowBattery") != childData.atLowBattery.toString()) {
+		updateAttr("lowBattery", childData.at_low_battery.toString())
+	}
 }
 
 //	Library Inclusion
@@ -61,113 +79,86 @@ library ( // library marker davegut.lib_tpLink_sensors, line 1
 	category: "utilities", // library marker davegut.lib_tpLink_sensors, line 6
 	documentationLink: "" // library marker davegut.lib_tpLink_sensors, line 7
 ) // library marker davegut.lib_tpLink_sensors, line 8
+capability "Refresh" // library marker davegut.lib_tpLink_sensors, line 9
+def version() { return parent.version() } // library marker davegut.lib_tpLink_sensors, line 10
+def label() { return device.displayName } // library marker davegut.lib_tpLink_sensors, line 11
 
-def nameSpace() { return "davegut" } // library marker davegut.lib_tpLink_sensors, line 10
+def refresh() { // library marker davegut.lib_tpLink_sensors, line 13
+	parent.refresh() // library marker davegut.lib_tpLink_sensors, line 14
+} // library marker davegut.lib_tpLink_sensors, line 15
 
-def getTriggerLog() { // library marker davegut.lib_tpLink_sensors, line 12
-	Map cmdBody = [ // library marker davegut.lib_tpLink_sensors, line 13
-		method: "control_child", // library marker davegut.lib_tpLink_sensors, line 14
-		params: [ // library marker davegut.lib_tpLink_sensors, line 15
-			device_id: getDataValue("deviceId"), // library marker davegut.lib_tpLink_sensors, line 16
-			requestData: [ // library marker davegut.lib_tpLink_sensors, line 17
-				method: "get_trigger_logs", // library marker davegut.lib_tpLink_sensors, line 18
-				params: [page_size: 5,"start_id": 0] // library marker davegut.lib_tpLink_sensors, line 19
-			] // library marker davegut.lib_tpLink_sensors, line 20
-		] // library marker davegut.lib_tpLink_sensors, line 21
-	] // library marker davegut.lib_tpLink_sensors, line 22
-	parent.asyncPassthrough(cmdBody, device.getDeviceNetworkId(), "distTriggerLog") // library marker davegut.lib_tpLink_sensors, line 23
-} // library marker davegut.lib_tpLink_sensors, line 24
+def getTriggerLog() { // library marker davegut.lib_tpLink_sensors, line 17
+	Map cmdBody = [ // library marker davegut.lib_tpLink_sensors, line 18
+		method: "control_child", // library marker davegut.lib_tpLink_sensors, line 19
+		params: [ // library marker davegut.lib_tpLink_sensors, line 20
+			device_id: getDataValue("deviceId"), // library marker davegut.lib_tpLink_sensors, line 21
+			requestData: [ // library marker davegut.lib_tpLink_sensors, line 22
+				method: "get_trigger_logs", // library marker davegut.lib_tpLink_sensors, line 23
+				params: [page_size: 5,"start_id": 0] // library marker davegut.lib_tpLink_sensors, line 24
+			] // library marker davegut.lib_tpLink_sensors, line 25
+		] // library marker davegut.lib_tpLink_sensors, line 26
+	] // library marker davegut.lib_tpLink_sensors, line 27
+	parent.asyncSend(cmdBody, device.getDeviceNetworkId(), "distTriggerLog") // library marker davegut.lib_tpLink_sensors, line 28
+} // library marker davegut.lib_tpLink_sensors, line 29
 
-command "getDeveloperData" // library marker davegut.lib_tpLink_sensors, line 26
-def getDeveloperData() { // library marker davegut.lib_tpLink_sensors, line 27
-	def attrData = device.getCurrentStates() // library marker davegut.lib_tpLink_sensors, line 28
-	Map attrs = [:] // library marker davegut.lib_tpLink_sensors, line 29
-	attrData.each { // library marker davegut.lib_tpLink_sensors, line 30
-		attrs << ["${it.name}": it.value] // library marker davegut.lib_tpLink_sensors, line 31
-	} // library marker davegut.lib_tpLink_sensors, line 32
-	Date date = new Date() // library marker davegut.lib_tpLink_sensors, line 33
-	Map devData = [ // library marker davegut.lib_tpLink_sensors, line 34
-		currentTime: date.toString(), // library marker davegut.lib_tpLink_sensors, line 35
-		name: device.getName(), // library marker davegut.lib_tpLink_sensors, line 36
-		status: device.getStatus(), // library marker davegut.lib_tpLink_sensors, line 37
-		dataValues: device.getData(), // library marker davegut.lib_tpLink_sensors, line 38
-		attributes: attrs, // library marker davegut.lib_tpLink_sensors, line 39
-		devInfo: getDeviceInfo(), // library marker davegut.lib_tpLink_sensors, line 40
-		compList: getDeviceComponents() // library marker davegut.lib_tpLink_sensors, line 41
-	] // library marker davegut.lib_tpLink_sensors, line 42
-	logWarn("DEVELOPER DATA: ${devData}") // library marker davegut.lib_tpLink_sensors, line 43
-} // library marker davegut.lib_tpLink_sensors, line 44
+def getDeveloperData() { // library marker davegut.lib_tpLink_sensors, line 31
+	device.updateSetting("developerData",[type:"bool", value: false]) // library marker davegut.lib_tpLink_sensors, line 32
+	def attrData = device.getCurrentStates() // library marker davegut.lib_tpLink_sensors, line 33
+	Map attrs = [:] // library marker davegut.lib_tpLink_sensors, line 34
+	attrData.each { // library marker davegut.lib_tpLink_sensors, line 35
+		attrs << ["${it.name}": it.value] // library marker davegut.lib_tpLink_sensors, line 36
+	} // library marker davegut.lib_tpLink_sensors, line 37
+	Date date = new Date() // library marker davegut.lib_tpLink_sensors, line 38
+	Map devData = [ // library marker davegut.lib_tpLink_sensors, line 39
+		currentTime: date.toString(), // library marker davegut.lib_tpLink_sensors, line 40
+		name: device.getName(), // library marker davegut.lib_tpLink_sensors, line 41
+		status: device.getStatus(), // library marker davegut.lib_tpLink_sensors, line 42
+		dataValues: device.getData(), // library marker davegut.lib_tpLink_sensors, line 43
+		attributes: attrs, // library marker davegut.lib_tpLink_sensors, line 44
+		devInfo: getChildDeviceInfo(), // library marker davegut.lib_tpLink_sensors, line 45
+		compList: getDeviceComponents() // library marker davegut.lib_tpLink_sensors, line 46
+	] // library marker davegut.lib_tpLink_sensors, line 47
+	logWarn("DEVELOPER DATA: ${devData}") // library marker davegut.lib_tpLink_sensors, line 48
+} // library marker davegut.lib_tpLink_sensors, line 49
 
-def getDeviceComponents() { // library marker davegut.lib_tpLink_sensors, line 46
-	Map logData = [:] // library marker davegut.lib_tpLink_sensors, line 47
-	Map cmdBody = [ // library marker davegut.lib_tpLink_sensors, line 48
-		device_id: getDataValue("deviceId"), // library marker davegut.lib_tpLink_sensors, line 49
-		method: "get_child_device_component_list" // library marker davegut.lib_tpLink_sensors, line 50
-	] // library marker davegut.lib_tpLink_sensors, line 51
-	def compList = parent.syncPassthrough(cmdBody) // library marker davegut.lib_tpLink_sensors, line 52
-	if (compList == "ERROR") { // library marker davegut.lib_tpLink_sensors, line 53
-		logWarn("getDeviceComponents: [ERROR: Error in Sysn Comms]") // library marker davegut.lib_tpLink_sensors, line 54
-	} // library marker davegut.lib_tpLink_sensors, line 55
-	return compList // library marker davegut.lib_tpLink_sensors, line 56
-} // library marker davegut.lib_tpLink_sensors, line 57
+def getDeviceComponents() { // library marker davegut.lib_tpLink_sensors, line 51
+	Map logData = [:] // library marker davegut.lib_tpLink_sensors, line 52
+	Map cmdBody = [ // library marker davegut.lib_tpLink_sensors, line 53
+		device_id: getDataValue("deviceId"), // library marker davegut.lib_tpLink_sensors, line 54
+		method: "get_child_device_component_list" // library marker davegut.lib_tpLink_sensors, line 55
+	] // library marker davegut.lib_tpLink_sensors, line 56
+	def compList = parent.syncSend(cmdBody) // library marker davegut.lib_tpLink_sensors, line 57
+	if (compList == "ERROR") { // library marker davegut.lib_tpLink_sensors, line 58
+		logWarn("getDeviceComponents: [ERROR: Error in Sysn Comms]") // library marker davegut.lib_tpLink_sensors, line 59
+	} // library marker davegut.lib_tpLink_sensors, line 60
+	return compList // library marker davegut.lib_tpLink_sensors, line 61
+} // library marker davegut.lib_tpLink_sensors, line 62
 
-def getDeviceInfo() { // library marker davegut.lib_tpLink_sensors, line 59
-	logDebug("getChildDeviceInfo") // library marker davegut.lib_tpLink_sensors, line 60
-	Map cmdBody = [ // library marker davegut.lib_tpLink_sensors, line 61
-		method: "control_child", // library marker davegut.lib_tpLink_sensors, line 62
-		params: [ // library marker davegut.lib_tpLink_sensors, line 63
-			device_id: getDataValue("deviceId"), // library marker davegut.lib_tpLink_sensors, line 64
-			requestData: [ // library marker davegut.lib_tpLink_sensors, line 65
-				method: "get_device_info" // library marker davegut.lib_tpLink_sensors, line 66
-			] // library marker davegut.lib_tpLink_sensors, line 67
-		] // library marker davegut.lib_tpLink_sensors, line 68
-	] // library marker davegut.lib_tpLink_sensors, line 69
-	def devInfo = parent.syncPassthrough(cmdBody) // library marker davegut.lib_tpLink_sensors, line 70
-	if (devInfo == "ERROR") { // library marker davegut.lib_tpLink_sensors, line 71
-		logWarn("getDeviceInfo: [ERROR: Error in Sysn Comms]") // library marker davegut.lib_tpLink_sensors, line 72
-	} // library marker davegut.lib_tpLink_sensors, line 73
-	return devInfo // library marker davegut.lib_tpLink_sensors, line 74
+def getChildDeviceInfo() { // library marker davegut.lib_tpLink_sensors, line 64
+	Map cmdBody = [method: "control_child", // library marker davegut.lib_tpLink_sensors, line 65
+				   params: [device_id: getDataValue("deviceId"), // library marker davegut.lib_tpLink_sensors, line 66
+							requestData: [method: "get_device_info"]]] // library marker davegut.lib_tpLink_sensors, line 67
+	return parent.syncSend(cmdBody) // library marker davegut.lib_tpLink_sensors, line 68
+} // library marker davegut.lib_tpLink_sensors, line 69
+
+def updateAttr(attr, value) { // library marker davegut.lib_tpLink_sensors, line 71
+	if (device.currentValue(attr) != value) { // library marker davegut.lib_tpLink_sensors, line 72
+		sendEvent(name: attr, value: value) // library marker davegut.lib_tpLink_sensors, line 73
+	} // library marker davegut.lib_tpLink_sensors, line 74
 } // library marker davegut.lib_tpLink_sensors, line 75
 
-def updateAttr(attr, value) { // library marker davegut.lib_tpLink_sensors, line 77
-	if (device.currentValue(attr) != value) { // library marker davegut.lib_tpLink_sensors, line 78
-		sendEvent(name: attr, value: value) // library marker davegut.lib_tpLink_sensors, line 79
-	} // library marker davegut.lib_tpLink_sensors, line 80
-} // library marker davegut.lib_tpLink_sensors, line 81
-
-/*	Currently disabled.  Future. // library marker davegut.lib_tpLink_sensors, line 83
-attribute "lowBattery", "string" // library marker davegut.lib_tpLink_sensors, line 84
-attribute "status", "string" // library marker davegut.lib_tpLink_sensors, line 85
-def deviceRefreshParse(childData, data=null) { // library marker davegut.lib_tpLink_sensors, line 86
-	try { // library marker davegut.lib_tpLink_sensors, line 87
-		def devData = childData.find {it.mac = device.getDeviceNetworkId()} // library marker davegut.lib_tpLink_sensors, line 88
-		logDebug("deviceInfoParse: ${devData}") // library marker davegut.lib_tpLink_sensors, line 89
-		updateAttr("lowBattery", devData.atLowBattery) // library marker davegut.lib_tpLink_sensors, line 90
-		updateAttr("status", status) // library marker davegut.lib_tpLink_sensors, line 91
-	} catch (error) { // library marker davegut.lib_tpLink_sensors, line 92
-		logWarn("deviceRefreshParse: Failed to capture deviceData from ChildData") // library marker davegut.lib_tpLink_sensors, line 93
-	} // library marker davegut.lib_tpLink_sensors, line 94
-} // library marker davegut.lib_tpLink_sensors, line 95
-def setReportInterval() { // library marker davegut.lib_tpLink_sensors, line 96
-	def repInt = sensorReportInt.toInteger() // library marker davegut.lib_tpLink_sensors, line 97
-	Map cmdBody = [ // library marker davegut.lib_tpLink_sensors, line 98
-		method: "control_child", // library marker davegut.lib_tpLink_sensors, line 99
-		params: [ // library marker davegut.lib_tpLink_sensors, line 100
-			device_id: getDataValue("deviceId"), // library marker davegut.lib_tpLink_sensors, line 101
-			requestData: [ // library marker davegut.lib_tpLink_sensors, line 102
-				method: "multipleRequest", // library marker davegut.lib_tpLink_sensors, line 103
-				params: [ // library marker davegut.lib_tpLink_sensors, line 104
-					requests: [ // library marker davegut.lib_tpLink_sensors, line 105
-						[method: "set_device_info", // library marker davegut.lib_tpLink_sensors, line 106
-						 params: [report_interval: repInt]], // library marker davegut.lib_tpLink_sensors, line 107
-						[method: "get_device_info"] // library marker davegut.lib_tpLink_sensors, line 108
-					]]]]] // library marker davegut.lib_tpLink_sensors, line 109
-	def devInfo = parent.syncPassthrough(cmdBody) // library marker davegut.lib_tpLink_sensors, line 110
-	devInfo = devInfo.result.responseData.result.responses.find{it.method == "get_device_info"}.result // library marker davegut.lib_tpLink_sensors, line 111
-	updateAttr("reportInterval", devInfo.report_interval) // library marker davegut.lib_tpLink_sensors, line 112
-	return buttonReportInt // library marker davegut.lib_tpLink_sensors, line 113
-} // library marker davegut.lib_tpLink_sensors, line 114
-*/ // library marker davegut.lib_tpLink_sensors, line 115
+/*	Future. // library marker davegut.lib_tpLink_sensors, line 77
+attribute "lowBattery", "string" // library marker davegut.lib_tpLink_sensors, line 78
+attribute "status", "string" // library marker davegut.lib_tpLink_sensors, line 79
+def deviceRefreshParse(childData, data=null) { // library marker davegut.lib_tpLink_sensors, line 80
+	try { // library marker davegut.lib_tpLink_sensors, line 81
+		def devData = childData.find {it.mac = device.getDeviceNetworkId()} // library marker davegut.lib_tpLink_sensors, line 82
+		updateAttr("lowBattery", devData.atLowBattery) // library marker davegut.lib_tpLink_sensors, line 83
+		updateAttr("status", status) // library marker davegut.lib_tpLink_sensors, line 84
+	} catch (error) { // library marker davegut.lib_tpLink_sensors, line 85
+	} // library marker davegut.lib_tpLink_sensors, line 86
+} // library marker davegut.lib_tpLink_sensors, line 87
+*/ // library marker davegut.lib_tpLink_sensors, line 88
 
 // ~~~~~ end include (1338) davegut.lib_tpLink_sensors ~~~~~
 
@@ -181,64 +172,51 @@ library ( // library marker davegut.Logging, line 1
 	documentationLink: "" // library marker davegut.Logging, line 7
 ) // library marker davegut.Logging, line 8
 
-preferences { // library marker davegut.Logging, line 10
-	input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false) // library marker davegut.Logging, line 11
-	input ("infoLog", "bool", title: "Enable information logging",defaultValue: true) // library marker davegut.Logging, line 12
-	input ("traceLog", "bool", title: "Enable trace logging as directed by developer", defaultValue: false) // library marker davegut.Logging, line 13
-} // library marker davegut.Logging, line 14
+def listAttributes() { // library marker davegut.Logging, line 10
+	def attrData = device.getCurrentStates() // library marker davegut.Logging, line 11
+	Map attrs = [:] // library marker davegut.Logging, line 12
+	attrData.each { // library marker davegut.Logging, line 13
+		attrs << ["${it.name}": it.value] // library marker davegut.Logging, line 14
+	} // library marker davegut.Logging, line 15
+	return attrs // library marker davegut.Logging, line 16
+} // library marker davegut.Logging, line 17
 
-def listAttributes() { // library marker davegut.Logging, line 16
-	def attrData = device.getCurrentStates() // library marker davegut.Logging, line 17
-	Map attrs = [:] // library marker davegut.Logging, line 18
-	attrData.each { // library marker davegut.Logging, line 19
-		attrs << ["${it.name}": it.value] // library marker davegut.Logging, line 20
-	} // library marker davegut.Logging, line 21
-	return attrs // library marker davegut.Logging, line 22
-} // library marker davegut.Logging, line 23
+def setLogsOff() { // library marker davegut.Logging, line 19
+	def logData = [logEnable: logEnable] // library marker davegut.Logging, line 20
+	if (logEnable) { // library marker davegut.Logging, line 21
+		runIn(1800, debugLogOff) // library marker davegut.Logging, line 22
+		logData << [debugLogOff: "scheduled"] // library marker davegut.Logging, line 23
+	} // library marker davegut.Logging, line 24
+	return logData // library marker davegut.Logging, line 25
+} // library marker davegut.Logging, line 26
 
-def setLogsOff() { // library marker davegut.Logging, line 25
-	def logData = [logEnagle: logEnable, infoLog: infoLog, traceLog:traceLog] // library marker davegut.Logging, line 26
-	if (logEnable) { // library marker davegut.Logging, line 27
-		runIn(1800, debugLogOff) // library marker davegut.Logging, line 28
-		logData << [debugLogOff: "scheduled"] // library marker davegut.Logging, line 29
-	} // library marker davegut.Logging, line 30
-	if (traceLog) { // library marker davegut.Logging, line 31
-		runIn(1800, traceLogOff) // library marker davegut.Logging, line 32
-		logData << [traceLogOff: "scheduled"] // library marker davegut.Logging, line 33
-	} // library marker davegut.Logging, line 34
-	return logData // library marker davegut.Logging, line 35
+def logTrace(msg){ // library marker davegut.Logging, line 28
+	log.trace "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 29
+} // library marker davegut.Logging, line 30
+
+def logInfo(msg) {  // library marker davegut.Logging, line 32
+	if (textEnable || infoLog) { // library marker davegut.Logging, line 33
+		log.info "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 34
+	} // library marker davegut.Logging, line 35
 } // library marker davegut.Logging, line 36
 
-def logTrace(msg){ // library marker davegut.Logging, line 38
-	if (traceLog == true) { // library marker davegut.Logging, line 39
-		log.trace "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 40
-	} // library marker davegut.Logging, line 41
-} // library marker davegut.Logging, line 42
+def debugLogOff() { // library marker davegut.Logging, line 38
+	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 39
+	logInfo("debugLogOff") // library marker davegut.Logging, line 40
+} // library marker davegut.Logging, line 41
 
-def traceLogOff() { // library marker davegut.Logging, line 44
-	device.updateSetting("traceLog", [type:"bool", value: false]) // library marker davegut.Logging, line 45
-	logInfo("traceLogOff") // library marker davegut.Logging, line 46
+def logDebug(msg) { // library marker davegut.Logging, line 43
+	if (logEnable || debugLog) { // library marker davegut.Logging, line 44
+		log.debug "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 45
+	} // library marker davegut.Logging, line 46
 } // library marker davegut.Logging, line 47
 
-def logInfo(msg) {  // library marker davegut.Logging, line 49
-	if (textEnable || infoLog) { // library marker davegut.Logging, line 50
-		log.info "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 51
-	} // library marker davegut.Logging, line 52
-} // library marker davegut.Logging, line 53
+def logWarn(msg) { // library marker davegut.Logging, line 49
+	log.warn "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 50
+} // library marker davegut.Logging, line 51
 
-def debugLogOff() { // library marker davegut.Logging, line 55
-	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 56
-	logInfo("debugLogOff") // library marker davegut.Logging, line 57
-} // library marker davegut.Logging, line 58
-
-def logDebug(msg) { // library marker davegut.Logging, line 60
-	if (logEnable || debugLog) { // library marker davegut.Logging, line 61
-		log.debug "${device.displayName}-${driverVer()}: ${msg}" // library marker davegut.Logging, line 62
-	} // library marker davegut.Logging, line 63
-} // library marker davegut.Logging, line 64
-
-def logWarn(msg) { log.warn "${device.displayName}-${driverVer()}: ${msg}" } // library marker davegut.Logging, line 66
-
-def logError(msg) { log.error "${device.displayName}-${driverVer()}: ${msg}" } // library marker davegut.Logging, line 68
+def logError(msg) { // library marker davegut.Logging, line 53
+	log.error "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 54
+} // library marker davegut.Logging, line 55
 
 // ~~~~~ end include (1339) davegut.Logging ~~~~~

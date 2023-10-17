@@ -10,205 +10,94 @@ d.	Added additional preferences (as appropriate) to child devices (sensors, mult
 e.	Added battery state attribute to sensors.
 =================================================================================================*/
 def gitPath() { return "DaveGut/tpLink_Hubitat/main/Drivers/" }
-def type() { return "tpLink_plug" }
+def type() { return "tpLink_plug_multi" }
 
 metadata {
-	definition (name: "tpLink_plug", namespace: "davegut", author: "Dave Gutheinz", 
+	definition (name: "tpLink_plug_multi", namespace: "davegut", author: "Dave Gutheinz", 
 				importUrl: "https://raw.githubusercontent.com/${gitPath()}${type()}.groovy")
 	{
-		capability "Switch"
 		attribute "connected", "string"
 		attribute "commsError", "string"
 	}
 	preferences {
 		commonPreferences()
-		input ("autoOffEnable", "bool", title: "Enable Auto Off", defaultValue: false)
-		input ("autoOffTime", "NUMBER", title: "Auto Off Time (minutes)", defaultValue: 120)
-		input ("defState", "enum", title: "Power Loss Default State",
-			   options: ["lastState", "on", "off"], defaultValue: "lastState")
+		input ("instChildren", "bool", title: "Install Child Plugs (unusual)",defaultValue: true)
 		input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false)
 		input ("infoLog", "bool", title: "Enable information logging",defaultValue: true)
 	}
 }
 
 def installed() {
-	runIn(5, updated)
+	runIn(1, updated)
 }
 
 def updated() { commonUpdated() }
 
 def delayedUpdates() {
-	Map logData = [setAutoOff: setAutoOff()]
-	logData << [setDefaultState: setDefaultState()]
-	logData << [common: commonDelayedUpdates()]
+	Map logData = [common: commonDelayedUpdates()]
 	logInfo("delayedUpdates: ${logData}")
+	if (instChildren) {
+		installChildDevices()
+	}
 }
 
 def deviceParse(resp, data=null) {
-	def respData = parseData(resp)
 	Map logData = [method: "deviceParse"]
-	if (respData.status == "OK") {
-		def devData = respData.cmdResp
-		if (devData.result.responses) {
-			devData = devData.result.responses.find{it.method == "get_device_info"}
+	def respData = parseData(resp)
+	try {
+		def childrenData = respData.cmdResp.result.responses.find { it.method == "get_child_device_list" }
+		def children = getChildDevices()
+		children.each { child ->
+			def position = child.getDeviceNetworkId()[-1].toInteger()
+			def childData = childrenData.result.child_device_list.find{ it.position == position }
+			child.parseDevData(childData)
 		}
-		logData << [devData: devData]
-		if (devData != null && devData.error_code == 0) {
-			devData = devData.result
-			def onOff = "off"
-			if (devData.device_on == true) { onOff = "on" }
-			if (device.currentValue("switch") != onOff) {
-				sendEvent(name: "switch", value: onOff, type: state.eventType)
-				state.eventType = "physical"
-			}
-		}
+		logData << [status: "OK"]
+	} catch (err) {
+		logData << [status: "ERROR", error: err]
 	}
 	logDebug(logData)
 }
 
+//	===== Child Installation =====
+def installChildDevices() {
+	Map logData = [method: "installChildDevices"]
+	def respData = syncSend([method: "get_child_device_list"])
+	def children = respData.result.child_device_list
+	children.each {
+		String childDni = "${it.mac}-${it.position}"
+		logData << [childDni: childDni]
+		def isChild = getChildDevice(childDni)
+		byte[] plainBytes = it.nickname.decodeBase64()
+		String alias = new String(plainBytes)
+		if (isChild) {
+			logData << ["${alias}": "device already installed"]
+		} else {
+			String model = it.model
+			String category = it.category
+			String driver = "tpLink_plug_multi_child"
+			String deviceId = it.device_id
+			Map instData = [childDni: childDni, model: model, 
+							category: category, driver: driver] 
+			try {
+				addChildDevice(nameSpace(), driver, childDni, 
+							   [label: alias, name: model, deviceId : deviceId])
+				instData << [status: "Installed"]
+			} catch (err) {
+				instData << [status: "FAILED", error: err]
+			}
+			logData << ["${alias}": instData]
+		}
+	}
+	device.updateSetting("instChildren", [type: "bool", value: false])
+	logDebug(logData)
+}
+
+//	===== Include Libraries =====
 
 
 
 
-
-
-// ~~~~~ start include (1354) davegut.lib_tpLink_CapSwitch ~~~~~
-library ( // library marker davegut.lib_tpLink_CapSwitch, line 1
-	name: "lib_tpLink_CapSwitch", // library marker davegut.lib_tpLink_CapSwitch, line 2
-	namespace: "davegut", // library marker davegut.lib_tpLink_CapSwitch, line 3
-	author: "Compied by Dave Gutheinz", // library marker davegut.lib_tpLink_CapSwitch, line 4
-	description: "Hubitat Capability Switch Methods for TPLink SMART devices.", // library marker davegut.lib_tpLink_CapSwitch, line 5
-	category: "utilities", // library marker davegut.lib_tpLink_CapSwitch, line 6
-	documentationLink: "" // library marker davegut.lib_tpLink_CapSwitch, line 7
-) // library marker davegut.lib_tpLink_CapSwitch, line 8
-
-def on() { // library marker davegut.lib_tpLink_CapSwitch, line 10
-	setPower(true) // library marker davegut.lib_tpLink_CapSwitch, line 11
-} // library marker davegut.lib_tpLink_CapSwitch, line 12
-
-def off() { // library marker davegut.lib_tpLink_CapSwitch, line 14
-	setPower(false) // library marker davegut.lib_tpLink_CapSwitch, line 15
-} // library marker davegut.lib_tpLink_CapSwitch, line 16
-
-def setPower(onOff) { // library marker davegut.lib_tpLink_CapSwitch, line 18
-	state.eventType = "digital" // library marker davegut.lib_tpLink_CapSwitch, line 19
-	logDebug("setPower: [device_on: ${onOff}]") // library marker davegut.lib_tpLink_CapSwitch, line 20
-	List requests = [[ // library marker davegut.lib_tpLink_CapSwitch, line 21
-		method: "set_device_info", // library marker davegut.lib_tpLink_CapSwitch, line 22
-		params: [device_on: onOff]]] // library marker davegut.lib_tpLink_CapSwitch, line 23
-	requests << [method: "get_device_info"] // library marker davegut.lib_tpLink_CapSwitch, line 24
-	if (getDataValue("capability") == "plug_em") { // library marker davegut.lib_tpLink_CapSwitch, line 25
-		requests << [method:"get_energy_usage"] // library marker davegut.lib_tpLink_CapSwitch, line 26
-	} // library marker davegut.lib_tpLink_CapSwitch, line 27
-	asyncSend(createMultiCmd(requests), "setPower", "deviceParse") // library marker davegut.lib_tpLink_CapSwitch, line 28
-} // library marker davegut.lib_tpLink_CapSwitch, line 29
-
-def setLevel(level, transTime=null) { // library marker davegut.lib_tpLink_CapSwitch, line 31
-	//	Note: Tapo Devices do not support transition time.  Set preference "Set Bulb to Gradual ON/OFF" // library marker davegut.lib_tpLink_CapSwitch, line 32
-	logDebug("setLevel: [brightness: ${level}]") // library marker davegut.lib_tpLink_CapSwitch, line 33
-	List requests = [[ // library marker davegut.lib_tpLink_CapSwitch, line 34
-		method: "set_device_info", // library marker davegut.lib_tpLink_CapSwitch, line 35
-		params: [ // library marker davegut.lib_tpLink_CapSwitch, line 36
-			device_on: true, // library marker davegut.lib_tpLink_CapSwitch, line 37
-			brightness: level // library marker davegut.lib_tpLink_CapSwitch, line 38
-		]]] // library marker davegut.lib_tpLink_CapSwitch, line 39
-	requests << [method: "get_device_info"] // library marker davegut.lib_tpLink_CapSwitch, line 40
-	asyncSend(createMultiCmd(requests), "setLevel", "deviceParse") // library marker davegut.lib_tpLink_CapSwitch, line 41
-} // library marker davegut.lib_tpLink_CapSwitch, line 42
-
-def startLevelChange(direction) { // library marker davegut.lib_tpLink_CapSwitch, line 44
-	logDebug("startLevelChange: [level: ${device.currentValue("level")}, direction: ${direction}]") // library marker davegut.lib_tpLink_CapSwitch, line 45
-	if (direction == "up") { levelUp() } // library marker davegut.lib_tpLink_CapSwitch, line 46
-	else { levelDown() } // library marker davegut.lib_tpLink_CapSwitch, line 47
-} // library marker davegut.lib_tpLink_CapSwitch, line 48
-
-def stopLevelChange() { // library marker davegut.lib_tpLink_CapSwitch, line 50
-	logDebug("stopLevelChange: [level: ${device.currentValue("level")}]") // library marker davegut.lib_tpLink_CapSwitch, line 51
-	unschedule(levelUp) // library marker davegut.lib_tpLink_CapSwitch, line 52
-	unschedule(levelDown) // library marker davegut.lib_tpLink_CapSwitch, line 53
-} // library marker davegut.lib_tpLink_CapSwitch, line 54
-
-def levelUp() { // library marker davegut.lib_tpLink_CapSwitch, line 56
-	def curLevel = device.currentValue("level").toInteger() // library marker davegut.lib_tpLink_CapSwitch, line 57
-	if (curLevel != 100) { // library marker davegut.lib_tpLink_CapSwitch, line 58
-		def newLevel = curLevel + 4 // library marker davegut.lib_tpLink_CapSwitch, line 59
-		if (newLevel > 100) { newLevel = 100 } // library marker davegut.lib_tpLink_CapSwitch, line 60
-		setLevel(newLevel) // library marker davegut.lib_tpLink_CapSwitch, line 61
-		runIn(1, levelUp) // library marker davegut.lib_tpLink_CapSwitch, line 62
-	} // library marker davegut.lib_tpLink_CapSwitch, line 63
-} // library marker davegut.lib_tpLink_CapSwitch, line 64
-
-def levelDown() { // library marker davegut.lib_tpLink_CapSwitch, line 66
-	def curLevel = device.currentValue("level").toInteger() // library marker davegut.lib_tpLink_CapSwitch, line 67
-	if (device.currentValue("switch") == "on") { // library marker davegut.lib_tpLink_CapSwitch, line 68
-		def newLevel = curLevel - 4 // library marker davegut.lib_tpLink_CapSwitch, line 69
-		if (newLevel <= 0) { off() } // library marker davegut.lib_tpLink_CapSwitch, line 70
-		else { // library marker davegut.lib_tpLink_CapSwitch, line 71
-			setLevel(newLevel) // library marker davegut.lib_tpLink_CapSwitch, line 72
-			runIn(1, levelDown) // library marker davegut.lib_tpLink_CapSwitch, line 73
-		} // library marker davegut.lib_tpLink_CapSwitch, line 74
-	} // library marker davegut.lib_tpLink_CapSwitch, line 75
-} // library marker davegut.lib_tpLink_CapSwitch, line 76
-
-def setAutoOff() { // library marker davegut.lib_tpLink_CapSwitch, line 78
-	List requests =  [[method: "set_auto_off_config", // library marker davegut.lib_tpLink_CapSwitch, line 79
-					   params: [enable:autoOffEnable, // library marker davegut.lib_tpLink_CapSwitch, line 80
-								delay_min: autoOffTime.toInteger()]]] // library marker davegut.lib_tpLink_CapSwitch, line 81
-	requests << [method: "get_auto_off_config"] // library marker davegut.lib_tpLink_CapSwitch, line 82
-	def devData = syncSend(createMultiCmd(requests)) // library marker davegut.lib_tpLink_CapSwitch, line 83
-	Map retData = [cmdResp: "ERROR"] // library marker davegut.lib_tpLink_CapSwitch, line 84
-	if (cmdResp != "ERROR") { // library marker davegut.lib_tpLink_CapSwitch, line 85
-		def data = devData.result.responses.find { it.method == "get_auto_off_config" } // library marker davegut.lib_tpLink_CapSwitch, line 86
-		device.updateSetting("autoOffTime", [type: "number", value: data.result.delay_min]) // library marker davegut.lib_tpLink_CapSwitch, line 87
-		device.updateSetting("autoOffEnable", [type: "bool", value: data.result.enable]) // library marker davegut.lib_tpLink_CapSwitch, line 88
-		retData = [enable: data.result.enable, time: data.result.delay_min] // library marker davegut.lib_tpLink_CapSwitch, line 89
-	} // library marker davegut.lib_tpLink_CapSwitch, line 90
-	return retData // library marker davegut.lib_tpLink_CapSwitch, line 91
-} // library marker davegut.lib_tpLink_CapSwitch, line 92
-
-def setDefaultState() { // library marker davegut.lib_tpLink_CapSwitch, line 94
-	def type = "last_states" // library marker davegut.lib_tpLink_CapSwitch, line 95
-	def state = [] // library marker davegut.lib_tpLink_CapSwitch, line 96
-	if (defState == "on") { // library marker davegut.lib_tpLink_CapSwitch, line 97
-		type = "custom" // library marker davegut.lib_tpLink_CapSwitch, line 98
-		state = [on: true] // library marker davegut.lib_tpLink_CapSwitch, line 99
-	} else if (defState == "off") { // library marker davegut.lib_tpLink_CapSwitch, line 100
-		type = "custom" // library marker davegut.lib_tpLink_CapSwitch, line 101
-		state = [on: false] // library marker davegut.lib_tpLink_CapSwitch, line 102
-	} // library marker davegut.lib_tpLink_CapSwitch, line 103
-	List requests = [[method: "set_device_info", // library marker davegut.lib_tpLink_CapSwitch, line 104
-					  params: [default_states: [type: type, state: state]]]] // library marker davegut.lib_tpLink_CapSwitch, line 105
-	requests << [method: "get_device_info"] // library marker davegut.lib_tpLink_CapSwitch, line 106
-	def devData = syncSend(createMultiCmd(requests)) // library marker davegut.lib_tpLink_CapSwitch, line 107
-	Map retData = [cmdResp: "ERROR"] // library marker davegut.lib_tpLink_CapSwitch, line 108
-	if (cmdResp != "ERROR") { // library marker davegut.lib_tpLink_CapSwitch, line 109
-		def data = devData.result.responses.find { it.method == "get_device_info" } // library marker davegut.lib_tpLink_CapSwitch, line 110
-		def defaultStates = data.result.default_states // library marker davegut.lib_tpLink_CapSwitch, line 111
-		def newState = "lastState" // library marker davegut.lib_tpLink_CapSwitch, line 112
-		if (defaultStates.type == "custom"){ // library marker davegut.lib_tpLink_CapSwitch, line 113
-			newState = "off" // library marker davegut.lib_tpLink_CapSwitch, line 114
-			if (defaultStates.state.on == true) { // library marker davegut.lib_tpLink_CapSwitch, line 115
-				newState = "on" // library marker davegut.lib_tpLink_CapSwitch, line 116
-			} // library marker davegut.lib_tpLink_CapSwitch, line 117
-		} // library marker davegut.lib_tpLink_CapSwitch, line 118
-		device.updateSetting("defState", [type: "enum", value: newState]) // library marker davegut.lib_tpLink_CapSwitch, line 119
-		retData = [defState: newState] // library marker davegut.lib_tpLink_CapSwitch, line 120
-	} // library marker davegut.lib_tpLink_CapSwitch, line 121
-	return retData // library marker davegut.lib_tpLink_CapSwitch, line 122
-} // library marker davegut.lib_tpLink_CapSwitch, line 123
-
-def setGradualOnOff() { // library marker davegut.lib_tpLink_CapSwitch, line 125
-	List requests = [[method: "set_on_off_gradually_info", params: [enable: gradualOnOff]]] // library marker davegut.lib_tpLink_CapSwitch, line 126
-	requests << [method: "get_on_off_gradually_info"] // library marker davegut.lib_tpLink_CapSwitch, line 127
-	def cmdResp = syncSend(createMultiCmd(requests)) // library marker davegut.lib_tpLink_CapSwitch, line 128
-	def gradOnOffData = cmdResp.result.responses.find { it.method == "get_on_off_gradually_info" } // library marker davegut.lib_tpLink_CapSwitch, line 129
-	def newGradualOnOff = gradOnOffData.result.enable // library marker davegut.lib_tpLink_CapSwitch, line 130
-	device.updateSetting("gradualOnOff",[type:"bool", value: newGradualOnOff]) // library marker davegut.lib_tpLink_CapSwitch, line 131
-	return newGradualOnOff // library marker davegut.lib_tpLink_CapSwitch, line 132
-} // library marker davegut.lib_tpLink_CapSwitch, line 133
-
-
-// ~~~~~ end include (1354) davegut.lib_tpLink_CapSwitch ~~~~~
 
 // ~~~~~ start include (1376) davegut.lib_tpLink_common ~~~~~
 library ( // library marker davegut.lib_tpLink_common, line 1
