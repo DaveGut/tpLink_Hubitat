@@ -20,9 +20,6 @@ metadata {
 		capability "Switch"
 		capability "Switch Level"
 		capability "Change Level"
-		capability "Color Temperature"
-		capability "Color Mode"
-		capability "Color Control"
 		attribute "connected", "string"
 		attribute "commsError", "bool"
 	}
