@@ -1,13 +1,13 @@
 {
   "packageName": "Tapo Plugs, Switches and Bulbs",
   "author": "David Gutheinz",
-  "version": "2.3.6a",
+  "version": "2.3.7a",
   "minimumHEVersion": "2.3.6",
   "documentationLink": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/App/tapo_device_install.groovy",
   "communityLink": "https://community.hubitat.com/t/tp-link-tapo-devices/121084",
-  "dateReleased": "2023-10-18",
-  "releaseNotes": "Added new protocol control.  Added multi-plug support.  General cleanup.",
-  "licenseFile": "https://raw.githubusercontent.com/DaveGut/HubitatActive/master/KasaDevices/License",
+  "dateReleased": "2023-10-27",
+  "releaseNotes": "Added battery state to sensors.  Added setLed to plug/switch preferences. Logging cleanup.",
+  "licenseFile": "https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/License.md",
   "apps": [
     {
       "id": "79f31830-a697-40c5-9c87-76f9db0c63b7",
