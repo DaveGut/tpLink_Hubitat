@@ -1,5 +1,5 @@
 # TPLINK HUBITAT
-TP-Link TAPO device integration for Hubitat Environment.
+TP-Link TAPO device integration for Hubitat Environment.  Also supports Kasa Matter and Kasa Hub.
 ## Initial Development.  Need user feedback.
 
 ### Wifi connected devices not currently supported:
