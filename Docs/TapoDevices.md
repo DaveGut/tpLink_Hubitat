@@ -98,4 +98,32 @@
         tpLink_plug_multi_child drivers.
     b.  Added Preference: Install Child Device.  Used to reinstall a deleted device.
     c.  Drivers:  tpLink_plug_multi and tpLink_plug_multi_child
+
+### Tapo Robovac
+    a.  Verified on Tapo RV10 vacuum.
+    b.  Limitation:  No map-related functions.  (need co-developer for testing)
+    c.  Capabilities:  Refresh, Battery, Actuator
+    d.  Added commands:
+        1. SetCleanPrefs. Set dynamic clean preferences: cleanPasses, vacuumSuction, waterLevel
+        2.  cleanStart, cleanPause, cleanResume, dockVacuum
+    e.  Added attributes:
+        1.  cleanPasses
+        2.  vacuumSuction
+        3.  waterLevel
+        4.  docking (vac is docking)
+        5.  cleanOn
+        6.  vacuumStatus
+        7.  prompt (prompt from vacuum status related to errors.
+        8.  promptCode
+        9.  mopState
+        10.  childLock
+        11.  waterLevel
+    f.  Added Attribute: energyThisMonth.
+    g.  Added Preferences:
+        1.  childLock
+        2.  carpetClean.  Normal (standard) or Boost.
+        3.  areaUnit
+    h.  Driver: tplink_robovac
+
+    
     
