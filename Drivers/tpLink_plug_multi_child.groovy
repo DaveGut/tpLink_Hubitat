@@ -231,7 +231,7 @@ library ( // library marker davegut.Logging, line 1
 //	===== Common Data Elements ===== // library marker davegut.Logging, line 10
 def nameSpace() { return "davegut" } // library marker davegut.Logging, line 11
 
-def version() { return "2.3.7a" } // library marker davegut.Logging, line 13
+def version() { return "2.3.7b" } // library marker davegut.Logging, line 13
 def label() { // library marker davegut.Logging, line 14
 	if (device) { return device.displayName }  // library marker davegut.Logging, line 15
 	else { return app.getLabel() } // library marker davegut.Logging, line 16
@@ -260,26 +260,24 @@ def logTrace(msg){ // library marker davegut.Logging, line 37
 } // library marker davegut.Logging, line 39
 
 def logInfo(msg) {  // library marker davegut.Logging, line 41
-//	if (textEnable || infoLog) { // library marker davegut.Logging, line 42
-//	Change Kasa Drivers from textEnable to logEnable // library marker davegut.Logging, line 43
-	if (infoLog) { // library marker davegut.Logging, line 44
-		log.info "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 45
-	} // library marker davegut.Logging, line 46
-} // library marker davegut.Logging, line 47
+	if (infoLog) { // library marker davegut.Logging, line 42
+		log.info "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 43
+	} // library marker davegut.Logging, line 44
+} // library marker davegut.Logging, line 45
 
-def debugLogOff() { // library marker davegut.Logging, line 49
-	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 50
-	logInfo("debugLogOff") // library marker davegut.Logging, line 51
-} // library marker davegut.Logging, line 52
+def debugLogOff() { // library marker davegut.Logging, line 47
+	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 48
+	logInfo("debugLogOff") // library marker davegut.Logging, line 49
+} // library marker davegut.Logging, line 50
 
-def logDebug(msg) { // library marker davegut.Logging, line 54
-	if (logEnable) { // library marker davegut.Logging, line 55
-		log.debug "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 56
-	} // library marker davegut.Logging, line 57
-} // library marker davegut.Logging, line 58
+def logDebug(msg) { // library marker davegut.Logging, line 52
+	if (logEnable) { // library marker davegut.Logging, line 53
+		log.debug "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 54
+	} // library marker davegut.Logging, line 55
+} // library marker davegut.Logging, line 56
 
-def logWarn(msg) { log.warn "${label()}-${version()}: ${msg}" } // library marker davegut.Logging, line 60
+def logWarn(msg) { log.warn "${label()}-${version()}: ${msg}" } // library marker davegut.Logging, line 58
 
-def logError(msg) { log.error "${label()}-${version()}: ${msg}" } // library marker davegut.Logging, line 62
+def logError(msg) { log.error "${label()}-${version()}: ${msg}" } // library marker davegut.Logging, line 60
 
 // ~~~~~ end include (1339) davegut.Logging ~~~~~
