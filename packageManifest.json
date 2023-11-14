@@ -1,12 +1,12 @@
 {
   "packageName": "Tapo Plugs, Switches and Bulbs",
   "author": "David Gutheinz",
-  "version": "2.3.7a",
+  "version": "2.3.7b",
   "minimumHEVersion": "2.3.6",
   "documentationLink": "https://github.com/DaveGut/tpLink_Hubitat",
   "communityLink": "https://community.hubitat.com/t/tp-link-tapo-devices/121084",
-  "dateReleased": "2023-11-10",
-  "releaseNotes": "BEFORE UPDATING, PLEASE UNMATCH TAPO FROM HPM THEN REMATCH.  Otherwise, update errors will occur. Added device Robovac. Clean up error correction inconsistencies.",
+  "dateReleased": "2023-11-14",
+  "releaseNotes": "Added device Robovac. Clean up error correction inconsistencies.",
   "licenseFile": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/LICENSE",
   "apps": [
     {
