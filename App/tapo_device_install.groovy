@@ -409,7 +409,7 @@ def supportedProducts() {
 
 
 
-// ~~~~~ start include (1377) davegut.lib_tpLink_comms ~~~~~
+// ~~~~~ start include (1401) davegut.lib_tpLink_comms ~~~~~
 library ( // library marker davegut.lib_tpLink_comms, line 1
 	name: "lib_tpLink_comms", // library marker davegut.lib_tpLink_comms, line 2
 	namespace: "davegut", // library marker davegut.lib_tpLink_comms, line 3
@@ -703,9 +703,9 @@ def setCommsError(status, errorData = null) { // library marker davegut.lib_tpLi
 	return logData // library marker davegut.lib_tpLink_comms, line 291
 } // library marker davegut.lib_tpLink_comms, line 292
 
-// ~~~~~ end include (1377) davegut.lib_tpLink_comms ~~~~~
+// ~~~~~ end include (1401) davegut.lib_tpLink_comms ~~~~~
 
-// ~~~~~ start include (1378) davegut.lib_tpLink_security ~~~~~
+// ~~~~~ start include (1403) davegut.lib_tpLink_security ~~~~~
 library ( // library marker davegut.lib_tpLink_security, line 1
 	name: "lib_tpLink_security", // library marker davegut.lib_tpLink_security, line 2
 	namespace: "davegut", // library marker davegut.lib_tpLink_security, line 3
@@ -1046,9 +1046,9 @@ byte[] integerToByteArray(value) { // library marker davegut.lib_tpLink_security
 	return byteValue // library marker davegut.lib_tpLink_security, line 338
 } // library marker davegut.lib_tpLink_security, line 339
 
-// ~~~~~ end include (1378) davegut.lib_tpLink_security ~~~~~
+// ~~~~~ end include (1403) davegut.lib_tpLink_security ~~~~~
 
-// ~~~~~ start include (1379) davegut.lib_tpLink_discovery ~~~~~
+// ~~~~~ start include (1402) davegut.lib_tpLink_discovery ~~~~~
 library ( // library marker davegut.lib_tpLink_discovery, line 1
 	name: "lib_tpLink_discovery", // library marker davegut.lib_tpLink_discovery, line 2
 	namespace: "davegut", // library marker davegut.lib_tpLink_discovery, line 3
@@ -1259,8 +1259,8 @@ def vacLogin(baseUrl) { // library marker davegut.lib_tpLink_discovery, line 204
 							password: encPasswordVac, // library marker davegut.lib_tpLink_discovery, line 208
 							username: userName]] // library marker davegut.lib_tpLink_discovery, line 209
 	def loginResp = aesSyncPost(baseUrl, cmdBody) // library marker davegut.lib_tpLink_discovery, line 210
-	def token = "ERROR" // library marker davegut.lib_tpLink_discovery, line 211
-	if (loginResp.status == 200) { // library marker davegut.lib_tpLink_discovery, line 212
+	def token = [token: "ERROR"] // library marker davegut.lib_tpLink_discovery, line 211
+	if (loginResp.status == 200 && loginResp.data && loginResp.data.error_code == 0) { // library marker davegut.lib_tpLink_discovery, line 212
 		logData << [status: loginResp.status] // library marker davegut.lib_tpLink_discovery, line 213
 		token = loginResp.data.result.token // library marker davegut.lib_tpLink_discovery, line 214
 	} else { // library marker davegut.lib_tpLink_discovery, line 215
@@ -1399,9 +1399,9 @@ def updateDevices(discData) { // library marker davegut.lib_tpLink_discovery, li
 logInfo(logData) // library marker davegut.lib_tpLink_discovery, line 348
 } // library marker davegut.lib_tpLink_discovery, line 349
 
-// ~~~~~ end include (1379) davegut.lib_tpLink_discovery ~~~~~
+// ~~~~~ end include (1402) davegut.lib_tpLink_discovery ~~~~~
 
-// ~~~~~ start include (1339) davegut.Logging ~~~~~
+// ~~~~~ start include (1405) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -1463,4 +1463,4 @@ def logWarn(msg) { log.warn "${label()}-${version()}: ${msg}" } // library marke
 
 def logError(msg) { log.error "${label()}-${version()}: ${msg}" } // library marker davegut.Logging, line 60
 
-// ~~~~~ end include (1339) davegut.Logging ~~~~~
+// ~~~~~ end include (1405) davegut.Logging ~~~~~
