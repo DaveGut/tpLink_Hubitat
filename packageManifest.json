@@ -1,12 +1,12 @@
 {
   "packageName": "Tapo Plugs, Switches and Bulbs",
   "author": "David Gutheinz",
-  "version": "2.3.7a",
+  "version": "2.3.7b",
   "minimumHEVersion": "2.3.6",
-  "documentationLink": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/App/tapo_device_install.groovy",
+  "documentationLink": "https://github.com/DaveGut/tpLink_Hubitat",
   "communityLink": "https://community.hubitat.com/t/tp-link-tapo-devices/121084",
-  "dateReleased": "2023-10-27",
-  "releaseNotes": "Added battery state to sensors.  Added setLed to plug/switch preferences. Logging cleanup.",
+  "dateReleased": "2023-11-14",
+  "releaseNotes": "Added device Robovac. Clean up error correction inconsistencies.",
   "licenseFile": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/LICENSE",
   "apps": [
     {
@@ -109,6 +109,13 @@
       "name": "MultiPlug Child",
       "namespace": "davegut",
       "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_multi_child.groovy",
+      "required": false
+    },
+    {
+      "id": "4c432ca1-be13-4b30-b89b-bbf93104bff4",
+      "name": "tpLink_robovac",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_robovac.groovy",
       "required": false
     }
   ]
