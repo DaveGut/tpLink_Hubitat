@@ -76,7 +76,6 @@ def updated() {
 	state.errorCount = 0
 	state.lastCmd = ""
 	updateAttr("commsError", "false")
-	logInfo("updated: ${logData}")
 	runIn(5, delayedUpdates)
 	logInfo(logData)
 }
@@ -248,7 +247,6 @@ def parseCleanPrefs(resp, data = null) {
 		logData << [errorData: err]
 		logWarn(logData)
 	}
-logInfo(logData)
 }
 
 //	===== Refresh =====
@@ -555,7 +553,7 @@ def setCommsError(status, errorData = null) {
 
 
 
-// ~~~~~ start include (1339) davegut.Logging ~~~~~
+// ~~~~~ start include (1405) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -617,4 +615,4 @@ def logWarn(msg) { log.warn "${label()}-${version()}: ${msg}" } // library marke
 
 def logError(msg) { log.error "${label()}-${version()}: ${msg}" } // library marker davegut.Logging, line 60
 
-// ~~~~~ end include (1339) davegut.Logging ~~~~~
+// ~~~~~ end include (1405) davegut.Logging ~~~~~

@@ -93,7 +93,7 @@ def startPage() {
 		}
 		state.hostArray = [array0, array1]
 	} catch (e) {
-		logInfo("startPage: Invalid entry for Lan Segements, or Host Array Range. Resetting to default!")
+		logWarn("startPage: Invalid entry for Lan Segements, or Host Array Range. Resetting to default!")
 		def hub = location.hubs[0]
 		def hubIpArray = hub.localIP.split('\\.')
 		def segments = [hubIpArray[0],hubIpArray[1],hubIpArray[2]].join(".")
@@ -1392,12 +1392,7 @@ def updateDevices(discData) { // library marker davegut.lib_tpLink_discovery, li
 		logData << ["${childDev}": childData] // library marker davegut.lib_tpLink_discovery, line 341
 	} // library marker davegut.lib_tpLink_discovery, line 342
 	logDebug(logData) // library marker davegut.lib_tpLink_discovery, line 343
-
-
-
-
-logInfo(logData) // library marker davegut.lib_tpLink_discovery, line 348
-} // library marker davegut.lib_tpLink_discovery, line 349
+} // library marker davegut.lib_tpLink_discovery, line 344
 
 // ~~~~~ end include (1402) davegut.lib_tpLink_discovery ~~~~~
 
