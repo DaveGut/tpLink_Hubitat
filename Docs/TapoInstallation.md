@@ -7,9 +7,7 @@
    	b.	Manual Installation
 		1.	Use links in list at bottom of page to get to raw code.
   		2.	Copy and paste this data to a new app or new driver page
-		3.	Install Application and two manditory drivers: 'tapoNewWifiDevice" 
-  			and 'tapoHub-NewType'
-  		4.	Install drivers for device type.
+		3.	Install drivers for device type.
     
 ## Install device into the Tapo phone application (iPhone / Android)
 	a.	Use manufacturer's instruction.
