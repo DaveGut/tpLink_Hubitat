@@ -1,4 +1,4 @@
-# Tapo Integration Installation
+# Kasa Camera Integration Installation
 
 ## Install app and driver code
 	a.	Use Hubitat Package Manager
@@ -16,7 +16,7 @@
   	c.	After installation, CREATE a STATIC IP (DHCP Reservation) for the device on 
    		your WiFi Router.
 
-## Install devices via the Tapo Application
+## Install devices via the Kasa Camera Application
 	a.	Open a Log Page to view messages/errors during the installation process.
  	b.	Create/Open the App in Hubitat using "add user app"
  	c.	If you use non-standard IP segments, update by selecting Modify LAN
