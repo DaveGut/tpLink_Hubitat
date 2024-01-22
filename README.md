@@ -11,7 +11,7 @@ TP-Link TAPO device integration for Hubitat Environment.  Also supports Kasa Mat
 
 ## Documentation:
 
-Installation: https://github.com/DaveGut/tapoHubitat/blob/main/Docs/TapoInstallation.md
+Installation: https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TapoInstallation.md
 
 App description: Pending Development
 
