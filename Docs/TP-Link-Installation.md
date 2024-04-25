@@ -1,4 +1,4 @@
-# Kasa Camera Integration Installation
+# TP-Link Integration Installation
 
 ## Install app and driver code
 	a.	Use Hubitat Package Manager
@@ -9,14 +9,14 @@
   		2.	Copy and paste this data to a new app or new driver page
 		3.	Install drivers for device type.
     
-## Install device into the Tapo phone application (iPhone / Android)
+## Install device into the Tapo or Kasa phone application (iPhone / Android)
 	a.	Use manufacturer's instruction.
  	b.	Matter devices.  Need verification all functions work if installed vi Matter 
   		to non-Tapo Application
   	c.	After installation, CREATE a STATIC IP (DHCP Reservation) for the device on 
    		your WiFi Router.
 
-## Install devices via the Kasa Camera Application
+## Install devices via the TP-Link Installation App
 	a.	Open a Log Page to view messages/errors during the installation process.
  	b.	Create/Open the App in Hubitat using "add user app"
  	c.	If you use non-standard IP segments, update by selecting Modify LAN
