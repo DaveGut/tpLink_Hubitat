@@ -15,7 +15,7 @@ Installation: [https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TapoInst
 
 App description: Pending Development
 
-Installed Device Information: https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TapoDevices.md
+Installed Device Information: [https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TapoDevices.md](https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Docs/TapoDevices.md)
 
 RSA / AES Security Note: Pending Development
  
