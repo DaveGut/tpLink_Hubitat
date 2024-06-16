@@ -2,10 +2,12 @@
 		Copyright Dave Gutheinz
 License:  https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/License.md
 
-Initial Version.  Contains all major functions except clean specific area (RV30 model)
 =================================================================================================*/
 import org.json.JSONObject
 import groovy.json.JsonSlurper
+//	=====	NAMESPACE	============
+def nameSpace() { return "davegut" }
+//	================================
 
 metadata {
 	definition (name: "tpLink_robovac", namespace: nameSpace(), author: "Dave Gutheinz", 
@@ -36,7 +38,7 @@ metadata {
 		attribute "mopState", "string"
 		attribute "childLock", "string"
 		attribute "waterLevel", "number"
-		attribute "connected", "string"
+		capability "Configuration"
 		attribute "commsError", "string"
 	}
 	preferences {
@@ -85,7 +87,7 @@ def delayedUpdates() {
 	logData << [settings: setSettings()]
 	if (developerData) { runIn(4, getDeveloperData) }
 	refresh()
-	logInfo logData
+	logInfo(logData)
 }
 
 //	===== Cleaning Control =====
@@ -394,6 +396,15 @@ def getDeveloperData() {
 	logWarn("<b>DeveloperData</b>: ${devData}")
 }
 
+//	===== Capability Configuration =====
+def configure() {
+	Map logData = [method: "configure", updateData: parent.tpLinkCheckForDevices(5)]
+	device.updateSetting("rebootDev",[type:"bool", value: true])
+	updated()
+	logData << [action: "updated"]
+	logInfo(logData)
+}
+
 //	===== Communications =====
 def createMultiCmd(requests) {
 	Map cmdBody = [
@@ -481,7 +492,6 @@ def parseData(resp) {
 		state.errorCount = 0
 	} else {
 		logData << [status: "httpFailure(timeout)", data: resp.properties]
-//		runIn(1, handleCommsError, [data: "httpFailure"])
 		handleCommsError("httpFailure")
 	}
 	logDebug(logData)
@@ -500,7 +510,6 @@ def handleCommsError(retryReason) {
 		logData << [count: count, command: cmdData]
 		switch (count) {
 			case 1:
-//				setPollInterval("5 min")
 				runIn(1, delayedPassThrough, [data: data])
 				logData << [action: "retryCommand"]
 				break
@@ -553,7 +562,7 @@ def setCommsError(status, errorData = null) {
 
 
 
-// ~~~~~ start include (1405) davegut.Logging ~~~~~
+// ~~~~~ start include (21) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -562,57 +571,47 @@ library ( // library marker davegut.Logging, line 1
 	category: "utilities", // library marker davegut.Logging, line 6
 	documentationLink: "" // library marker davegut.Logging, line 7
 ) // library marker davegut.Logging, line 8
+//	Updated for Kasa // library marker davegut.Logging, line 9
+def label() { // library marker davegut.Logging, line 10
+	if (device) { return device.displayName }  // library marker davegut.Logging, line 11
+	else { return app.getLabel() } // library marker davegut.Logging, line 12
+} // library marker davegut.Logging, line 13
 
-//	===== Common Data Elements ===== // library marker davegut.Logging, line 10
-def nameSpace() { return "davegut" } // library marker davegut.Logging, line 11
+def listAttributes() { // library marker davegut.Logging, line 15
+	def attrData = device.getCurrentStates() // library marker davegut.Logging, line 16
+	Map attrs = [:] // library marker davegut.Logging, line 17
+	attrData.each { // library marker davegut.Logging, line 18
+		attrs << ["${it.name}": it.value] // library marker davegut.Logging, line 19
+	} // library marker davegut.Logging, line 20
+	return attrs // library marker davegut.Logging, line 21
+} // library marker davegut.Logging, line 22
 
-def version() { return "2.3.7b" } // library marker davegut.Logging, line 13
-def label() { // library marker davegut.Logging, line 14
-	if (device) { return device.displayName }  // library marker davegut.Logging, line 15
-	else { return app.getLabel() } // library marker davegut.Logging, line 16
-} // library marker davegut.Logging, line 17
+def setLogsOff() { // library marker davegut.Logging, line 24
+	def logData = [logEnable: logEnable] // library marker davegut.Logging, line 25
+	if (logEnable) { // library marker davegut.Logging, line 26
+		runIn(1800, debugLogOff) // library marker davegut.Logging, line 27
+		logData << [debugLogOff: "scheduled"] // library marker davegut.Logging, line 28
+	} // library marker davegut.Logging, line 29
+	return logData // library marker davegut.Logging, line 30
+} // library marker davegut.Logging, line 31
 
-def listAttributes() { // library marker davegut.Logging, line 19
-	def attrData = device.getCurrentStates() // library marker davegut.Logging, line 20
-	Map attrs = [:] // library marker davegut.Logging, line 21
-	attrData.each { // library marker davegut.Logging, line 22
-		attrs << ["${it.name}": it.value] // library marker davegut.Logging, line 23
-	} // library marker davegut.Logging, line 24
-	return attrs // library marker davegut.Logging, line 25
-} // library marker davegut.Logging, line 26
+def logTrace(msg){ log.trace "${label()}: ${msg}" } // library marker davegut.Logging, line 33
 
-def setLogsOff() { // library marker davegut.Logging, line 28
-	def logData = [logEnable: logEnable] // library marker davegut.Logging, line 29
-	if (logEnable) { // library marker davegut.Logging, line 30
-		runIn(1800, debugLogOff) // library marker davegut.Logging, line 31
-		logData << [debugLogOff: "scheduled"] // library marker davegut.Logging, line 32
-	} // library marker davegut.Logging, line 33
-	return logData // library marker davegut.Logging, line 34
-} // library marker davegut.Logging, line 35
+def logInfo(msg) {  // library marker davegut.Logging, line 35
+	if (infoLog) { log.info "${label()}: ${msg}" } // library marker davegut.Logging, line 36
+} // library marker davegut.Logging, line 37
 
-def logTrace(msg){ // library marker davegut.Logging, line 37
-	log.trace "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 38
-} // library marker davegut.Logging, line 39
+def debugLogOff() { // library marker davegut.Logging, line 39
+	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 40
+	logInfo("debugLogOff") // library marker davegut.Logging, line 41
+} // library marker davegut.Logging, line 42
 
-def logInfo(msg) {  // library marker davegut.Logging, line 41
-	if (infoLog) { // library marker davegut.Logging, line 42
-		log.info "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 43
-	} // library marker davegut.Logging, line 44
-} // library marker davegut.Logging, line 45
+def logDebug(msg) { // library marker davegut.Logging, line 44
+	if (logEnable) { log.debug "${label()}: ${msg}" } // library marker davegut.Logging, line 45
+} // library marker davegut.Logging, line 46
 
-def debugLogOff() { // library marker davegut.Logging, line 47
-	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 48
-	logInfo("debugLogOff") // library marker davegut.Logging, line 49
-} // library marker davegut.Logging, line 50
+def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Logging, line 48
 
-def logDebug(msg) { // library marker davegut.Logging, line 52
-	if (logEnable) { // library marker davegut.Logging, line 53
-		log.debug "${label()}-${version()}: ${msg}" // library marker davegut.Logging, line 54
-	} // library marker davegut.Logging, line 55
-} // library marker davegut.Logging, line 56
+def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 50
 
-def logWarn(msg) { log.warn "${label()}-${version()}: ${msg}" } // library marker davegut.Logging, line 58
-
-def logError(msg) { log.error "${label()}-${version()}: ${msg}" } // library marker davegut.Logging, line 60
-
-// ~~~~~ end include (1405) davegut.Logging ~~~~~
+// ~~~~~ end include (21) davegut.Logging ~~~~~
