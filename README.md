@@ -19,7 +19,7 @@ Supports the following device products from TP-Link:
 
 App description:  https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TapoApplication.md
 
-Installation: [https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TapoInstallation.md](https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Docs/TP-Link-Installation.md)
+Installation: https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TP-Link-Installation.md
 
 Installed Device Information: [https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TapoDevices.md](https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Docs/TapoDevices.md)
 
