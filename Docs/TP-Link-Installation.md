@@ -1,13 +1,13 @@
-# TP-Link Integration Installation
+# Tapo Integration Installation
 
 ## Install app and driver code
 	a.	Use Hubitat Package Manager
- 		1.	Search for Tag Lights and Switches or name tapo
-   		2.	Select driver for your device based on description in HPM.
-   	b.	Manual Installation
-		1.	Use links in list at bottom of page to get to raw code.
-  		2.	Copy and paste this data to a new app or new driver page
-		3.	Install drivers for device type.
+ 		1.  Search for Tag Lights and Switches or name tapo
+		2.  Select driver for your device based on description in HPM.
+	b.  Manual Installation
+ 		1.  Use links in list at bottom of page to get to raw code.
+   		2.  Copy and paste this data to a new app or new driver page
+		3.  Install drivers for device type.
     
 ## Install device into the Tapo or Kasa phone application (iPhone / Android)
 	a.	Use manufacturer's instruction.
@@ -45,19 +45,20 @@
   
   Plug-Switch: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug.groovy
 
-  Dimming Plug-Switch: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_dimmer.groovy
+  Dimming Plug-Switch-Bulb: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_dimmer.groovy
 
   Energy Monitor Plug: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_em.groovy
 
-  Multiple Plug Parent:  https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_multi.groovy
+  Parent Device: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_parent.groovy
 
-  Multiple Plug Child: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_multi_child.groovy
+  Child Plug: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_plug.groovy
+  
+  Child Dimmer: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_dimmer.groovy
+  Child Fan: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_fan.groovy
 
   Color Bulb: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_bulb_color.groovy
 
-  Dimming (Mono) Bulb: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_bulb_dimmer.groovy
-
-  Light Strip: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_bulb_lightStrip.groovy
+  Light Strip: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_lightStrip.groovy
 
   Tapo Hub: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub.groovy
 
@@ -68,6 +69,8 @@
   Contact Sensor: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_contact.groovy
 
   Motion Sensor: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_motion.groovy
+  
+  LEak Sensor: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_Leak.groovy
 
-  Temp-Humidity Sensor: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_newType.groovy
+  Temp-Humidity Sensor: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_tempHumidity.groovy
   
