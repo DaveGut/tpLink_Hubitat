@@ -3,12 +3,9 @@
 License:  https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/License.md
 
 =================================================================================================*/
-//	=====	NAMESPACE	============
-def nameSpace() { return "davegut" }
-//	================================
 
 metadata {
-	definition (name: "tpLink_hub_tempHumidity", namespace: nameSpace(), author: "Dave Gutheinz", 
+	definition (name: "tpLink Hub TempHumidity", namespace: nameSpace(), author: "Dave Gutheinz", 
 				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_tempHumidity.groovy")
 	{
 		capability "Refresh"
@@ -18,32 +15,31 @@ metadata {
 		attribute "lowBattery", "string"
 	}
 	preferences {
+		input ("getTriggerLogs", "bool", title: "Get Device's last 20 trigger logs", defaultValue: false)
 		input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false)
 		input ("infoLog", "bool", title: "Enable information logging",defaultValue: true)
 	}
 }
 
-def installed() { 
-	updateAttr("commsError", "OK")
-	runIn(1, updated)
-}
+def installed() { runIn(1, updated) }
 
 def updated() {
-	unschedule()
-	def logData = [:]
-	logData << setLogsOff()
-	logData << [status: "OK"]
-	if (logData.status == "ERROR") {
-		logError("updated: ${logData}")
+	if (getTriggerLogs == true) {
+		getTriggerLog(20)
 	} else {
-		logInfo("updated: ${logData}")
+		unschedule()
+		def logData = [method: "updated"]
+		logData << setLogsOff()
+		logData << [status: "OK"]
+		logInfo(logData)
 	}
+	pauseExecution(5000)
 }
 
 def refresh() { parent.refresh() }
 
 //	Parse Methods
-def devicePollParse(childData) {
+def parseDevData(childData) {
 	try {
 		if (device.currentValue("temperature") != childData.current_temperature ||
 			device.currentValue("humidity") != childData.current_humidity) {
@@ -65,10 +61,29 @@ def updateAttr(attr, value) {
 	}
 }
 
-//	Library Inclusion
+def getTriggerLog(count = 1) {
+	Map cmdBody = [
+		method: "control_child",
+		params: [
+			device_id: getDataValue("deviceId"),
+			requestData: [
+				method: "get_trigger_logs",
+				params: [page_size: count,"start_id": 0]
+			]
+		]
+	]
+	parent.asyncSend(cmdBody, device.getDeviceNetworkId(), "distTriggerLog")
+}
+
+def parseTriggerLog(triggerData, data=null) {
+	def triggerLog = triggerData.result.responseData.result
+	log.info "<b>TRIGGERLOGS</b>: ${triggerLog.logs}"
+	device.updateSetting("getTriggerLogs", [type:"bool", value: false])
+}
 
 
-// ~~~~~ start include (21) davegut.Logging ~~~~~
+
+// ~~~~~ start include (49) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -77,47 +92,58 @@ library ( // library marker davegut.Logging, line 1
 	category: "utilities", // library marker davegut.Logging, line 6
 	documentationLink: "" // library marker davegut.Logging, line 7
 ) // library marker davegut.Logging, line 8
-//	Updated for Kasa // library marker davegut.Logging, line 9
-def label() { // library marker davegut.Logging, line 10
-	if (device) { return device.displayName }  // library marker davegut.Logging, line 11
-	else { return app.getLabel() } // library marker davegut.Logging, line 12
-} // library marker davegut.Logging, line 13
 
-def listAttributes() { // library marker davegut.Logging, line 15
-	def attrData = device.getCurrentStates() // library marker davegut.Logging, line 16
-	Map attrs = [:] // library marker davegut.Logging, line 17
-	attrData.each { // library marker davegut.Logging, line 18
-		attrs << ["${it.name}": it.value] // library marker davegut.Logging, line 19
-	} // library marker davegut.Logging, line 20
-	return attrs // library marker davegut.Logging, line 21
-} // library marker davegut.Logging, line 22
+def nameSpace() { return "davegut" } // library marker davegut.Logging, line 10
 
-def setLogsOff() { // library marker davegut.Logging, line 24
-	def logData = [logEnable: logEnable] // library marker davegut.Logging, line 25
-	if (logEnable) { // library marker davegut.Logging, line 26
-		runIn(1800, debugLogOff) // library marker davegut.Logging, line 27
-		logData << [debugLogOff: "scheduled"] // library marker davegut.Logging, line 28
-	} // library marker davegut.Logging, line 29
-	return logData // library marker davegut.Logging, line 30
-} // library marker davegut.Logging, line 31
+def version() { return "2.3.9a" } // library marker davegut.Logging, line 12
 
-def logTrace(msg){ log.trace "${label()}: ${msg}" } // library marker davegut.Logging, line 33
+def label() { // library marker davegut.Logging, line 14
+	if (device) {  // library marker davegut.Logging, line 15
+		return device.displayName + "-${version()}" // library marker davegut.Logging, line 16
+	} else {  // library marker davegut.Logging, line 17
+		return app.getLabel() + "-${version()}" // library marker davegut.Logging, line 18
+	} // library marker davegut.Logging, line 19
+} // library marker davegut.Logging, line 20
 
-def logInfo(msg) {  // library marker davegut.Logging, line 35
-	if (infoLog) { log.info "${label()}: ${msg}" } // library marker davegut.Logging, line 36
-} // library marker davegut.Logging, line 37
+def listAttributes() { // library marker davegut.Logging, line 22
+	def attrData = device.getCurrentStates() // library marker davegut.Logging, line 23
+	Map attrs = [:] // library marker davegut.Logging, line 24
+	attrData.each { // library marker davegut.Logging, line 25
+		attrs << ["${it.name}": it.value] // library marker davegut.Logging, line 26
+	} // library marker davegut.Logging, line 27
+	return attrs // library marker davegut.Logging, line 28
+} // library marker davegut.Logging, line 29
 
-def debugLogOff() { // library marker davegut.Logging, line 39
-	device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 40
-	logInfo("debugLogOff") // library marker davegut.Logging, line 41
-} // library marker davegut.Logging, line 42
+def setLogsOff() { // library marker davegut.Logging, line 31
+	def logData = [logEnable: logEnable] // library marker davegut.Logging, line 32
+	if (logEnable) { // library marker davegut.Logging, line 33
+		runIn(1800, debugLogOff) // library marker davegut.Logging, line 34
+		logData << [debugLogOff: "scheduled"] // library marker davegut.Logging, line 35
+	} // library marker davegut.Logging, line 36
+	return logData // library marker davegut.Logging, line 37
+} // library marker davegut.Logging, line 38
 
-def logDebug(msg) { // library marker davegut.Logging, line 44
-	if (logEnable) { log.debug "${label()}: ${msg}" } // library marker davegut.Logging, line 45
-} // library marker davegut.Logging, line 46
+def logTrace(msg){ log.trace "${label()}: ${msg}" } // library marker davegut.Logging, line 40
 
-def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Logging, line 48
+def logInfo(msg) {  // library marker davegut.Logging, line 42
+	if (infoLog) { log.info "${label()}: ${msg}" } // library marker davegut.Logging, line 43
+} // library marker davegut.Logging, line 44
 
-def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 50
+def debugLogOff() { // library marker davegut.Logging, line 46
+	if (device) { // library marker davegut.Logging, line 47
+		device.updateSetting("logEnable", [type:"bool", value: false]) // library marker davegut.Logging, line 48
+	} else { // library marker davegut.Logging, line 49
+		app.updateSetting("logEnable", false) // library marker davegut.Logging, line 50
+	} // library marker davegut.Logging, line 51
+	logInfo("debugLogOff") // library marker davegut.Logging, line 52
+} // library marker davegut.Logging, line 53
 
-// ~~~~~ end include (21) davegut.Logging ~~~~~
+def logDebug(msg) { // library marker davegut.Logging, line 55
+	if (logEnable) { log.debug "${label()}: ${msg}" } // library marker davegut.Logging, line 56
+} // library marker davegut.Logging, line 57
+
+def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Logging, line 59
+
+def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 61
+
+// ~~~~~ end include (49) davegut.Logging ~~~~~
