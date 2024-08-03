@@ -1,0 +1,29 @@
+# Version 2.3.9 Special Update Instructions
+##  File update
+  a.  Via HPM - standard update
+  b.  Manual
+      1.  Import function on driver edit page will not work.
+      2.  Manually upload the appropriate driver file from this repository
+          (see list below)
+## Post file update: 
+RUN APP -> Scan for Devices and Add -> Next -> Done
+  (This will update version-specific data for all devices and the app.)
+
+
+      Original File Name                   New File Name
+      tapo_device_install.groovy           No Change
+      tpLink_bulb_color.groovy             tpLink_color_bulb.groovy
+      tpLink_bulb_dimmer.groovy            tpLink_dimmer.groovy
+      tpLink_bulb_lightStrip.groovy        tpLink_lightStrip.groovy
+      tpLink_hub.groovy                    No Change
+      tpLink_hub_button.groovy             No Change
+      tpLink_hub_contact.groovy            No Change
+      tpLink_hub_motion.groovy             No Change
+      tpLink_hub_tempHumidity.groovy       No Change
+      tpLink_plug.groovy                   No Change
+      tpLink_plug_dimmer.groovy           tpLink_dimmer.groovy
+      tpLink_plug_em.groovy               No Change
+      tpLink_plug_multi.groovy            tpLink_parent.groovy
+      tpLink_plug_multi_child.groovy      tpLink_child_plug.groovy
+    tpLink_robovac.groovy               No Change
+
