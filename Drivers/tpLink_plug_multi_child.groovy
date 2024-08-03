@@ -143,7 +143,7 @@ def updateAttr(attr, value) {
 
 
 
-// ~~~~~ start include (21) davegut.Logging ~~~~~
+// ~~~~~ start include (15) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -195,4 +195,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 50
 
-// ~~~~~ end include (21) davegut.Logging ~~~~~
+// ~~~~~ end include (15) davegut.Logging ~~~~~

@@ -109,7 +109,7 @@ def deviceParse(resp, data=null) {
 
 
 
-// ~~~~~ start include (18) davegut.lib_tpLink_CapSwitch ~~~~~
+// ~~~~~ start include (23) davegut.lib_tpLink_CapSwitch ~~~~~
 library ( // library marker davegut.lib_tpLink_CapSwitch, line 1
 	name: "lib_tpLink_CapSwitch", // library marker davegut.lib_tpLink_CapSwitch, line 2
 	namespace: "davegut", // library marker davegut.lib_tpLink_CapSwitch, line 3
@@ -190,9 +190,9 @@ def levelDown() { // library marker davegut.lib_tpLink_CapSwitch, line 69
 	} // library marker davegut.lib_tpLink_CapSwitch, line 78
 } // library marker davegut.lib_tpLink_CapSwitch, line 79
 
-// ~~~~~ end include (18) davegut.lib_tpLink_CapSwitch ~~~~~
+// ~~~~~ end include (23) davegut.lib_tpLink_CapSwitch ~~~~~
 
-// ~~~~~ start include (19) davegut.lib_tpLink_common ~~~~~
+// ~~~~~ start include (24) davegut.lib_tpLink_common ~~~~~
 library ( // library marker davegut.lib_tpLink_common, line 1
 	name: "lib_tpLink_common", // library marker davegut.lib_tpLink_common, line 2
 	namespace: "davegut", // library marker davegut.lib_tpLink_common, line 3
@@ -642,142 +642,142 @@ def parseKlapLogin(resp, data) { // library marker davegut.lib_tpLink_common, li
 } // library marker davegut.lib_tpLink_common, line 447
 
 //	===== Protocol specific encrytion/decryption ===== // library marker davegut.lib_tpLink_common, line 449
-def klapEncrypt(byte[] request, encKey, encIv, encSig, seqNo) { // library marker davegut.lib_tpLink_common, line 450
-	byte[] encSeqNo = integerToByteArray(seqNo) // library marker davegut.lib_tpLink_common, line 451
-	byte[] ivEnc = [encIv, encSeqNo].flatten() // library marker davegut.lib_tpLink_common, line 452
+def klapEncrypt(byte[] request, encKey, encIv, encSig) { // library marker davegut.lib_tpLink_common, line 450
+	int seqNo = state.seqNo + 1 // library marker davegut.lib_tpLink_common, line 451
+	state.seqNo = seqNo // library marker davegut.lib_tpLink_common, line 452
+	byte[] encSeqNo = integerToByteArray(seqNo) // library marker davegut.lib_tpLink_common, line 453
+	byte[] ivEnc = [encIv, encSeqNo].flatten() // library marker davegut.lib_tpLink_common, line 454
 
-	def cipher = Cipher.getInstance("AES/CBC/PKCS5Padding") // library marker davegut.lib_tpLink_common, line 454
-	SecretKeySpec key = new SecretKeySpec(encKey, "AES") // library marker davegut.lib_tpLink_common, line 455
-	IvParameterSpec iv = new IvParameterSpec(ivEnc) // library marker davegut.lib_tpLink_common, line 456
-	cipher.init(Cipher.ENCRYPT_MODE, key, iv) // library marker davegut.lib_tpLink_common, line 457
-	byte[] cipherRequest = cipher.doFinal(request) // library marker davegut.lib_tpLink_common, line 458
+	def cipher = Cipher.getInstance("AES/CBC/PKCS5Padding") // library marker davegut.lib_tpLink_common, line 456
+	SecretKeySpec key = new SecretKeySpec(encKey, "AES") // library marker davegut.lib_tpLink_common, line 457
+	IvParameterSpec iv = new IvParameterSpec(ivEnc) // library marker davegut.lib_tpLink_common, line 458
+	cipher.init(Cipher.ENCRYPT_MODE, key, iv) // library marker davegut.lib_tpLink_common, line 459
+	byte[] cipherRequest = cipher.doFinal(request) // library marker davegut.lib_tpLink_common, line 460
 
-	byte[] payload = [encSig, encSeqNo, cipherRequest].flatten() // library marker davegut.lib_tpLink_common, line 460
-	byte[] signature = mdEncode("SHA-256", payload) // library marker davegut.lib_tpLink_common, line 461
-	cipherRequest = [signature, cipherRequest].flatten() // library marker davegut.lib_tpLink_common, line 462
-	return [cipherData: cipherRequest, seqNumber: seqNo] // library marker davegut.lib_tpLink_common, line 463
-} // library marker davegut.lib_tpLink_common, line 464
+	byte[] payload = [encSig, encSeqNo, cipherRequest].flatten() // library marker davegut.lib_tpLink_common, line 462
+	byte[] signature = mdEncode("SHA-256", payload) // library marker davegut.lib_tpLink_common, line 463
+	cipherRequest = [signature, cipherRequest].flatten() // library marker davegut.lib_tpLink_common, line 464
+	return [cipherData: cipherRequest, seqNumber: seqNo] // library marker davegut.lib_tpLink_common, line 465
+} // library marker davegut.lib_tpLink_common, line 466
 
-def aesEncrypt(request, encKey, encIv) { // library marker davegut.lib_tpLink_common, line 466
-	def cipher = Cipher.getInstance("AES/CBC/PKCS5Padding") // library marker davegut.lib_tpLink_common, line 467
-	SecretKeySpec key = new SecretKeySpec(encKey, "AES") // library marker davegut.lib_tpLink_common, line 468
-	IvParameterSpec iv = new IvParameterSpec(encIv) // library marker davegut.lib_tpLink_common, line 469
-	cipher.init(Cipher.ENCRYPT_MODE, key, iv) // library marker davegut.lib_tpLink_common, line 470
-	String result = cipher.doFinal(request.getBytes("UTF-8")).encodeBase64().toString() // library marker davegut.lib_tpLink_common, line 471
-	return result.replace("\r\n","") // library marker davegut.lib_tpLink_common, line 472
-} // library marker davegut.lib_tpLink_common, line 473
+def aesEncrypt(request, encKey, encIv) { // library marker davegut.lib_tpLink_common, line 468
+	def cipher = Cipher.getInstance("AES/CBC/PKCS5Padding") // library marker davegut.lib_tpLink_common, line 469
+	SecretKeySpec key = new SecretKeySpec(encKey, "AES") // library marker davegut.lib_tpLink_common, line 470
+	IvParameterSpec iv = new IvParameterSpec(encIv) // library marker davegut.lib_tpLink_common, line 471
+	cipher.init(Cipher.ENCRYPT_MODE, key, iv) // library marker davegut.lib_tpLink_common, line 472
+	String result = cipher.doFinal(request.getBytes("UTF-8")).encodeBase64().toString() // library marker davegut.lib_tpLink_common, line 473
+	return result.replace("\r\n","") // library marker davegut.lib_tpLink_common, line 474
+} // library marker davegut.lib_tpLink_common, line 475
 
-def klapDecrypt(cipherResponse, encKey, encIv, seqNo) { // library marker davegut.lib_tpLink_common, line 475
-	byte[] encSeq = integerToByteArray(seqNo) // library marker davegut.lib_tpLink_common, line 476
-	byte[] ivEnc = [encIv, encSeq].flatten() // library marker davegut.lib_tpLink_common, line 477
+def klapDecrypt(cipherResponse, encKey, encIv) { // library marker davegut.lib_tpLink_common, line 477
+	byte[] encSeq = integerToByteArray(state.seqNo) // library marker davegut.lib_tpLink_common, line 478
+	byte[] ivEnc = [encIv, encSeq].flatten() // library marker davegut.lib_tpLink_common, line 479
 
-	def cipher = Cipher.getInstance("AES/CBC/PKCS5Padding") // library marker davegut.lib_tpLink_common, line 479
-    SecretKeySpec key = new SecretKeySpec(encKey, "AES") // library marker davegut.lib_tpLink_common, line 480
-	IvParameterSpec iv = new IvParameterSpec(ivEnc) // library marker davegut.lib_tpLink_common, line 481
-    cipher.init(Cipher.DECRYPT_MODE, key, iv) // library marker davegut.lib_tpLink_common, line 482
-	byte[] byteResponse = cipher.doFinal(cipherResponse) // library marker davegut.lib_tpLink_common, line 483
-	return new String(byteResponse, "UTF-8") // library marker davegut.lib_tpLink_common, line 484
-} // library marker davegut.lib_tpLink_common, line 485
+	def cipher = Cipher.getInstance("AES/CBC/PKCS5Padding") // library marker davegut.lib_tpLink_common, line 481
+    SecretKeySpec key = new SecretKeySpec(encKey, "AES") // library marker davegut.lib_tpLink_common, line 482
+	IvParameterSpec iv = new IvParameterSpec(ivEnc) // library marker davegut.lib_tpLink_common, line 483
+    cipher.init(Cipher.DECRYPT_MODE, key, iv) // library marker davegut.lib_tpLink_common, line 484
+	byte[] byteResponse = cipher.doFinal(cipherResponse) // library marker davegut.lib_tpLink_common, line 485
+	return new String(byteResponse, "UTF-8") // library marker davegut.lib_tpLink_common, line 486
+} // library marker davegut.lib_tpLink_common, line 487
 
-def aesDecrypt(cipherResponse, encKey, encIv) { // library marker davegut.lib_tpLink_common, line 487
-    byte[] decodedBytes = cipherResponse.decodeBase64() // library marker davegut.lib_tpLink_common, line 488
-	def cipher = Cipher.getInstance("AES/CBC/PKCS5Padding") // library marker davegut.lib_tpLink_common, line 489
-    SecretKeySpec key = new SecretKeySpec(encKey, "AES") // library marker davegut.lib_tpLink_common, line 490
-	IvParameterSpec iv = new IvParameterSpec(encIv) // library marker davegut.lib_tpLink_common, line 491
-    cipher.init(Cipher.DECRYPT_MODE, key, iv) // library marker davegut.lib_tpLink_common, line 492
-	String result = new String(cipher.doFinal(decodedBytes), "UTF-8") // library marker davegut.lib_tpLink_common, line 493
-	return result // library marker davegut.lib_tpLink_common, line 494
-} // library marker davegut.lib_tpLink_common, line 495
+def aesDecrypt(cipherResponse, encKey, encIv) { // library marker davegut.lib_tpLink_common, line 489
+    byte[] decodedBytes = cipherResponse.decodeBase64() // library marker davegut.lib_tpLink_common, line 490
+	def cipher = Cipher.getInstance("AES/CBC/PKCS5Padding") // library marker davegut.lib_tpLink_common, line 491
+    SecretKeySpec key = new SecretKeySpec(encKey, "AES") // library marker davegut.lib_tpLink_common, line 492
+	IvParameterSpec iv = new IvParameterSpec(encIv) // library marker davegut.lib_tpLink_common, line 493
+    cipher.init(Cipher.DECRYPT_MODE, key, iv) // library marker davegut.lib_tpLink_common, line 494
+	String result = new String(cipher.doFinal(decodedBytes), "UTF-8") // library marker davegut.lib_tpLink_common, line 495
+	return result // library marker davegut.lib_tpLink_common, line 496
+} // library marker davegut.lib_tpLink_common, line 497
 
-//	===== RSA Key Methods ===== // library marker davegut.lib_tpLink_common, line 497
-def getRsaKeys() { // library marker davegut.lib_tpLink_common, line 498
-	def keyNo = Math.round(5 * Math.random()).toInteger() // library marker davegut.lib_tpLink_common, line 499
-	def keyData = keyData() // library marker davegut.lib_tpLink_common, line 500
-	def RSAKeys = keyData.find { it.keyNo == keyNo } // library marker davegut.lib_tpLink_common, line 501
-	return RSAKeys // library marker davegut.lib_tpLink_common, line 502
-} // library marker davegut.lib_tpLink_common, line 503
+//	===== RSA Key Methods ===== // library marker davegut.lib_tpLink_common, line 499
+def getRsaKeys() { // library marker davegut.lib_tpLink_common, line 500
+	def keyNo = Math.round(5 * Math.random()).toInteger() // library marker davegut.lib_tpLink_common, line 501
+	def keyData = keyData() // library marker davegut.lib_tpLink_common, line 502
+	def RSAKeys = keyData.find { it.keyNo == keyNo } // library marker davegut.lib_tpLink_common, line 503
+	return RSAKeys // library marker davegut.lib_tpLink_common, line 504
+} // library marker davegut.lib_tpLink_common, line 505
 
-def keyData() { // library marker davegut.lib_tpLink_common, line 505
-	//	Keys used for discovery. // library marker davegut.lib_tpLink_common, line 506
-	return [ // library marker davegut.lib_tpLink_common, line 507
-		[ // library marker davegut.lib_tpLink_common, line 508
-			keyNo: 0, // library marker davegut.lib_tpLink_common, line 509
-			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGr/mHBK8aqx7UAS+g+TuAvE3J2DdwsqRn9MmAkjPGNon1ZlwM6nLQHfJHebdohyVqkNWaCECGXnftnlC8CM2c/RujvCrStRA0lVD+jixO9QJ9PcYTa07Z1FuEze7Q5OIa6pEoPxomrjxzVlUWLDXt901qCdn3/zRZpBdpXzVZtQIDAQAB", // library marker davegut.lib_tpLink_common, line 510
-			private: "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAMav+YcErxqrHtQBL6D5O4C8TcnYN3CypGf0yYCSM8Y2ifVmXAzqctAd8kd5t2iHJWqQ1ZoIQIZed+2eULwIzZz9G6O8KtK1EDSVUP6OLE71An09xhNrTtnUW4TN7tDk4hrqkSg/GiauPHNWVRYsNe33TWoJ2ff/NFmkF2lfNVm1AgMBAAECgYEAocxCHmKBGe2KAEkq+SKdAxvVGO77TsobOhDMWug0Q1C8jduaUGZHsxT/7JbA9d1AagSh/XqE2Sdq8FUBF+7vSFzozBHyGkrX1iKURpQFEQM2j9JgUCucEavnxvCqDYpscyNRAgqz9jdh+BjEMcKAG7o68bOw41ZC+JyYR41xSe0CQQD1os71NcZiMVqYcBud6fTYFHZz3HBNcbzOk+RpIHyi8aF3zIqPKIAh2pO4s7vJgrMZTc2wkIe0ZnUrm0oaC//jAkEAzxIPW1mWd3+KE3gpgyX0cFkZsDmlIbWojUIbyz8NgeUglr+BczARG4ITrTV4fxkGwNI4EZxBT8vXDSIXJ8NDhwJBAIiKndx0rfg7Uw7VkqRvPqk2hrnU2aBTDw8N6rP9WQsCoi0DyCnX65Hl/KN5VXOocYIpW6NAVA8VvSAmTES6Ut0CQQCX20jD13mPfUsHaDIZafZPhiheoofFpvFLVtYHQeBoCF7T7vHCRdfl8oj3l6UcoH/hXMmdsJf9KyI1EXElyf91AkAvLfmAS2UvUnhX4qyFioitjxwWawSnf+CewN8LDbH7m5JVXJEh3hqp+aLHg1EaW4wJtkoKLCF+DeVIgbSvOLJw" // library marker davegut.lib_tpLink_common, line 511
-		],[ // library marker davegut.lib_tpLink_common, line 512
-			keyNo: 1, // library marker davegut.lib_tpLink_common, line 513
-			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCshy+qBKbJNefcyJUZ/3i+3KyLji6XaWEWvebUCC2r9/0jE6hc89AufO41a13E3gJ2es732vaxwZ1BZKLy468NnL+tg6vlQXaPkDcdunQwjxbTLNL/yzDZs9HRju2lJnupcksdJWBZmjtztMWQkzBrQVeSKzSTrKYK0s24EEXmtQIDAQAB", // library marker davegut.lib_tpLink_common, line 514
-			private: "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKyHL6oEpsk159zIlRn/eL7crIuOLpdpYRa95tQILav3/SMTqFzz0C587jVrXcTeAnZ6zvfa9rHBnUFkovLjrw2cv62Dq+VBdo+QNx26dDCPFtMs0v/LMNmz0dGO7aUme6lySx0lYFmaO3O0xZCTMGtBV5IrNJOspgrSzbgQRea1AgMBAAECgYBSeiX9H1AkbJK1Z2ZwEUNF6vTJmmUHmScC2jHZNzeuOFVZSXJ5TU0+jBbMjtE65e9DeJ4suw6oF6j3tAZ6GwJ5tHoIy+qHRV6AjA8GEXjhSwwVCyP8jXYZ7UZyHzjLQAK+L0PvwJY1lAtns/Xmk5GH+zpNnhEmKSZAw23f7wpj2QJBANVPQGYT7TsMTDEEl2jq/ZgOX5Djf2VnKpPZYZGsUmg1hMwcpN/4XQ7XOaclR5TO/CJBJl3UCUEVjdrR1zdD8g8CQQDPDoa5Y5UfhLz4Ja2/gs2UKwO4fkTqqR6Ad8fQlaUZ55HINHWFd8FeERBFgNJzszrzd9BBJ7NnZM5nf2OPqU77AkBLuQuScSZ5HL97czbQvwLxVMDmLWyPMdVykOvLC9JhPgZ7cvuwqnlWiF7mEBzeHbBx9JDLJDd4zE8ETBPLgapPAkAHhCR52FaSdVQSwfNjr1DdHw6chODlj8wOp8p2FOiQXyqYlObrOGSpkH8BtuJs1sW+DsxdgR5vE2a2tRYdIe0/AkEAoQ5MzLcETQrmabdVCyB9pQAiHe4yY9e1w7cimsLJOrH7LMM0hqvBqFOIbSPrZyTp7Ie8awn4nTKoZQtvBfwzHw==" // library marker davegut.lib_tpLink_common, line 515
-		],[ // library marker davegut.lib_tpLink_common, line 516
-			keyNo: 2, // library marker davegut.lib_tpLink_common, line 517
-			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCBeqRy4zAOs63Sc5yc0DtlFXG1stmdD6sEfUiGjlsy0S8aS8X+Qcjcu5AK3uBBrkVNIa8djXht1bd+pUof5/txzWIMJw9SNtNYqzSdeO7cCtRLzuQnQWP7Am64OBvYkXn2sUqoaqDE50LbSQWbuvZw0Vi9QihfBYGQdlrqjCPUsQIDAQAB", // library marker davegut.lib_tpLink_common, line 518
-			private: "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAIF6pHLjMA6zrdJznJzQO2UVcbWy2Z0PqwR9SIaOWzLRLxpLxf5ByNy7kAre4EGuRU0hrx2NeG3Vt36lSh/n+3HNYgwnD1I201irNJ147twK1EvO5CdBY/sCbrg4G9iRefaxSqhqoMTnQttJBZu69nDRWL1CKF8FgZB2WuqMI9SxAgMBAAECgYBBi2wkHI3/Y0Xi+1OUrnTivvBJIri2oW/ZXfKQ6w+PsgU+Mo2QII0l8G0Ck8DCfw3l9d9H/o2wTDgPjGzxqeXHAbxET1dS0QBTjR1zLZlFyfAs7WO8tDKmHVroUgqRkJgoQNQlBSe1E3e7pTgSKElzLuALkRS6p1jhzT2wu9U04QJBAOFr/G36PbQ6NmDYtVyEEr3vWn46JHeZISdJOsordR7Wzbt6xk6/zUDHq0OGM9rYrpBy7PNrbc0JuQrhfbIyaHMCQQCTCvETjXCMkwyUrQT6TpxVzKEVRf1rCitnNQCh1TLnDKcCEAnqZT2RRS3yNXTWFoJrtuEHMGmwUrtog9+ZJBlLAkEA2qxdkPY621XJIIO404mPgM7rMx4F+DsE7U5diHdFw2fO5brBGu13GAtZuUQ7k2W1WY0TDUO+nTN8XPDHdZDuvwJABu7TIwreLaKZS0FFJNAkCt+VEL22Dx/xn/Idz4OP3Nj53t0Guqh/WKQcYHkowxdYmt+KiJ49vXSJJYpiNoQ/NQJAM1HCl8hBznLZLQlxrCTdMvUimG3kJmA0bUNVncgUBq7ptqjk7lp5iNrle5aml99foYnzZeEUW6jrCC7Lj9tg+w==" // library marker davegut.lib_tpLink_common, line 519
-		],[ // library marker davegut.lib_tpLink_common, line 520
-			keyNo: 3, // library marker davegut.lib_tpLink_common, line 521
-			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCFYaoMvv5kBxUUbp4PQyd7RoZlPompsupXP2La0qGGxacF98/88W4KNUqLbF4X5BPqxoEA+VeZy75qqyfuYbGQ4fxT6usE/LnzW8zDY/PjhVBht8FBRyAUsoYAt3Ip6sDyjd9YzRzUL1Q/OxCgxz5CNETYxcNr7zfMshBHDmZXMQIDAQAB", // library marker davegut.lib_tpLink_common, line 522
-			private: "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAIVhqgy+/mQHFRRung9DJ3tGhmU+iamy6lc/YtrSoYbFpwX3z/zxbgo1SotsXhfkE+rGgQD5V5nLvmqrJ+5hsZDh/FPq6wT8ufNbzMNj8+OFUGG3wUFHIBSyhgC3cinqwPKN31jNHNQvVD87EKDHPkI0RNjFw2vvN8yyEEcOZlcxAgMBAAECgYA3NxjoMeCpk+z8ClbQRqJ/e9CC9QKUB4bPG2RW5b8MRaJA7DdjpKZC/5CeavwAs+Ay3n3k41OKTTfEfJoJKtQQZnCrqnZfq9IVZI26xfYo0cgSYbi8wCie6nqIBdu9k54nqhePPshi22VcFuOh97xxPvY7kiUaRbbKqxn9PFwrYQJBAMsO3uOnYSJxN/FuxksKLqhtNei2GUC/0l7uIE8rbRdtN3QOpcC5suj7id03/IMn2Ks+Vsrmi0lV4VV/c8xyo9UCQQCoKDlObjbYeYYdW7/NvI6cEntgHygENi7b6WFk+dbRhJQgrFH8Z/Idj9a2E3BkfLCTUM1Z/Z3e7D0iqPDKBn/tAkBAHI3bKvnMOhsDq4oIH0rj+rdOplAK1YXCW0TwOjHTd7ROfGFxHDCUxvacVhTwBCCw0JnuriPEH81phTg2kOuRAkAEPR9UrsqLImUTEGEBWqNto7mgbqifko4T1QozdWjI10K0oCNg7W3Y+Os8o7jNj6cTz5GdlxsHp4TS/tczAH7xAkBY6KPIlF1FfiyJAnBC8+jJr2h4TSPQD7sbJJmYw7mvR+f1T4tsWY0aGux69hVm8BoaLStBVPdkaENBMdP+a07u" // library marker davegut.lib_tpLink_common, line 523
-		],[ // library marker davegut.lib_tpLink_common, line 524
-			keyNo: 4, // library marker davegut.lib_tpLink_common, line 525
-			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQClF0yuCpo3r1ZpYlGcyI5wy5nnvZdOZmxqz5U2rklt2b8+9uWhmsGdpbTv5+qJXlZmvUKbpoaPxpJluBFDJH2GSpq3I0whh0gNq9Arzpp/TDYaZLb6iIqDMF6wm8yjGOtcSkB7qLQWkXpEN9T2NsEzlfTc+GTKc07QXHnzxoLmwQIDAQAB", // library marker davegut.lib_tpLink_common, line 526
-			private: "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAKUXTK4KmjevVmliUZzIjnDLmee9l05mbGrPlTauSW3Zvz725aGawZ2ltO/n6oleVma9Qpumho/GkmW4EUMkfYZKmrcjTCGHSA2r0CvOmn9MNhpktvqIioMwXrCbzKMY61xKQHuotBaRekQ31PY2wTOV9Nz4ZMpzTtBcefPGgubBAgMBAAECgYB4wCz+05RvDFk45YfqFCtTRyg//0UvO+0qxsBN6Xad2XlvlWjqJeZd53kLTGcYqJ6rsNyKOmgLu2MS8Wn24TbJmPUAwZU+9cvSPxxQ5k6bwjg1RifieIcbTPC5wHDqVy0/Ur7dt+JVMOHFseR/pElDw471LCdwWSuFHAKuiHsaUQJBANHiPdSU3s1bbJYTLaS1tW0UXo7aqgeXuJgqZ2sKsoIEheEAROJ5rW/f2KrFVtvg0ITSM8mgXNlhNBS5OE4nSD0CQQDJXYJxKvdodeRoj+RGTCZGZanAE1naUzSdfcNWx2IMnYUD/3/2eB7ZIyQPBG5fWjc3bGOJKI+gy/14bCwXU7zVAkAdnsE9HBlpf+qOL3y0jxRgpYxGuuNeGPJrPyjDOYpBwSOnwmL2V1e7vyqTxy/f7hVfeU7nuKMB5q7z8cPZe7+9AkEAl7A6aDe+wlE069OhWZdZqeRBmLC7Gi1d0FoBwahW4zvyDM32vltEmbvQGQP0hR33xGeBH7yPXcjtOz75g+UPtQJBAL4gknJ/p+yQm9RJB0oq/g+HriErpIMHwrhNoRY1aOBMJVl4ari1Ch2RQNL9KQW7yrFDv7XiP3z5NwNDKsp/QeU=" // library marker davegut.lib_tpLink_common, line 527
-		],[ // library marker davegut.lib_tpLink_common, line 528
-			keyNo: 5, // library marker davegut.lib_tpLink_common, line 529
-			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQChN8Xc+gsSuhcLVM1W1E+e1o+celvKlOmuV6sJEkJecknKFujx9+T4xvyapzyePpTBn0lA9EYbaF7UDYBsDgqSwgt0El3gV+49O56nt1ELbLUJtkYEQPK+6Pu8665UG17leCiaMiFQyoZhD80PXhpjehqDu2900uU/4DzKZ/eywwIDAQAB", // library marker davegut.lib_tpLink_common, line 530
-			private: "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKE3xdz6CxK6FwtUzVbUT57Wj5x6W8qU6a5XqwkSQl5yScoW6PH35PjG/JqnPJ4+lMGfSUD0RhtoXtQNgGwOCpLCC3QSXeBX7j07nqe3UQtstQm2RgRA8r7o+7zrrlQbXuV4KJoyIVDKhmEPzQ9eGmN6GoO7b3TS5T/gPMpn97LDAgMBAAECgYAy+uQCwL8HqPjoiGR2dKTI4aiAHuEv6m8KxoY7VB7QputWkHARNAaf9KykawXsNHXt1GThuV0CBbsW6z4U7UvCJEZEpv7qJiGX8UWgEs1ISatqXmiIMVosIJJvoFw/rAoScadCYyicskjwDFBVNU53EAUD3WzwEq+dRYDn52lqQQJBAMu30FEReAHTAKE/hvjAeBUyWjg7E4/lnYvb/i9Wuc+MTH0q3JxFGGMb3n6APT9+kbGE0rinM/GEXtpny+5y3asCQQDKl7eNq0NdIEBGAdKerX4O+nVDZ7PXz1kQ2ca0r1tXtY/9sBDDoKHP2fQAH/xlOLIhLaH1rabSEJYNUM0ohHdJAkBYZqhwNWtlJ0ITtvSEB0lUsWfzFLe1bseCBHH16uVwygn7GtlmupkNkO9o548seWkRpnimhnAE8xMSJY6aJ6BHAkEAuSFLKrqGJGOEWHTx8u63cxiMb7wkK+HekfdwDUzxO4U+v6RUrW/sbfPNdQ/FpPnaTVdV2RuGhg+CD0j3MT9bgQJARH86hfxp1bkyc7f1iJQT8sofdqqVz5grCV5XeGY77BNmCvTOGLfL5pOJdgALuOoP4t3e94nRYdlW6LqIVugRBQ==" // library marker davegut.lib_tpLink_common, line 531
-		] // library marker davegut.lib_tpLink_common, line 532
-	] // library marker davegut.lib_tpLink_common, line 533
-} // library marker davegut.lib_tpLink_common, line 534
+def keyData() { // library marker davegut.lib_tpLink_common, line 507
+	//	Keys used for discovery. // library marker davegut.lib_tpLink_common, line 508
+	return [ // library marker davegut.lib_tpLink_common, line 509
+		[ // library marker davegut.lib_tpLink_common, line 510
+			keyNo: 0, // library marker davegut.lib_tpLink_common, line 511
+			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGr/mHBK8aqx7UAS+g+TuAvE3J2DdwsqRn9MmAkjPGNon1ZlwM6nLQHfJHebdohyVqkNWaCECGXnftnlC8CM2c/RujvCrStRA0lVD+jixO9QJ9PcYTa07Z1FuEze7Q5OIa6pEoPxomrjxzVlUWLDXt901qCdn3/zRZpBdpXzVZtQIDAQAB", // library marker davegut.lib_tpLink_common, line 512
+			private: "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAMav+YcErxqrHtQBL6D5O4C8TcnYN3CypGf0yYCSM8Y2ifVmXAzqctAd8kd5t2iHJWqQ1ZoIQIZed+2eULwIzZz9G6O8KtK1EDSVUP6OLE71An09xhNrTtnUW4TN7tDk4hrqkSg/GiauPHNWVRYsNe33TWoJ2ff/NFmkF2lfNVm1AgMBAAECgYEAocxCHmKBGe2KAEkq+SKdAxvVGO77TsobOhDMWug0Q1C8jduaUGZHsxT/7JbA9d1AagSh/XqE2Sdq8FUBF+7vSFzozBHyGkrX1iKURpQFEQM2j9JgUCucEavnxvCqDYpscyNRAgqz9jdh+BjEMcKAG7o68bOw41ZC+JyYR41xSe0CQQD1os71NcZiMVqYcBud6fTYFHZz3HBNcbzOk+RpIHyi8aF3zIqPKIAh2pO4s7vJgrMZTc2wkIe0ZnUrm0oaC//jAkEAzxIPW1mWd3+KE3gpgyX0cFkZsDmlIbWojUIbyz8NgeUglr+BczARG4ITrTV4fxkGwNI4EZxBT8vXDSIXJ8NDhwJBAIiKndx0rfg7Uw7VkqRvPqk2hrnU2aBTDw8N6rP9WQsCoi0DyCnX65Hl/KN5VXOocYIpW6NAVA8VvSAmTES6Ut0CQQCX20jD13mPfUsHaDIZafZPhiheoofFpvFLVtYHQeBoCF7T7vHCRdfl8oj3l6UcoH/hXMmdsJf9KyI1EXElyf91AkAvLfmAS2UvUnhX4qyFioitjxwWawSnf+CewN8LDbH7m5JVXJEh3hqp+aLHg1EaW4wJtkoKLCF+DeVIgbSvOLJw" // library marker davegut.lib_tpLink_common, line 513
+		],[ // library marker davegut.lib_tpLink_common, line 514
+			keyNo: 1, // library marker davegut.lib_tpLink_common, line 515
+			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCshy+qBKbJNefcyJUZ/3i+3KyLji6XaWEWvebUCC2r9/0jE6hc89AufO41a13E3gJ2es732vaxwZ1BZKLy468NnL+tg6vlQXaPkDcdunQwjxbTLNL/yzDZs9HRju2lJnupcksdJWBZmjtztMWQkzBrQVeSKzSTrKYK0s24EEXmtQIDAQAB", // library marker davegut.lib_tpLink_common, line 516
+			private: "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKyHL6oEpsk159zIlRn/eL7crIuOLpdpYRa95tQILav3/SMTqFzz0C587jVrXcTeAnZ6zvfa9rHBnUFkovLjrw2cv62Dq+VBdo+QNx26dDCPFtMs0v/LMNmz0dGO7aUme6lySx0lYFmaO3O0xZCTMGtBV5IrNJOspgrSzbgQRea1AgMBAAECgYBSeiX9H1AkbJK1Z2ZwEUNF6vTJmmUHmScC2jHZNzeuOFVZSXJ5TU0+jBbMjtE65e9DeJ4suw6oF6j3tAZ6GwJ5tHoIy+qHRV6AjA8GEXjhSwwVCyP8jXYZ7UZyHzjLQAK+L0PvwJY1lAtns/Xmk5GH+zpNnhEmKSZAw23f7wpj2QJBANVPQGYT7TsMTDEEl2jq/ZgOX5Djf2VnKpPZYZGsUmg1hMwcpN/4XQ7XOaclR5TO/CJBJl3UCUEVjdrR1zdD8g8CQQDPDoa5Y5UfhLz4Ja2/gs2UKwO4fkTqqR6Ad8fQlaUZ55HINHWFd8FeERBFgNJzszrzd9BBJ7NnZM5nf2OPqU77AkBLuQuScSZ5HL97czbQvwLxVMDmLWyPMdVykOvLC9JhPgZ7cvuwqnlWiF7mEBzeHbBx9JDLJDd4zE8ETBPLgapPAkAHhCR52FaSdVQSwfNjr1DdHw6chODlj8wOp8p2FOiQXyqYlObrOGSpkH8BtuJs1sW+DsxdgR5vE2a2tRYdIe0/AkEAoQ5MzLcETQrmabdVCyB9pQAiHe4yY9e1w7cimsLJOrH7LMM0hqvBqFOIbSPrZyTp7Ie8awn4nTKoZQtvBfwzHw==" // library marker davegut.lib_tpLink_common, line 517
+		],[ // library marker davegut.lib_tpLink_common, line 518
+			keyNo: 2, // library marker davegut.lib_tpLink_common, line 519
+			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCBeqRy4zAOs63Sc5yc0DtlFXG1stmdD6sEfUiGjlsy0S8aS8X+Qcjcu5AK3uBBrkVNIa8djXht1bd+pUof5/txzWIMJw9SNtNYqzSdeO7cCtRLzuQnQWP7Am64OBvYkXn2sUqoaqDE50LbSQWbuvZw0Vi9QihfBYGQdlrqjCPUsQIDAQAB", // library marker davegut.lib_tpLink_common, line 520
+			private: "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAIF6pHLjMA6zrdJznJzQO2UVcbWy2Z0PqwR9SIaOWzLRLxpLxf5ByNy7kAre4EGuRU0hrx2NeG3Vt36lSh/n+3HNYgwnD1I201irNJ147twK1EvO5CdBY/sCbrg4G9iRefaxSqhqoMTnQttJBZu69nDRWL1CKF8FgZB2WuqMI9SxAgMBAAECgYBBi2wkHI3/Y0Xi+1OUrnTivvBJIri2oW/ZXfKQ6w+PsgU+Mo2QII0l8G0Ck8DCfw3l9d9H/o2wTDgPjGzxqeXHAbxET1dS0QBTjR1zLZlFyfAs7WO8tDKmHVroUgqRkJgoQNQlBSe1E3e7pTgSKElzLuALkRS6p1jhzT2wu9U04QJBAOFr/G36PbQ6NmDYtVyEEr3vWn46JHeZISdJOsordR7Wzbt6xk6/zUDHq0OGM9rYrpBy7PNrbc0JuQrhfbIyaHMCQQCTCvETjXCMkwyUrQT6TpxVzKEVRf1rCitnNQCh1TLnDKcCEAnqZT2RRS3yNXTWFoJrtuEHMGmwUrtog9+ZJBlLAkEA2qxdkPY621XJIIO404mPgM7rMx4F+DsE7U5diHdFw2fO5brBGu13GAtZuUQ7k2W1WY0TDUO+nTN8XPDHdZDuvwJABu7TIwreLaKZS0FFJNAkCt+VEL22Dx/xn/Idz4OP3Nj53t0Guqh/WKQcYHkowxdYmt+KiJ49vXSJJYpiNoQ/NQJAM1HCl8hBznLZLQlxrCTdMvUimG3kJmA0bUNVncgUBq7ptqjk7lp5iNrle5aml99foYnzZeEUW6jrCC7Lj9tg+w==" // library marker davegut.lib_tpLink_common, line 521
+		],[ // library marker davegut.lib_tpLink_common, line 522
+			keyNo: 3, // library marker davegut.lib_tpLink_common, line 523
+			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCFYaoMvv5kBxUUbp4PQyd7RoZlPompsupXP2La0qGGxacF98/88W4KNUqLbF4X5BPqxoEA+VeZy75qqyfuYbGQ4fxT6usE/LnzW8zDY/PjhVBht8FBRyAUsoYAt3Ip6sDyjd9YzRzUL1Q/OxCgxz5CNETYxcNr7zfMshBHDmZXMQIDAQAB", // library marker davegut.lib_tpLink_common, line 524
+			private: "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAIVhqgy+/mQHFRRung9DJ3tGhmU+iamy6lc/YtrSoYbFpwX3z/zxbgo1SotsXhfkE+rGgQD5V5nLvmqrJ+5hsZDh/FPq6wT8ufNbzMNj8+OFUGG3wUFHIBSyhgC3cinqwPKN31jNHNQvVD87EKDHPkI0RNjFw2vvN8yyEEcOZlcxAgMBAAECgYA3NxjoMeCpk+z8ClbQRqJ/e9CC9QKUB4bPG2RW5b8MRaJA7DdjpKZC/5CeavwAs+Ay3n3k41OKTTfEfJoJKtQQZnCrqnZfq9IVZI26xfYo0cgSYbi8wCie6nqIBdu9k54nqhePPshi22VcFuOh97xxPvY7kiUaRbbKqxn9PFwrYQJBAMsO3uOnYSJxN/FuxksKLqhtNei2GUC/0l7uIE8rbRdtN3QOpcC5suj7id03/IMn2Ks+Vsrmi0lV4VV/c8xyo9UCQQCoKDlObjbYeYYdW7/NvI6cEntgHygENi7b6WFk+dbRhJQgrFH8Z/Idj9a2E3BkfLCTUM1Z/Z3e7D0iqPDKBn/tAkBAHI3bKvnMOhsDq4oIH0rj+rdOplAK1YXCW0TwOjHTd7ROfGFxHDCUxvacVhTwBCCw0JnuriPEH81phTg2kOuRAkAEPR9UrsqLImUTEGEBWqNto7mgbqifko4T1QozdWjI10K0oCNg7W3Y+Os8o7jNj6cTz5GdlxsHp4TS/tczAH7xAkBY6KPIlF1FfiyJAnBC8+jJr2h4TSPQD7sbJJmYw7mvR+f1T4tsWY0aGux69hVm8BoaLStBVPdkaENBMdP+a07u" // library marker davegut.lib_tpLink_common, line 525
+		],[ // library marker davegut.lib_tpLink_common, line 526
+			keyNo: 4, // library marker davegut.lib_tpLink_common, line 527
+			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQClF0yuCpo3r1ZpYlGcyI5wy5nnvZdOZmxqz5U2rklt2b8+9uWhmsGdpbTv5+qJXlZmvUKbpoaPxpJluBFDJH2GSpq3I0whh0gNq9Arzpp/TDYaZLb6iIqDMF6wm8yjGOtcSkB7qLQWkXpEN9T2NsEzlfTc+GTKc07QXHnzxoLmwQIDAQAB", // library marker davegut.lib_tpLink_common, line 528
+			private: "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAKUXTK4KmjevVmliUZzIjnDLmee9l05mbGrPlTauSW3Zvz725aGawZ2ltO/n6oleVma9Qpumho/GkmW4EUMkfYZKmrcjTCGHSA2r0CvOmn9MNhpktvqIioMwXrCbzKMY61xKQHuotBaRekQ31PY2wTOV9Nz4ZMpzTtBcefPGgubBAgMBAAECgYB4wCz+05RvDFk45YfqFCtTRyg//0UvO+0qxsBN6Xad2XlvlWjqJeZd53kLTGcYqJ6rsNyKOmgLu2MS8Wn24TbJmPUAwZU+9cvSPxxQ5k6bwjg1RifieIcbTPC5wHDqVy0/Ur7dt+JVMOHFseR/pElDw471LCdwWSuFHAKuiHsaUQJBANHiPdSU3s1bbJYTLaS1tW0UXo7aqgeXuJgqZ2sKsoIEheEAROJ5rW/f2KrFVtvg0ITSM8mgXNlhNBS5OE4nSD0CQQDJXYJxKvdodeRoj+RGTCZGZanAE1naUzSdfcNWx2IMnYUD/3/2eB7ZIyQPBG5fWjc3bGOJKI+gy/14bCwXU7zVAkAdnsE9HBlpf+qOL3y0jxRgpYxGuuNeGPJrPyjDOYpBwSOnwmL2V1e7vyqTxy/f7hVfeU7nuKMB5q7z8cPZe7+9AkEAl7A6aDe+wlE069OhWZdZqeRBmLC7Gi1d0FoBwahW4zvyDM32vltEmbvQGQP0hR33xGeBH7yPXcjtOz75g+UPtQJBAL4gknJ/p+yQm9RJB0oq/g+HriErpIMHwrhNoRY1aOBMJVl4ari1Ch2RQNL9KQW7yrFDv7XiP3z5NwNDKsp/QeU=" // library marker davegut.lib_tpLink_common, line 529
+		],[ // library marker davegut.lib_tpLink_common, line 530
+			keyNo: 5, // library marker davegut.lib_tpLink_common, line 531
+			public: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQChN8Xc+gsSuhcLVM1W1E+e1o+celvKlOmuV6sJEkJecknKFujx9+T4xvyapzyePpTBn0lA9EYbaF7UDYBsDgqSwgt0El3gV+49O56nt1ELbLUJtkYEQPK+6Pu8665UG17leCiaMiFQyoZhD80PXhpjehqDu2900uU/4DzKZ/eywwIDAQAB", // library marker davegut.lib_tpLink_common, line 532
+			private: "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKE3xdz6CxK6FwtUzVbUT57Wj5x6W8qU6a5XqwkSQl5yScoW6PH35PjG/JqnPJ4+lMGfSUD0RhtoXtQNgGwOCpLCC3QSXeBX7j07nqe3UQtstQm2RgRA8r7o+7zrrlQbXuV4KJoyIVDKhmEPzQ9eGmN6GoO7b3TS5T/gPMpn97LDAgMBAAECgYAy+uQCwL8HqPjoiGR2dKTI4aiAHuEv6m8KxoY7VB7QputWkHARNAaf9KykawXsNHXt1GThuV0CBbsW6z4U7UvCJEZEpv7qJiGX8UWgEs1ISatqXmiIMVosIJJvoFw/rAoScadCYyicskjwDFBVNU53EAUD3WzwEq+dRYDn52lqQQJBAMu30FEReAHTAKE/hvjAeBUyWjg7E4/lnYvb/i9Wuc+MTH0q3JxFGGMb3n6APT9+kbGE0rinM/GEXtpny+5y3asCQQDKl7eNq0NdIEBGAdKerX4O+nVDZ7PXz1kQ2ca0r1tXtY/9sBDDoKHP2fQAH/xlOLIhLaH1rabSEJYNUM0ohHdJAkBYZqhwNWtlJ0ITtvSEB0lUsWfzFLe1bseCBHH16uVwygn7GtlmupkNkO9o548seWkRpnimhnAE8xMSJY6aJ6BHAkEAuSFLKrqGJGOEWHTx8u63cxiMb7wkK+HekfdwDUzxO4U+v6RUrW/sbfPNdQ/FpPnaTVdV2RuGhg+CD0j3MT9bgQJARH86hfxp1bkyc7f1iJQT8sofdqqVz5grCV5XeGY77BNmCvTOGLfL5pOJdgALuOoP4t3e94nRYdlW6LqIVugRBQ==" // library marker davegut.lib_tpLink_common, line 533
+		] // library marker davegut.lib_tpLink_common, line 534
+	] // library marker davegut.lib_tpLink_common, line 535
+} // library marker davegut.lib_tpLink_common, line 536
 
-//	===== Encoding Methods ===== // library marker davegut.lib_tpLink_common, line 536
-def mdEncode(hashMethod, byte[] data) { // library marker davegut.lib_tpLink_common, line 537
-	MessageDigest md = MessageDigest.getInstance(hashMethod) // library marker davegut.lib_tpLink_common, line 538
-	md.update(data) // library marker davegut.lib_tpLink_common, line 539
-	return md.digest() // library marker davegut.lib_tpLink_common, line 540
-} // library marker davegut.lib_tpLink_common, line 541
+//	===== Encoding Methods ===== // library marker davegut.lib_tpLink_common, line 538
+def mdEncode(hashMethod, byte[] data) { // library marker davegut.lib_tpLink_common, line 539
+	MessageDigest md = MessageDigest.getInstance(hashMethod) // library marker davegut.lib_tpLink_common, line 540
+	md.update(data) // library marker davegut.lib_tpLink_common, line 541
+	return md.digest() // library marker davegut.lib_tpLink_common, line 542
+} // library marker davegut.lib_tpLink_common, line 543
 
-String encodeUtf8(String message) { // library marker davegut.lib_tpLink_common, line 543
-	byte[] arr = message.getBytes("UTF8") // library marker davegut.lib_tpLink_common, line 544
-	return new String(arr) // library marker davegut.lib_tpLink_common, line 545
-} // library marker davegut.lib_tpLink_common, line 546
+String encodeUtf8(String message) { // library marker davegut.lib_tpLink_common, line 545
+	byte[] arr = message.getBytes("UTF8") // library marker davegut.lib_tpLink_common, line 546
+	return new String(arr) // library marker davegut.lib_tpLink_common, line 547
+} // library marker davegut.lib_tpLink_common, line 548
 
-int byteArrayToInteger(byte[] byteArr) { // library marker davegut.lib_tpLink_common, line 548
-	int arrayASInteger // library marker davegut.lib_tpLink_common, line 549
-	try { // library marker davegut.lib_tpLink_common, line 550
-		arrayAsInteger = ((byteArr[0] & 0xFF) << 24) + ((byteArr[1] & 0xFF) << 16) + // library marker davegut.lib_tpLink_common, line 551
-			((byteArr[2] & 0xFF) << 8) + (byteArr[3] & 0xFF) // library marker davegut.lib_tpLink_common, line 552
-	} catch (error) { // library marker davegut.lib_tpLink_common, line 553
-		Map errLog = [byteArr: byteArr, ERROR: error] // library marker davegut.lib_tpLink_common, line 554
-		logWarn("byteArrayToInteger: ${errLog}") // library marker davegut.lib_tpLink_common, line 555
-	} // library marker davegut.lib_tpLink_common, line 556
-	return arrayAsInteger // library marker davegut.lib_tpLink_common, line 557
-} // library marker davegut.lib_tpLink_common, line 558
+int byteArrayToInteger(byte[] byteArr) { // library marker davegut.lib_tpLink_common, line 550
+	int arrayASInteger // library marker davegut.lib_tpLink_common, line 551
+	try { // library marker davegut.lib_tpLink_common, line 552
+		arrayAsInteger = ((byteArr[0] & 0xFF) << 24) + ((byteArr[1] & 0xFF) << 16) + // library marker davegut.lib_tpLink_common, line 553
+			((byteArr[2] & 0xFF) << 8) + (byteArr[3] & 0xFF) // library marker davegut.lib_tpLink_common, line 554
+	} catch (error) { // library marker davegut.lib_tpLink_common, line 555
+		Map errLog = [byteArr: byteArr, ERROR: error] // library marker davegut.lib_tpLink_common, line 556
+		logWarn("byteArrayToInteger: ${errLog}") // library marker davegut.lib_tpLink_common, line 557
+	} // library marker davegut.lib_tpLink_common, line 558
+	return arrayAsInteger // library marker davegut.lib_tpLink_common, line 559
+} // library marker davegut.lib_tpLink_common, line 560
 
-byte[] integerToByteArray(value) { // library marker davegut.lib_tpLink_common, line 560
-	String hexValue = hubitat.helper.HexUtils.integerToHexString(value, 4) // library marker davegut.lib_tpLink_common, line 561
-	byte[] byteValue = hubitat.helper.HexUtils.hexStringToByteArray(hexValue) // library marker davegut.lib_tpLink_common, line 562
-	return byteValue // library marker davegut.lib_tpLink_common, line 563
-} // library marker davegut.lib_tpLink_common, line 564
+byte[] integerToByteArray(value) { // library marker davegut.lib_tpLink_common, line 562
+	String hexValue = hubitat.helper.HexUtils.integerToHexString(value, 4) // library marker davegut.lib_tpLink_common, line 563
+	byte[] byteValue = hubitat.helper.HexUtils.hexStringToByteArray(hexValue) // library marker davegut.lib_tpLink_common, line 564
+	return byteValue // library marker davegut.lib_tpLink_common, line 565
+} // library marker davegut.lib_tpLink_common, line 566
 
-//	===== Communications ===== // library marker davegut.lib_tpLink_common, line 566
-def createMultiCmd(requests) { // library marker davegut.lib_tpLink_common, line 567
-	Map cmdBody = [ // library marker davegut.lib_tpLink_common, line 568
-		method: "multipleRequest", // library marker davegut.lib_tpLink_common, line 569
-		params: [requests: requests]] // library marker davegut.lib_tpLink_common, line 570
-	return cmdBody // library marker davegut.lib_tpLink_common, line 571
-} // library marker davegut.lib_tpLink_common, line 572
+//	===== Communications ===== // library marker davegut.lib_tpLink_common, line 568
+def createMultiCmd(requests) { // library marker davegut.lib_tpLink_common, line 569
+	Map cmdBody = [ // library marker davegut.lib_tpLink_common, line 570
+		method: "multipleRequest", // library marker davegut.lib_tpLink_common, line 571
+		params: [requests: requests]] // library marker davegut.lib_tpLink_common, line 572
+	return cmdBody // library marker davegut.lib_tpLink_common, line 573
+} // library marker davegut.lib_tpLink_common, line 574
 
-//	===== ASYNC Post ===== // library marker davegut.lib_tpLink_common, line 574
-def asyncSend(cmdBody, reqData, action) { // library marker davegut.lib_tpLink_common, line 575
-	Map cmdData = [cmdBody: cmdBody, reqData: reqData, action: action] // library marker davegut.lib_tpLink_common, line 576
-	state.lastCmd = cmdData // library marker davegut.lib_tpLink_common, line 577
-	byte[] encKey = new JsonSlurper().parseText(encKey) // library marker davegut.lib_tpLink_common, line 578
-	byte[] encIv = new JsonSlurper().parseText(encIv) // library marker davegut.lib_tpLink_common, line 579
-	if (getDataValue("protocol") == "KLAP") { // library marker davegut.lib_tpLink_common, line 580
-		byte[] encSig = new JsonSlurper().parseText(encSig) // library marker davegut.lib_tpLink_common, line 581
-		String cmdBodyJson = new groovy.json.JsonBuilder(cmdBody).toString() // library marker davegut.lib_tpLink_common, line 582
-		int seqNo = state.seqNo + 1 // library marker davegut.lib_tpLink_common, line 583
-		state.seqNo = seqNo // library marker davegut.lib_tpLink_common, line 584
-		Map encryptedData = klapEncrypt(cmdBodyJson.getBytes(), encKey, encIv, encSig, seqNo) // library marker davegut.lib_tpLink_common, line 585
+//	===== ASYNC Post ===== // library marker davegut.lib_tpLink_common, line 576
+def asyncSend(cmdBody, reqData, action) { // library marker davegut.lib_tpLink_common, line 577
+	Map cmdData = [cmdBody: cmdBody, reqData: reqData, action: action] // library marker davegut.lib_tpLink_common, line 578
+	state.lastCmd = cmdData // library marker davegut.lib_tpLink_common, line 579
+	byte[] encKey = new JsonSlurper().parseText(encKey) // library marker davegut.lib_tpLink_common, line 580
+	byte[] encIv = new JsonSlurper().parseText(encIv) // library marker davegut.lib_tpLink_common, line 581
+	if (getDataValue("protocol") == "KLAP") { // library marker davegut.lib_tpLink_common, line 582
+		byte[] encSig = new JsonSlurper().parseText(encSig) // library marker davegut.lib_tpLink_common, line 583
+		String cmdBodyJson = new groovy.json.JsonBuilder(cmdBody).toString() // library marker davegut.lib_tpLink_common, line 584
+		Map encryptedData = klapEncrypt(cmdBodyJson.getBytes(), encKey, encIv, encSig) // library marker davegut.lib_tpLink_common, line 585
 		def uri = "${getDataValue("baseUrl")}/request?seq=${encryptedData.seqNumber}" // library marker davegut.lib_tpLink_common, line 586
 		asyncPost(uri, encryptedData.cipherData, "application/octet-stream", // library marker davegut.lib_tpLink_common, line 587
 				  action, cookie, reqData) // library marker davegut.lib_tpLink_common, line 588
@@ -822,77 +822,76 @@ def parseData(resp) { // library marker davegut.lib_tpLink_common, line 621
 			byte[] encIv = new JsonSlurper().parseText(encIv) // library marker davegut.lib_tpLink_common, line 627
 			if (getDataValue("protocol") == "KLAP") { // library marker davegut.lib_tpLink_common, line 628
 				byte[] cipherResponse = resp.data.decodeBase64()[32..-1] // library marker davegut.lib_tpLink_common, line 629
-				int seqNo = state.seqNo				 // library marker davegut.lib_tpLink_common, line 630
-				cmdResp =  new JsonSlurper().parseText(klapDecrypt(cipherResponse, encKey, encIv, seqNo)) // library marker davegut.lib_tpLink_common, line 631
-			} else { // library marker davegut.lib_tpLink_common, line 632
-				cmdResp = new JsonSlurper().parseText(aesDecrypt(resp.json.result.response, encKey, encIv)) // library marker davegut.lib_tpLink_common, line 633
-			} // library marker davegut.lib_tpLink_common, line 634
-			logData << [status: "OK", cmdResp: cmdResp] // library marker davegut.lib_tpLink_common, line 635
-			state.errorCount = 0 // library marker davegut.lib_tpLink_common, line 636
-			setCommsError(false) // library marker davegut.lib_tpLink_common, line 637
-		} catch (err) { // library marker davegut.lib_tpLink_common, line 638
-			logData << [status: "deviceDataParseError", error: err, dataLength: resp.data.length()] // library marker davegut.lib_tpLink_common, line 639
-			runIn(1, handleCommsError, [data: "deviceDataParseError"]) // library marker davegut.lib_tpLink_common, line 640
-		} // library marker davegut.lib_tpLink_common, line 641
-	} else { // library marker davegut.lib_tpLink_common, line 642
-		logData << [status: "httpFailure(timeout)", data: resp.properties] // library marker davegut.lib_tpLink_common, line 643
-		runIn(1, handleCommsError, [data: "httpFailure(timeout)"]) // library marker davegut.lib_tpLink_common, line 644
-	} // library marker davegut.lib_tpLink_common, line 645
-	logDebug(logData) // library marker davegut.lib_tpLink_common, line 646
-	return logData // library marker davegut.lib_tpLink_common, line 647
-} // library marker davegut.lib_tpLink_common, line 648
+				cmdResp =  new JsonSlurper().parseText(klapDecrypt(cipherResponse, encKey, encIv)) // library marker davegut.lib_tpLink_common, line 630
+			} else { // library marker davegut.lib_tpLink_common, line 631
+				cmdResp = new JsonSlurper().parseText(aesDecrypt(resp.json.result.response, encKey, encIv)) // library marker davegut.lib_tpLink_common, line 632
+			} // library marker davegut.lib_tpLink_common, line 633
+			logData << [status: "OK", cmdResp: cmdResp] // library marker davegut.lib_tpLink_common, line 634
+			state.errorCount = 0 // library marker davegut.lib_tpLink_common, line 635
+			setCommsError(false) // library marker davegut.lib_tpLink_common, line 636
+		} catch (err) { // library marker davegut.lib_tpLink_common, line 637
+			logData << [status: "deviceDataParseError", error: err, dataLength: resp.data.length()] // library marker davegut.lib_tpLink_common, line 638
+			runIn(1, handleCommsError, [data: "deviceDataParseError"]) // library marker davegut.lib_tpLink_common, line 639
+		} // library marker davegut.lib_tpLink_common, line 640
+	} else { // library marker davegut.lib_tpLink_common, line 641
+		logData << [status: "httpFailure(timeout)", data: resp.properties] // library marker davegut.lib_tpLink_common, line 642
+		runIn(1, handleCommsError, [data: "httpFailure(timeout)"]) // library marker davegut.lib_tpLink_common, line 643
+	} // library marker davegut.lib_tpLink_common, line 644
+	logDebug(logData) // library marker davegut.lib_tpLink_common, line 645
+	return logData // library marker davegut.lib_tpLink_common, line 646
+} // library marker davegut.lib_tpLink_common, line 647
 
-//	===== Error Handling ===== // library marker davegut.lib_tpLink_common, line 650
-def handleCommsError(retryReason) { // library marker davegut.lib_tpLink_common, line 651
-	Map logData = [method: "handleCommsError", retryReason: retryReason] // library marker davegut.lib_tpLink_common, line 652
-	if (state.lastCmd != "") { // library marker davegut.lib_tpLink_common, line 653
-		def count = state.errorCount + 1 // library marker davegut.lib_tpLink_common, line 654
-		state.errorCount = count // library marker davegut.lib_tpLink_common, line 655
-		def cmdData = new JSONObject(state.lastCmd) // library marker davegut.lib_tpLink_common, line 656
-		def cmdBody = parseJson(cmdData.cmdBody.toString()) // library marker davegut.lib_tpLink_common, line 657
-		Map data = [cmdBody: cmdBody, method: cmdBody.method, action: cmdBody.action] // library marker davegut.lib_tpLink_common, line 658
-		logData << [count: count, command: cmdBody] // library marker davegut.lib_tpLink_common, line 659
-		switch (count) { // library marker davegut.lib_tpLink_common, line 660
-			case 1: // library marker davegut.lib_tpLink_common, line 661
-				pauseExecution(2000) // library marker davegut.lib_tpLink_common, line 662
-				Map loginData = deviceLogin() // library marker davegut.lib_tpLink_common, line 663
-				logData << [retryLogin: loginData.loginStatus, action: "retryCommand"] // library marker davegut.lib_tpLink_common, line 664
-				runIn(1, delayedPassThrough, [data:data]) // library marker davegut.lib_tpLink_common, line 665
-				break // library marker davegut.lib_tpLink_common, line 666
-			case 2: // library marker davegut.lib_tpLink_common, line 667
-				logData << [updateData: parent.tpLinkCheckForDevices(5), action: "retryCommand"] // library marker davegut.lib_tpLink_common, line 668
-				runIn(3, delayedPassThrough, [data:data]) // library marker davegut.lib_tpLink_common, line 669
-			case 3: // library marker davegut.lib_tpLink_common, line 670
-				logData << [status: setCommsError(true)] // library marker davegut.lib_tpLink_common, line 671
-				logWarn(logData) // library marker davegut.lib_tpLink_common, line 672
-				break // library marker davegut.lib_tpLink_common, line 673
-			default: // library marker davegut.lib_tpLink_common, line 674
-				logData << [status: "retriesDisabled"] // library marker davegut.lib_tpLink_common, line 675
-				break // library marker davegut.lib_tpLink_common, line 676
-		} // library marker davegut.lib_tpLink_common, line 677
-	} else { // library marker davegut.lib_tpLink_common, line 678
-		logData << [status: "noCommandToRetry"] // library marker davegut.lib_tpLink_common, line 679
-	} // library marker davegut.lib_tpLink_common, line 680
-	logInfo(logData) // library marker davegut.lib_tpLink_common, line 681
-} // library marker davegut.lib_tpLink_common, line 682
+//	===== Error Handling ===== // library marker davegut.lib_tpLink_common, line 649
+def handleCommsError(retryReason) { // library marker davegut.lib_tpLink_common, line 650
+	Map logData = [method: "handleCommsError", retryReason: retryReason] // library marker davegut.lib_tpLink_common, line 651
+	if (state.lastCmd != "") { // library marker davegut.lib_tpLink_common, line 652
+		def count = state.errorCount + 1 // library marker davegut.lib_tpLink_common, line 653
+		state.errorCount = count // library marker davegut.lib_tpLink_common, line 654
+		def cmdData = new JSONObject(state.lastCmd) // library marker davegut.lib_tpLink_common, line 655
+		def cmdBody = parseJson(cmdData.cmdBody.toString()) // library marker davegut.lib_tpLink_common, line 656
+		Map data = [cmdBody: cmdBody, method: cmdBody.method, action: cmdBody.action] // library marker davegut.lib_tpLink_common, line 657
+		logData << [count: count, command: cmdBody] // library marker davegut.lib_tpLink_common, line 658
+		switch (count) { // library marker davegut.lib_tpLink_common, line 659
+			case 1: // library marker davegut.lib_tpLink_common, line 660
+				pauseExecution(2000) // library marker davegut.lib_tpLink_common, line 661
+				Map loginData = deviceLogin() // library marker davegut.lib_tpLink_common, line 662
+				logData << [retryLogin: loginData.loginStatus, action: "retryCommand"] // library marker davegut.lib_tpLink_common, line 663
+				runIn(1, delayedPassThrough, [data:data]) // library marker davegut.lib_tpLink_common, line 664
+				break // library marker davegut.lib_tpLink_common, line 665
+			case 2: // library marker davegut.lib_tpLink_common, line 666
+				logData << [updateData: parent.tpLinkCheckForDevices(5), action: "retryCommand"] // library marker davegut.lib_tpLink_common, line 667
+				runIn(3, delayedPassThrough, [data:data]) // library marker davegut.lib_tpLink_common, line 668
+			case 3: // library marker davegut.lib_tpLink_common, line 669
+				logData << [status: setCommsError(true)] // library marker davegut.lib_tpLink_common, line 670
+				logWarn(logData) // library marker davegut.lib_tpLink_common, line 671
+				break // library marker davegut.lib_tpLink_common, line 672
+			default: // library marker davegut.lib_tpLink_common, line 673
+				logData << [status: "retriesDisabled"] // library marker davegut.lib_tpLink_common, line 674
+				break // library marker davegut.lib_tpLink_common, line 675
+		} // library marker davegut.lib_tpLink_common, line 676
+	} else { // library marker davegut.lib_tpLink_common, line 677
+		logData << [status: "noCommandToRetry"] // library marker davegut.lib_tpLink_common, line 678
+	} // library marker davegut.lib_tpLink_common, line 679
+	logInfo(logData) // library marker davegut.lib_tpLink_common, line 680
+} // library marker davegut.lib_tpLink_common, line 681
 
-def delayedPassThrough(data) { // library marker davegut.lib_tpLink_common, line 684
-	asyncSend(data.cmdBody, data.method, data.action) // library marker davegut.lib_tpLink_common, line 685
-} // library marker davegut.lib_tpLink_common, line 686
+def delayedPassThrough(data) { // library marker davegut.lib_tpLink_common, line 683
+	asyncSend(data.cmdBody, data.method, data.action) // library marker davegut.lib_tpLink_common, line 684
+} // library marker davegut.lib_tpLink_common, line 685
 
-def setCommsError(status) { // library marker davegut.lib_tpLink_common, line 688
-	if (device.currentValue("commsError") == true && status == false) { // library marker davegut.lib_tpLink_common, line 689
-		updateAttr("commsError", false) // library marker davegut.lib_tpLink_common, line 690
-		setPollInterval("25 min") // library marker davegut.lib_tpLink_common, line 691
-	} else if (device.currentValue("commsError") == false && status == true) { // library marker davegut.lib_tpLink_common, line 692
-		updateAttr("commsError", true) // library marker davegut.lib_tpLink_common, line 693
-		setPollInterval() // library marker davegut.lib_tpLink_common, line 694
-	} // library marker davegut.lib_tpLink_common, line 695
-} // library marker davegut.lib_tpLink_common, line 696
+def setCommsError(status) { // library marker davegut.lib_tpLink_common, line 687
+	if (device.currentValue("commsError") == true && status == false) { // library marker davegut.lib_tpLink_common, line 688
+		updateAttr("commsError", false) // library marker davegut.lib_tpLink_common, line 689
+		setPollInterval("25 min") // library marker davegut.lib_tpLink_common, line 690
+	} else if (device.currentValue("commsError") == false && status == true) { // library marker davegut.lib_tpLink_common, line 691
+		updateAttr("commsError", true) // library marker davegut.lib_tpLink_common, line 692
+		setPollInterval() // library marker davegut.lib_tpLink_common, line 693
+	} // library marker davegut.lib_tpLink_common, line 694
+} // library marker davegut.lib_tpLink_common, line 695
 
-// ~~~~~ end include (19) davegut.lib_tpLink_common ~~~~~
+// ~~~~~ end include (24) davegut.lib_tpLink_common ~~~~~
 
-// ~~~~~ start include (21) davegut.Logging ~~~~~
+// ~~~~~ start include (15) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -944,4 +943,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 50
 
-// ~~~~~ end include (21) davegut.Logging ~~~~~
+// ~~~~~ end include (15) davegut.Logging ~~~~~
