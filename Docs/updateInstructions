@@ -6,8 +6,8 @@
       2.  Manually upload the appropriate driver file from this repository
           (see list below)
 ## Post file update: 
-RUN APP -> Scan for Devices and Add -> Next -> Done
-  (This will update version-specific data for all devices and the app.)
+    RUN APP -> Scan for Devices and Add -> Next -> Done
+    (This will update version-specific data for all devices and the app.)
 
 
       Original File Name                   New File Name
