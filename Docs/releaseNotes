@@ -1,19 +1,18 @@
 # Version 2.3.9 Release Notes
-  a,  Major restructure of app and comms to accommodate future update to include Kasa IOT (Legacy) devices.
+  a,  Major restructure of app and comms to accommodate future update to 
+      include Kasa IOT (Legacy) devices.
   b.  Remove some preferences to reduce complexity, and error processing
       1.  Synchronize Name
       2.  Enable Auto Off / Auto Off Time
       3.  Power Loss Default State
       4.  Enable Power Protection / Power Protection Watts
       5.  Set Gradual On/Off
-  c.  Hid Preferences Crypto Key, KLAP Signature, Crypto Vector, and Session Cookie, 
+  c.  Hide Preferences Crypto Key, KLAP Signature, Crypto Vector, and 
+      Session Cookie.
   d.  Update device data structure to add version and type.
   e.  Support plugs/switches with varying types of child devices
       1.  Plug/Switch (on-off)
       2.  Dimmer (i.e., night light on Tapo P306)
       3.  Fan Control (i.e., Kasa KS240)
   e.  Combined drivers for dimming bulb and dimming plug to dimmer.
-
-
-
-  
+  f.  Changed some external file names for clarity.
