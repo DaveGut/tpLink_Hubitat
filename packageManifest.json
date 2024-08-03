@@ -6,7 +6,7 @@
   "documentationLink": "https://github.com/DaveGut/tpLink_Hubitat",
   "communityLink": "https://community.hubitat.com/t/tp-link-tapo-devices/121084",
   "dateReleased": "2024-06-17",
-  "releaseNotes": "Address KLAP protocol sequence number state issue causing errors obtaining data from device.",
+  "releaseNotes": "MANIFEST CURRENTLY UNDER DEVELOPMENT FOR UPDATE.  DO NOT CONTINUE.  Address KLAP protocol sequence number state issue causing errors obtaining data from device.",
   "licenseFile": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/LICENSE",
   "apps": [
     {
