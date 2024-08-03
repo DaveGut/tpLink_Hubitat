@@ -80,7 +80,7 @@ def childRespDist(resp, data) {
 
 
 
-// ~~~~~ start include (35) davegut.tpLinkCommon ~~~~~
+// ~~~~~ start include (64) davegut.tpLinkCommon ~~~~~
 library ( // library marker davegut.tpLinkCommon, line 1
 	name: "tpLinkCommon", // library marker davegut.tpLinkCommon, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCommon, line 3
@@ -98,312 +98,327 @@ def commonPreferences() { // library marker davegut.tpLinkCommon, line 14
 	List pollOptions = ["5 sec", "10 sec", "30 sec", "5 min", "10 min", "15 min", "30 min"] // library marker davegut.tpLinkCommon, line 15
 	input ("pollInterval", "enum", title: "Poll/Refresh Interval", // library marker davegut.tpLinkCommon, line 16
 		   options: pollOptions, defaultValue: "30 min") // library marker davegut.tpLinkCommon, line 17
-	input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false) // library marker davegut.tpLinkCommon, line 18
-	input ("infoLog", "bool", title: "Enable information logging",defaultValue: true) // library marker davegut.tpLinkCommon, line 19
-} // library marker davegut.tpLinkCommon, line 20
+	input ("rebootDev", "bool", title: "Reboot Device then run Save Preferences", defaultValue: false) // library marker davegut.tpLinkCommon, line 18
+	input ("logEnable", "bool",  title: "Enable debug logging for 30 minutes", defaultValue: false) // library marker davegut.tpLinkCommon, line 19
+	input ("infoLog", "bool", title: "Enable information logging",defaultValue: true) // library marker davegut.tpLinkCommon, line 20
+} // library marker davegut.tpLinkCommon, line 21
 
-def commonInstalled() { // library marker davegut.tpLinkCommon, line 22
-	updateAttr("commsError", "false") // library marker davegut.tpLinkCommon, line 23
-	state.errorCount = 0 // library marker davegut.tpLinkCommon, line 24
-	state.lastCmd = "" // library marker davegut.tpLinkCommon, line 25
-	state.eventType = "digital" // library marker davegut.tpLinkCommon, line 26
-	Map logData = [configure: configure(false)] // library marker davegut.tpLinkCommon, line 27
-	return logData // library marker davegut.tpLinkCommon, line 28
-} // library marker davegut.tpLinkCommon, line 29
+def commonInstalled() { // library marker davegut.tpLinkCommon, line 23
+	updateAttr("commsError", "false") // library marker davegut.tpLinkCommon, line 24
+	state.errorCount = 0 // library marker davegut.tpLinkCommon, line 25
+	state.lastCmd = "" // library marker davegut.tpLinkCommon, line 26
+	state.eventType = "digital" // library marker davegut.tpLinkCommon, line 27
+	Map logData = [configure: configure(false)] // library marker davegut.tpLinkCommon, line 28
+	return logData // library marker davegut.tpLinkCommon, line 29
+} // library marker davegut.tpLinkCommon, line 30
 
-def commonUpdated() { // library marker davegut.tpLinkCommon, line 31
-	def commsErr = device.currentValue("commsError") // library marker davegut.tpLinkCommon, line 32
-	Map logData = [commsError: commsErr] // library marker davegut.tpLinkCommon, line 33
-	if (commsErr == "true") { // library marker davegut.tpLinkCommon, line 34
-		logData << [configure: configure(true)] // library marker davegut.tpLinkCommon, line 35
-	} // library marker davegut.tpLinkCommon, line 36
-	updateAttr("commsError", "false") // library marker davegut.tpLinkCommon, line 37
-	state.lastCmd = "" // library marker davegut.tpLinkCommon, line 38
-	logData << [pollInterval: setPollInterval()] // library marker davegut.tpLinkCommon, line 39
-	logData << [logging: setLogsOff()] // library marker davegut.tpLinkCommon, line 40
-	logData << [updateDevSettings: updDevSettings()] // library marker davegut.tpLinkCommon, line 41
-	pauseExecution(5000) // library marker davegut.tpLinkCommon, line 42
-	return logData // library marker davegut.tpLinkCommon, line 43
-} // library marker davegut.tpLinkCommon, line 44
+def commonUpdated() { // library marker davegut.tpLinkCommon, line 32
+	def commsErr = device.currentValue("commsError") // library marker davegut.tpLinkCommon, line 33
+	Map logData = [commsError: commsErr] // library marker davegut.tpLinkCommon, line 34
+	if (commsErr == "true") { // library marker davegut.tpLinkCommon, line 35
+		logData << [configure: configure(true)] // library marker davegut.tpLinkCommon, line 36
+	} // library marker davegut.tpLinkCommon, line 37
+	if (rebootDev == true) { // library marker davegut.tpLinkCommon, line 38
+		runIn(1, rebootDevice) // library marker davegut.tpLinkCommon, line 39
+		device.updateSetting("rebootDev",[type:"bool", value: false]) // library marker davegut.tpLinkCommon, line 40
+		pauseExecution(15000) // library marker davegut.tpLinkCommon, line 41
+	} // library marker davegut.tpLinkCommon, line 42
+	updateAttr("commsError", "false") // library marker davegut.tpLinkCommon, line 43
+	state.lastCmd = "" // library marker davegut.tpLinkCommon, line 44
+	logData << [pollInterval: setPollInterval()] // library marker davegut.tpLinkCommon, line 45
+	logData << [logging: setLogsOff()] // library marker davegut.tpLinkCommon, line 46
+	logData << [updateDevSettings: updDevSettings()] // library marker davegut.tpLinkCommon, line 47
+	pauseExecution(5000) // library marker davegut.tpLinkCommon, line 48
+	return logData // library marker davegut.tpLinkCommon, line 49
+} // library marker davegut.tpLinkCommon, line 50
 
-def updDevSettings() { // library marker davegut.tpLinkCommon, line 46
-	Map logData = [method: "updDevSettings"] // library marker davegut.tpLinkCommon, line 47
-	List requests = [] // library marker davegut.tpLinkCommon, line 48
-	if (ledRule != null) { // library marker davegut.tpLinkCommon, line 49
-		logData << [ledRule: ledRule] // library marker davegut.tpLinkCommon, line 50
-		requests << [method: "get_led_info"] // library marker davegut.tpLinkCommon, line 51
-	} // library marker davegut.tpLinkCommon, line 52
-	requests << [method: "get_device_info"] // library marker davegut.tpLinkCommon, line 53
-	asyncSend(createMultiCmd(requests), "updDevSettings", "parseUpdates") // library marker davegut.tpLinkCommon, line 54
-	pauseExecution(5000) // library marker davegut.tpLinkCommon, line 55
-	return logData // library marker davegut.tpLinkCommon, line 56
-} // library marker davegut.tpLinkCommon, line 57
+def rebootDevice() { // library marker davegut.tpLinkCommon, line 52
+	asyncSend([method: "device_reboot"], "rebootDevice", "rebootParse") // library marker davegut.tpLinkCommon, line 53
+} // library marker davegut.tpLinkCommon, line 54
+def rebootParse(resp, data=null) { // library marker davegut.tpLinkCommon, line 55
+	def respData = parseData(resp).cmdResp // library marker davegut.tpLinkCommon, line 56
+	Map logData = [method: "rebootParse", data: data, respData: respData] // library marker davegut.tpLinkCommon, line 57
+	logInfo(logData) // library marker davegut.tpLinkCommon, line 58
+} // library marker davegut.tpLinkCommon, line 59
 
-//	===== Capability Configuration ===== // library marker davegut.tpLinkCommon, line 59
-def configure(checkApp = true) { // library marker davegut.tpLinkCommon, line 60
-	Map logData = [method: "configure", checkApp: checkApp] // library marker davegut.tpLinkCommon, line 61
-	if (checkApp == true) { // library marker davegut.tpLinkCommon, line 62
-		logData << [updateData: parent.tpLinkCheckForDevices(5)] // library marker davegut.tpLinkCommon, line 63
-	} // library marker davegut.tpLinkCommon, line 64
-	def action = updateDeviceData() // library marker davegut.tpLinkCommon, line 65
-	unschedule() // library marker davegut.tpLinkCommon, line 66
-	logData << [handshake: deviceHandshake()] // library marker davegut.tpLinkCommon, line 67
-	runEvery3Hours(deviceHandshake) // library marker davegut.tpLinkCommon, line 68
-	logData << [handshakeInterval: "3 Hours"] // library marker davegut.tpLinkCommon, line 69
-	logData << [pollInterval: setPollInterval()] // library marker davegut.tpLinkCommon, line 70
-	logData << [logging: setLogsOff()] // library marker davegut.tpLinkCommon, line 71
-	runIn(2, initSettings) // library marker davegut.tpLinkCommon, line 72
-	logInfo(logData) // library marker davegut.tpLinkCommon, line 73
-	return logData // library marker davegut.tpLinkCommon, line 74
-} // library marker davegut.tpLinkCommon, line 75
+def updDevSettings() { // library marker davegut.tpLinkCommon, line 61
+	Map logData = [method: "updDevSettings"] // library marker davegut.tpLinkCommon, line 62
+	List requests = [] // library marker davegut.tpLinkCommon, line 63
+	if (ledRule != null) { // library marker davegut.tpLinkCommon, line 64
+		logData << [ledRule: ledRule] // library marker davegut.tpLinkCommon, line 65
+		requests << [method: "get_led_info"] // library marker davegut.tpLinkCommon, line 66
+	} // library marker davegut.tpLinkCommon, line 67
+	requests << [method: "get_device_info"] // library marker davegut.tpLinkCommon, line 68
+	asyncSend(createMultiCmd(requests), "updDevSettings", "parseUpdates") // library marker davegut.tpLinkCommon, line 69
+	pauseExecution(5000) // library marker davegut.tpLinkCommon, line 70
+	return logData // library marker davegut.tpLinkCommon, line 71
+} // library marker davegut.tpLinkCommon, line 72
 
-def initSettings() { // library marker davegut.tpLinkCommon, line 77
-	Map logData = [method: "initSettings"] // library marker davegut.tpLinkCommon, line 78
-	Map prefs = state.compData // library marker davegut.tpLinkCommon, line 79
-	List requests = [] // library marker davegut.tpLinkCommon, line 80
-	if (ledRule) { // library marker davegut.tpLinkCommon, line 81
-		requests << [method: "get_led_info"] // library marker davegut.tpLinkCommon, line 82
-	} // library marker davegut.tpLinkCommon, line 83
-	if (getDataValue("type") == "Plug EM") { requests << [method: "get_energy_usage"] } // library marker davegut.tpLinkCommon, line 84
-	requests << [method: "get_device_info"] // library marker davegut.tpLinkCommon, line 85
-	asyncSend(createMultiCmd(requests), "initSettings", "parseUpdates") // library marker davegut.tpLinkCommon, line 86
-	return logData // library marker davegut.tpLinkCommon, line 87
-} // library marker davegut.tpLinkCommon, line 88
+//	===== Capability Configuration ===== // library marker davegut.tpLinkCommon, line 74
+def configure(checkApp = true) { // library marker davegut.tpLinkCommon, line 75
+	Map logData = [method: "configure", checkApp: checkApp] // library marker davegut.tpLinkCommon, line 76
+	if (checkApp == true) { // library marker davegut.tpLinkCommon, line 77
+		logData << [updateData: parent.tpLinkCheckForDevices(5)] // library marker davegut.tpLinkCommon, line 78
+	} // library marker davegut.tpLinkCommon, line 79
+	def action = updateDeviceData() // library marker davegut.tpLinkCommon, line 80
+	unschedule() // library marker davegut.tpLinkCommon, line 81
+	logData << [handshake: deviceHandshake()] // library marker davegut.tpLinkCommon, line 82
+	runEvery3Hours(deviceHandshake) // library marker davegut.tpLinkCommon, line 83
+	logData << [handshakeInterval: "3 Hours"] // library marker davegut.tpLinkCommon, line 84
+	logData << [pollInterval: setPollInterval()] // library marker davegut.tpLinkCommon, line 85
+	logData << [logging: setLogsOff()] // library marker davegut.tpLinkCommon, line 86
+	runIn(2, initSettings) // library marker davegut.tpLinkCommon, line 87
+	logInfo(logData) // library marker davegut.tpLinkCommon, line 88
+	return logData // library marker davegut.tpLinkCommon, line 89
+} // library marker davegut.tpLinkCommon, line 90
 
-def setPollInterval(pInterval = pollInterval) { // library marker davegut.tpLinkCommon, line 90
-	String devType = getDataValue("type") // library marker davegut.tpLinkCommon, line 91
-	def pollMethod = "minRefresh" // library marker davegut.tpLinkCommon, line 92
-	if (devType == "Plug EM") { // library marker davegut.tpLinkCommon, line 93
-		pollMethod = "plugEmRefresh" // library marker davegut.tpLinkCommon, line 94
-	} else if (devType == "Hub"|| devType == "Parent") { // library marker davegut.tpLinkCommon, line 95
-		pollMethod = "parentRefresh" // library marker davegut.tpLinkCommon, line 96
-	} // library marker davegut.tpLinkCommon, line 97
+def initSettings() { // library marker davegut.tpLinkCommon, line 92
+	Map logData = [method: "initSettings"] // library marker davegut.tpLinkCommon, line 93
+	Map prefs = state.compData // library marker davegut.tpLinkCommon, line 94
+	List requests = [] // library marker davegut.tpLinkCommon, line 95
+	if (ledRule) { // library marker davegut.tpLinkCommon, line 96
+		requests << [method: "get_led_info"] // library marker davegut.tpLinkCommon, line 97
+	} // library marker davegut.tpLinkCommon, line 98
+	if (getDataValue("type") == "Plug EM") { requests << [method: "get_energy_usage"] } // library marker davegut.tpLinkCommon, line 99
+	requests << [method: "get_device_info"] // library marker davegut.tpLinkCommon, line 100
+	asyncSend(createMultiCmd(requests), "initSettings", "parseUpdates") // library marker davegut.tpLinkCommon, line 101
+	return logData // library marker davegut.tpLinkCommon, line 102
+} // library marker davegut.tpLinkCommon, line 103
 
-	if (pInterval.contains("sec")) { // library marker davegut.tpLinkCommon, line 99
-		def interval = pInterval.replace(" sec", "").toInteger() // library marker davegut.tpLinkCommon, line 100
-		def start = Math.round((interval-1) * Math.random()).toInteger() // library marker davegut.tpLinkCommon, line 101
-		schedule("${start}/${interval} * * * * ?", pollMethod) // library marker davegut.tpLinkCommon, line 102
-	} else { // library marker davegut.tpLinkCommon, line 103
-		def interval= pInterval.replace(" min", "").toInteger() // library marker davegut.tpLinkCommon, line 104
-		def start = Math.round(59 * Math.random()).toInteger() // library marker davegut.tpLinkCommon, line 105
-		schedule("${start} */${interval} * * * ?", pollMethod) // library marker davegut.tpLinkCommon, line 106
-	} // library marker davegut.tpLinkCommon, line 107
-	return pInterval // library marker davegut.tpLinkCommon, line 108
-} // library marker davegut.tpLinkCommon, line 109
+def setPollInterval(pInterval = pollInterval) { // library marker davegut.tpLinkCommon, line 105
+	String devType = getDataValue("type") // library marker davegut.tpLinkCommon, line 106
+	def pollMethod = "minRefresh" // library marker davegut.tpLinkCommon, line 107
+	if (devType == "Plug EM") { // library marker davegut.tpLinkCommon, line 108
+		pollMethod = "plugEmRefresh" // library marker davegut.tpLinkCommon, line 109
+	} else if (devType == "Hub"|| devType == "Parent") { // library marker davegut.tpLinkCommon, line 110
+		pollMethod = "parentRefresh" // library marker davegut.tpLinkCommon, line 111
+	} // library marker davegut.tpLinkCommon, line 112
 
-//	===== Data Distribution (and parse) ===== // library marker davegut.tpLinkCommon, line 111
-def parseUpdates(resp, data = null) { // library marker davegut.tpLinkCommon, line 112
-	Map logData = [method: "parseUpdates", data: data] // library marker davegut.tpLinkCommon, line 113
-//log.trace resp.status // library marker davegut.tpLinkCommon, line 114
-//log.trace resp.warningMessages // library marker davegut.tpLinkCommon, line 115
-//log.trace resp.headers // library marker davegut.tpLinkCommon, line 116
-//	def respData = parseData(resp).cmdResp // library marker davegut.tpLinkCommon, line 117
-	def respData = parseData(resp) // library marker davegut.tpLinkCommon, line 118
-	def cmdResp = parseData(resp).cmdResp // library marker davegut.tpLinkCommon, line 119
-	if (cmdResp != null && cmdResp.error_code == 0) { // library marker davegut.tpLinkCommon, line 120
-		cmdResp.result.responses.each { // library marker davegut.tpLinkCommon, line 121
-			if (it.error_code == 0) { // library marker davegut.tpLinkCommon, line 122
-				if (!it.method.contains("set_")) { // library marker davegut.tpLinkCommon, line 123
-					distGetData(it, data) // library marker davegut.tpLinkCommon, line 124
-				} else { // library marker davegut.tpLinkCommon, line 125
-					logData << [devMethod: it.method] // library marker davegut.tpLinkCommon, line 126
-					logDebug(logData) // library marker davegut.tpLinkCommon, line 127
-				} // library marker davegut.tpLinkCommon, line 128
-			} else { // library marker davegut.tpLinkCommon, line 129
-				logData << ["${it.method}": [status: "cmdFailed", data: it]] // library marker davegut.tpLinkCommon, line 130
-				logWarn(logData) // library marker davegut.tpLinkCommon, line 131
-			} // library marker davegut.tpLinkCommon, line 132
-		} // library marker davegut.tpLinkCommon, line 133
-	} else { // library marker davegut.tpLinkCommon, line 134
-		logData << [status: "invalidRequest", respData: respData, // library marker davegut.tpLinkCommon, line 135
-					respProps: [headers: resp.headers, status: resp.status, // library marker davegut.tpLinkCommon, line 136
-								warningMessages: resp.warningMessages]] // library marker davegut.tpLinkCommon, line 137
-		logWarn(logData)				 // library marker davegut.tpLinkCommon, line 138
-	} // library marker davegut.tpLinkCommon, line 139
-} // library marker davegut.tpLinkCommon, line 140
+	if (pInterval.contains("sec")) { // library marker davegut.tpLinkCommon, line 114
+		def interval = pInterval.replace(" sec", "").toInteger() // library marker davegut.tpLinkCommon, line 115
+		def start = Math.round((interval-1) * Math.random()).toInteger() // library marker davegut.tpLinkCommon, line 116
+		schedule("${start}/${interval} * * * * ?", pollMethod) // library marker davegut.tpLinkCommon, line 117
+	} else { // library marker davegut.tpLinkCommon, line 118
+		def interval= pInterval.replace(" min", "").toInteger() // library marker davegut.tpLinkCommon, line 119
+		def start = Math.round(59 * Math.random()).toInteger() // library marker davegut.tpLinkCommon, line 120
+		schedule("${start} */${interval} * * * ?", pollMethod) // library marker davegut.tpLinkCommon, line 121
+	} // library marker davegut.tpLinkCommon, line 122
+	return pInterval // library marker davegut.tpLinkCommon, line 123
+} // library marker davegut.tpLinkCommon, line 124
 
-def distGetData(devResp, data) { // library marker davegut.tpLinkCommon, line 142
-	switch(devResp.method) { // library marker davegut.tpLinkCommon, line 143
-		case "get_device_info": // library marker davegut.tpLinkCommon, line 144
-			parse_get_device_info(devResp.result, data) // library marker davegut.tpLinkCommon, line 145
-			break // library marker davegut.tpLinkCommon, line 146
-		case "get_energy_usage": // library marker davegut.tpLinkCommon, line 147
-			parse_get_energy_usage(devResp.result, data) // library marker davegut.tpLinkCommon, line 148
-			break // library marker davegut.tpLinkCommon, line 149
-		case "get_child_device_list": // library marker davegut.tpLinkCommon, line 150
-			parse_get_child_device_list(devResp.result, data) // library marker davegut.tpLinkCommon, line 151
-			break // library marker davegut.tpLinkCommon, line 152
-		case "get_alarm_configure": // library marker davegut.tpLinkCommon, line 153
-			parse_get_alarm_configure(devResp.result, data) // library marker davegut.tpLinkCommon, line 154
-			break // library marker davegut.tpLinkCommon, line 155
-		case "get_led_info": // library marker davegut.tpLinkCommon, line 156
-			parse_get_led_info(devResp.result, data) // library marker davegut.tpLinkCommon, line 157
-			break // library marker davegut.tpLinkCommon, line 158
-		default: // library marker davegut.tpLinkCommon, line 159
-			Map logData = [method: "distGetData", data: data, // library marker davegut.tpLinkCommon, line 160
-						   devMethod: devResp.method, status: "unprocessed"] // library marker davegut.tpLinkCommon, line 161
-			logDebug(logData) // library marker davegut.tpLinkCommon, line 162
-	} // library marker davegut.tpLinkCommon, line 163
-} // library marker davegut.tpLinkCommon, line 164
+//	===== Data Distribution (and parse) ===== // library marker davegut.tpLinkCommon, line 126
+def parseUpdates(resp, data = null) { // library marker davegut.tpLinkCommon, line 127
+	Map logData = [method: "parseUpdates", data: data] // library marker davegut.tpLinkCommon, line 128
+	def respData = parseData(resp) // library marker davegut.tpLinkCommon, line 129
+	def cmdResp = parseData(resp).cmdResp // library marker davegut.tpLinkCommon, line 130
+	if (cmdResp != null && cmdResp.error_code == 0) { // library marker davegut.tpLinkCommon, line 131
+		cmdResp.result.responses.each { // library marker davegut.tpLinkCommon, line 132
+			if (it.error_code == 0) { // library marker davegut.tpLinkCommon, line 133
+				if (!it.method.contains("set_")) { // library marker davegut.tpLinkCommon, line 134
+					distGetData(it, data) // library marker davegut.tpLinkCommon, line 135
+				} else { // library marker davegut.tpLinkCommon, line 136
+					logData << [devMethod: it.method] // library marker davegut.tpLinkCommon, line 137
+					logDebug(logData) // library marker davegut.tpLinkCommon, line 138
+				} // library marker davegut.tpLinkCommon, line 139
+			} else { // library marker davegut.tpLinkCommon, line 140
+				logData << ["${it.method}": [status: "cmdFailed", data: it]] // library marker davegut.tpLinkCommon, line 141
+				logWarn(logData) // library marker davegut.tpLinkCommon, line 142
+			} // library marker davegut.tpLinkCommon, line 143
+		} // library marker davegut.tpLinkCommon, line 144
+	} else { // library marker davegut.tpLinkCommon, line 145
+		logData << [status: "invalidRequest", respData: respData, // library marker davegut.tpLinkCommon, line 146
+					respProps: [headers: resp.headers, status: resp.status, // library marker davegut.tpLinkCommon, line 147
+								warningMessages: resp.warningMessages]] // library marker davegut.tpLinkCommon, line 148
+		logWarn(logData)				 // library marker davegut.tpLinkCommon, line 149
+	} // library marker davegut.tpLinkCommon, line 150
+} // library marker davegut.tpLinkCommon, line 151
 
-def parse_get_led_info(result, data) { // library marker davegut.tpLinkCommon, line 166
-	Map logData = [method: "parse_get_led_info", data: data] // library marker davegut.tpLinkCommon, line 167
-	if (ledRule != result.led_rule) { // library marker davegut.tpLinkCommon, line 168
-		Map request = [ // library marker davegut.tpLinkCommon, line 169
-			method: "set_led_info", // library marker davegut.tpLinkCommon, line 170
-			params: [ // library marker davegut.tpLinkCommon, line 171
-				led_rule: ledRule, // library marker davegut.tpLinkCommon, line 172
-				night_mode: [ // library marker davegut.tpLinkCommon, line 173
-					night_mode_type: result.night_mode.night_mode_type, // library marker davegut.tpLinkCommon, line 174
-					sunrise_offset: result.night_mode.sunrise_offset,  // library marker davegut.tpLinkCommon, line 175
-					sunset_offset:result.night_mode.sunset_offset, // library marker davegut.tpLinkCommon, line 176
-					start_time: result.night_mode.start_time, // library marker davegut.tpLinkCommon, line 177
-					end_time: result.night_mode.end_time // library marker davegut.tpLinkCommon, line 178
-				]]] // library marker davegut.tpLinkCommon, line 179
-		asyncSend(request, "delayedUpdates", "parseUpdates") // library marker davegut.tpLinkCommon, line 180
-		device.updateSetting("ledRule", [type:"enum", value: ledRule]) // library marker davegut.tpLinkCommon, line 181
-		logData << [status: "updatingLedRule"] // library marker davegut.tpLinkCommon, line 182
-	} // library marker davegut.tpLinkCommon, line 183
-	logData << [ledRule: ledRule] // library marker davegut.tpLinkCommon, line 184
-	logDebug(logData) // library marker davegut.tpLinkCommon, line 185
-} // library marker davegut.tpLinkCommon, line 186
+def distGetData(devResp, data) { // library marker davegut.tpLinkCommon, line 153
+	switch(devResp.method) { // library marker davegut.tpLinkCommon, line 154
+		case "get_device_info": // library marker davegut.tpLinkCommon, line 155
+			parse_get_device_info(devResp.result, data) // library marker davegut.tpLinkCommon, line 156
+			break // library marker davegut.tpLinkCommon, line 157
+		case "get_energy_usage": // library marker davegut.tpLinkCommon, line 158
+			parse_get_energy_usage(devResp.result, data) // library marker davegut.tpLinkCommon, line 159
+			break // library marker davegut.tpLinkCommon, line 160
+		case "get_child_device_list": // library marker davegut.tpLinkCommon, line 161
+			parse_get_child_device_list(devResp.result, data) // library marker davegut.tpLinkCommon, line 162
+			break // library marker davegut.tpLinkCommon, line 163
+		case "get_alarm_configure": // library marker davegut.tpLinkCommon, line 164
+			parse_get_alarm_configure(devResp.result, data) // library marker davegut.tpLinkCommon, line 165
+			break // library marker davegut.tpLinkCommon, line 166
+		case "get_led_info": // library marker davegut.tpLinkCommon, line 167
+			parse_get_led_info(devResp.result, data) // library marker davegut.tpLinkCommon, line 168
+			break // library marker davegut.tpLinkCommon, line 169
+		default: // library marker davegut.tpLinkCommon, line 170
+			Map logData = [method: "distGetData", data: data, // library marker davegut.tpLinkCommon, line 171
+						   devMethod: devResp.method, status: "unprocessed"] // library marker davegut.tpLinkCommon, line 172
+			logDebug(logData) // library marker davegut.tpLinkCommon, line 173
+	} // library marker davegut.tpLinkCommon, line 174
+} // library marker davegut.tpLinkCommon, line 175
 
-//	===== Capability Refresh ===== // library marker davegut.tpLinkCommon, line 188
-def refresh() { // library marker davegut.tpLinkCommon, line 189
-	def type = getDataValue("type") // library marker davegut.tpLinkCommon, line 190
-	if (type == "Plug EM") { // library marker davegut.tpLinkCommon, line 191
-		plugEmRefresh() // library marker davegut.tpLinkCommon, line 192
-	} else if (type == "Hub" || type == "Parent") { // library marker davegut.tpLinkCommon, line 193
-		parentRefresh() // library marker davegut.tpLinkCommon, line 194
-	} else { // library marker davegut.tpLinkCommon, line 195
-		minRefresh() // library marker davegut.tpLinkCommon, line 196
-	} // library marker davegut.tpLinkCommon, line 197
-} // library marker davegut.tpLinkCommon, line 198
+def parse_get_led_info(result, data) { // library marker davegut.tpLinkCommon, line 177
+	Map logData = [method: "parse_get_led_info", data: data] // library marker davegut.tpLinkCommon, line 178
+	if (ledRule != result.led_rule) { // library marker davegut.tpLinkCommon, line 179
+		Map request = [ // library marker davegut.tpLinkCommon, line 180
+			method: "set_led_info", // library marker davegut.tpLinkCommon, line 181
+			params: [ // library marker davegut.tpLinkCommon, line 182
+				led_rule: ledRule, // library marker davegut.tpLinkCommon, line 183
+				night_mode: [ // library marker davegut.tpLinkCommon, line 184
+					night_mode_type: result.night_mode.night_mode_type, // library marker davegut.tpLinkCommon, line 185
+					sunrise_offset: result.night_mode.sunrise_offset,  // library marker davegut.tpLinkCommon, line 186
+					sunset_offset:result.night_mode.sunset_offset, // library marker davegut.tpLinkCommon, line 187
+					start_time: result.night_mode.start_time, // library marker davegut.tpLinkCommon, line 188
+					end_time: result.night_mode.end_time // library marker davegut.tpLinkCommon, line 189
+				]]] // library marker davegut.tpLinkCommon, line 190
+		asyncSend(request, "delayedUpdates", "parseUpdates") // library marker davegut.tpLinkCommon, line 191
+		device.updateSetting("ledRule", [type:"enum", value: ledRule]) // library marker davegut.tpLinkCommon, line 192
+		logData << [status: "updatingLedRule"] // library marker davegut.tpLinkCommon, line 193
+	} // library marker davegut.tpLinkCommon, line 194
+	logData << [ledRule: ledRule] // library marker davegut.tpLinkCommon, line 195
+	logDebug(logData) // library marker davegut.tpLinkCommon, line 196
+} // library marker davegut.tpLinkCommon, line 197
 
-def plugEmRefresh() { // library marker davegut.tpLinkCommon, line 200
-	List requests = [[method: "get_device_info"]] // library marker davegut.tpLinkCommon, line 201
-	requests << [method:"get_energy_usage"] // library marker davegut.tpLinkCommon, line 202
-	asyncSend(createMultiCmd(requests), "plugEmRefresh", "parseUpdates") // library marker davegut.tpLinkCommon, line 203
-} // library marker davegut.tpLinkCommon, line 204
+//	===== Capability Refresh ===== // library marker davegut.tpLinkCommon, line 199
+def refresh() { // library marker davegut.tpLinkCommon, line 200
+	def type = getDataValue("type") // library marker davegut.tpLinkCommon, line 201
+	if (type == "Plug EM") { // library marker davegut.tpLinkCommon, line 202
+		plugEmRefresh() // library marker davegut.tpLinkCommon, line 203
+	} else if (type == "Hub" || type == "Parent") { // library marker davegut.tpLinkCommon, line 204
+		parentRefresh() // library marker davegut.tpLinkCommon, line 205
+	} else { // library marker davegut.tpLinkCommon, line 206
+		minRefresh() // library marker davegut.tpLinkCommon, line 207
+	} // library marker davegut.tpLinkCommon, line 208
+} // library marker davegut.tpLinkCommon, line 209
 
-def parentRefresh() { // library marker davegut.tpLinkCommon, line 206
-	List requests = [[method: "get_device_info"]] // library marker davegut.tpLinkCommon, line 207
-	requests << [method:"get_child_device_list"] // library marker davegut.tpLinkCommon, line 208
-	asyncSend(createMultiCmd(requests), "parentRefresh", "parseUpdates") // library marker davegut.tpLinkCommon, line 209
-} // library marker davegut.tpLinkCommon, line 210
-
-def minRefresh() { // library marker davegut.tpLinkCommon, line 212
-	List requests = [[method: "get_device_info"]] // library marker davegut.tpLinkCommon, line 213
-	asyncSend(createMultiCmd(requests), "minRefresh", "parseUpdates") // library marker davegut.tpLinkCommon, line 214
+def plugEmRefresh() { // library marker davegut.tpLinkCommon, line 211
+	List requests = [[method: "get_device_info"]] // library marker davegut.tpLinkCommon, line 212
+	requests << [method:"get_energy_usage"] // library marker davegut.tpLinkCommon, line 213
+	asyncSend(createMultiCmd(requests), "plugEmRefresh", "parseUpdates") // library marker davegut.tpLinkCommon, line 214
 } // library marker davegut.tpLinkCommon, line 215
 
-def sendDevCmd(requests, data, action) { // library marker davegut.tpLinkCommon, line 217
-	asyncSend(createMultiCmd(requests), data, action) // library marker davegut.tpLinkCommon, line 218
-} // library marker davegut.tpLinkCommon, line 219
+def parentRefresh() { // library marker davegut.tpLinkCommon, line 217
+	List requests = [[method: "get_device_info"]] // library marker davegut.tpLinkCommon, line 218
+	requests << [method:"get_child_device_list"] // library marker davegut.tpLinkCommon, line 219
+	asyncSend(createMultiCmd(requests), "parentRefresh", "parseUpdates") // library marker davegut.tpLinkCommon, line 220
+} // library marker davegut.tpLinkCommon, line 221
 
-def sendSingleCmd(request, data, action) { // library marker davegut.tpLinkCommon, line 221
-	asyncSend(request, data, action) // library marker davegut.tpLinkCommon, line 222
-} // library marker davegut.tpLinkCommon, line 223
+def minRefresh() { // library marker davegut.tpLinkCommon, line 223
+	List requests = [[method: "get_device_info"]] // library marker davegut.tpLinkCommon, line 224
+	asyncSend(createMultiCmd(requests), "minRefresh", "parseUpdates") // library marker davegut.tpLinkCommon, line 225
+} // library marker davegut.tpLinkCommon, line 226
 
-def createMultiCmd(requests) { // library marker davegut.tpLinkCommon, line 225
-	Map cmdBody = [ // library marker davegut.tpLinkCommon, line 226
-		method: "multipleRequest", // library marker davegut.tpLinkCommon, line 227
-		params: [requests: requests]] // library marker davegut.tpLinkCommon, line 228
-	return cmdBody // library marker davegut.tpLinkCommon, line 229
-} // library marker davegut.tpLinkCommon, line 230
+def emUpdate() { } // library marker davegut.tpLinkCommon, line 228
+def emRefresh() { plugEmRefresh() } // library marker davegut.tpLinkCommon, line 229
+def deviceLogin() { deviceHandshake() } // library marker davegut.tpLinkCommon, line 230
 
-def nullParse(resp, data) { } // library marker davegut.tpLinkCommon, line 232
+def sendDevCmd(requests, data, action) { // library marker davegut.tpLinkCommon, line 232
+	asyncSend(createMultiCmd(requests), data, action) // library marker davegut.tpLinkCommon, line 233
+} // library marker davegut.tpLinkCommon, line 234
 
-def updateAttr(attr, value) { // library marker davegut.tpLinkCommon, line 234
-	if (device.currentValue(attr) != value) { // library marker davegut.tpLinkCommon, line 235
-		sendEvent(name: attr, value: value) // library marker davegut.tpLinkCommon, line 236
-	} // library marker davegut.tpLinkCommon, line 237
+def sendSingleCmd(request, data, action) { // library marker davegut.tpLinkCommon, line 236
+	asyncSend(request, data, action) // library marker davegut.tpLinkCommon, line 237
 } // library marker davegut.tpLinkCommon, line 238
 
-//	===== Check/Update device data ===== // library marker davegut.tpLinkCommon, line 240
-//	Called if Driver/App version has changed from app or from configure. // library marker davegut.tpLinkCommon, line 241
-def updateDeviceData() { // library marker davegut.tpLinkCommon, line 242
-	def currVer = getDataValue("version") // library marker davegut.tpLinkCommon, line 243
-	Map logData = [method: "updateDeviceData", currentVersion: currVer,  // library marker davegut.tpLinkCommon, line 244
-				   newVersion: version()] // library marker davegut.tpLinkCommon, line 245
-	if (currVer != version()) { // library marker davegut.tpLinkCommon, line 246
-	//	The below data must be updated on each major version change. // library marker davegut.tpLinkCommon, line 247
-		def devData = parent.getChildDevice(device.getDeviceNetworkId()) // library marker davegut.tpLinkCommon, line 248
-		logData << [capability: devData.data.capability] // library marker davegut.tpLinkCommon, line 249
-		if (devData != null && devData.data.capability != null) { // library marker davegut.tpLinkCommon, line 250
-			String tpLinkType // library marker davegut.tpLinkCommon, line 251
-			String type // library marker davegut.tpLinkCommon, line 252
-			switch (devData.data.capability) { // library marker davegut.tpLinkCommon, line 253
-				case "bulb_dimmer": // library marker davegut.tpLinkCommon, line 254
-					tpLinkType = "SMART.TAPOBULB" // library marker davegut.tpLinkCommon, line 255
-					type = "Dimmer" // library marker davegut.tpLinkCommon, line 256
-					break // library marker davegut.tpLinkCommon, line 257
-				case "bulb_color": // library marker davegut.tpLinkCommon, line 258
-					tpLinkType = "SMART.TAPOBULB" // library marker davegut.tpLinkCommon, line 259
-					type = "Color Bulb" // library marker davegut.tpLinkCommon, line 260
-					break // library marker davegut.tpLinkCommon, line 261
-				case "bulb_lightStrip": // library marker davegut.tpLinkCommon, line 262
-					tpLinkType = "SMART.TAPOBULB" // library marker davegut.tpLinkCommon, line 263
-					type = "Light Strip" // library marker davegut.tpLinkCommon, line 264
-					break // library marker davegut.tpLinkCommon, line 265
-				case "plug": // library marker davegut.tpLinkCommon, line 266
-					tpLinkType = "SMART.TAPOPLUG" // library marker davegut.tpLinkCommon, line 267
-					type = "Plug" // library marker davegut.tpLinkCommon, line 268
-					break // library marker davegut.tpLinkCommon, line 269
-				case "plug_dimmer": // library marker davegut.tpLinkCommon, line 270
-					tpLinkType = "SMART.TAPOPLUG" // library marker davegut.tpLinkCommon, line 271
-					type = "Dimmer" // library marker davegut.tpLinkCommon, line 272
-					break // library marker davegut.tpLinkCommon, line 273
-				case "plug_multi": // library marker davegut.tpLinkCommon, line 274
-					tpLinkType = "SMART.TAPOPLUG" // library marker davegut.tpLinkCommon, line 275
-					type = "Parent" // library marker davegut.tpLinkCommon, line 276
-					break // library marker davegut.tpLinkCommon, line 277
-				case "plug_em": // library marker davegut.tpLinkCommon, line 278
-					tpLinkType = "SMART.TAPOPLUG" // library marker davegut.tpLinkCommon, line 279
-					type = "Plug EM" // library marker davegut.tpLinkCommon, line 280
-					break // library marker davegut.tpLinkCommon, line 281
-				case "hub": // library marker davegut.tpLinkCommon, line 282
-					tpLinkType = "SMART.TAPOHUB" // library marker davegut.tpLinkCommon, line 283
-					type = "Hub" // library marker davegut.tpLinkCommon, line 284
-					break // library marker davegut.tpLinkCommon, line 285
-				case "robovac": // library marker davegut.tpLinkCommon, line 286
-					tpLinkType = "SMART.TAPOROBOVAC" // library marker davegut.tpLinkCommon, line 287
-					type = "Robovac" // library marker davegut.tpLinkCommon, line 288
-					break // library marker davegut.tpLinkCommon, line 289
-				default: // library marker davegut.tpLinkCommon, line 290
-					break // library marker davegut.tpLinkCommon, line 291
-			} // library marker davegut.tpLinkCommon, line 292
-			updateDataValue("tpLinkType", tpLinkType) // library marker davegut.tpLinkCommon, line 293
-			updateDataValue("type", type) // library marker davegut.tpLinkCommon, line 294
-			removeDataValue("capability") // library marker davegut.tpLinkCommon, line 295
-		} else { // library marker davegut.tpLinkCommon, line 296
-			logData << [status: "noUpdates"] // library marker davegut.tpLinkCommon, line 297
-		} // library marker davegut.tpLinkCommon, line 298
-		updateDataValue("version", version())	 // library marker davegut.tpLinkCommon, line 299
-	} // library marker davegut.tpLinkCommon, line 300
-	logInfo(logData) // library marker davegut.tpLinkCommon, line 301
-	return // library marker davegut.tpLinkCommon, line 302
-} // library marker davegut.tpLinkCommon, line 303
+def createMultiCmd(requests) { // library marker davegut.tpLinkCommon, line 240
+	Map cmdBody = [ // library marker davegut.tpLinkCommon, line 241
+		method: "multipleRequest", // library marker davegut.tpLinkCommon, line 242
+		params: [requests: requests]] // library marker davegut.tpLinkCommon, line 243
+	return cmdBody // library marker davegut.tpLinkCommon, line 244
+} // library marker davegut.tpLinkCommon, line 245
 
-//	===== Device Handshake ===== // library marker davegut.tpLinkCommon, line 305
-def deviceHandshake() { // library marker davegut.tpLinkCommon, line 306
-	def protocol = getDataValue("protocol") // library marker davegut.tpLinkCommon, line 307
-	Map logData = [method: "deviceHandshake", protocol: protocol] // library marker davegut.tpLinkCommon, line 308
-	if (protocol == "KLAP") { // library marker davegut.tpLinkCommon, line 309
-		klapHandshake() // library marker davegut.tpLinkCommon, line 310
-	} else if (protocol == "AES") { // library marker davegut.tpLinkCommon, line 311
-		aesHandshake() // library marker davegut.tpLinkCommon, line 312
-	} else { // library marker davegut.tpLinkCommon, line 313
-		logData << [ERROR: "Protocol not supported"] // library marker davegut.tpLinkCommon, line 314
+def nullParse(resp, data) { } // library marker davegut.tpLinkCommon, line 247
+
+def updateAttr(attr, value) { // library marker davegut.tpLinkCommon, line 249
+	if (device.currentValue(attr) != value) { // library marker davegut.tpLinkCommon, line 250
+		sendEvent(name: attr, value: value) // library marker davegut.tpLinkCommon, line 251
+	} // library marker davegut.tpLinkCommon, line 252
+} // library marker davegut.tpLinkCommon, line 253
+
+//	===== Check/Update device data ===== // library marker davegut.tpLinkCommon, line 255
+//	Called if Driver/App version has changed from app or from configure. // library marker davegut.tpLinkCommon, line 256
+def updateDeviceData() { // library marker davegut.tpLinkCommon, line 257
+	def currVer = getDataValue("version") // library marker davegut.tpLinkCommon, line 258
+	Map logData = [method: "updateDeviceData", currentVersion: currVer,  // library marker davegut.tpLinkCommon, line 259
+				   newVersion: version()] // library marker davegut.tpLinkCommon, line 260
+	if (currVer != version()) { // library marker davegut.tpLinkCommon, line 261
+	//	The below data must be updated on each major version change. // library marker davegut.tpLinkCommon, line 262
+		def devData = parent.getChildDevice(device.getDeviceNetworkId()) // library marker davegut.tpLinkCommon, line 263
+		logData << [capability: devData.data.capability] // library marker davegut.tpLinkCommon, line 264
+		if (devData != null && devData.data.capability != null) { // library marker davegut.tpLinkCommon, line 265
+			String tpLinkType // library marker davegut.tpLinkCommon, line 266
+			String type // library marker davegut.tpLinkCommon, line 267
+			switch (devData.data.capability) { // library marker davegut.tpLinkCommon, line 268
+				case "bulb_dimmer": // library marker davegut.tpLinkCommon, line 269
+					tpLinkType = "SMART.TAPOBULB" // library marker davegut.tpLinkCommon, line 270
+					type = "Dimmer" // library marker davegut.tpLinkCommon, line 271
+					break // library marker davegut.tpLinkCommon, line 272
+				case "bulb_color": // library marker davegut.tpLinkCommon, line 273
+					tpLinkType = "SMART.TAPOBULB" // library marker davegut.tpLinkCommon, line 274
+					type = "Color Bulb" // library marker davegut.tpLinkCommon, line 275
+					break // library marker davegut.tpLinkCommon, line 276
+				case "bulb_lightStrip": // library marker davegut.tpLinkCommon, line 277
+					tpLinkType = "SMART.TAPOBULB" // library marker davegut.tpLinkCommon, line 278
+					type = "Light Strip" // library marker davegut.tpLinkCommon, line 279
+					break // library marker davegut.tpLinkCommon, line 280
+				case "plug": // library marker davegut.tpLinkCommon, line 281
+					tpLinkType = "SMART.TAPOPLUG" // library marker davegut.tpLinkCommon, line 282
+					type = "Plug" // library marker davegut.tpLinkCommon, line 283
+					break // library marker davegut.tpLinkCommon, line 284
+				case "plug_dimmer": // library marker davegut.tpLinkCommon, line 285
+					tpLinkType = "SMART.TAPOPLUG" // library marker davegut.tpLinkCommon, line 286
+					type = "Dimmer" // library marker davegut.tpLinkCommon, line 287
+					break // library marker davegut.tpLinkCommon, line 288
+				case "plug_multi": // library marker davegut.tpLinkCommon, line 289
+					tpLinkType = "SMART.TAPOPLUG" // library marker davegut.tpLinkCommon, line 290
+					type = "Parent" // library marker davegut.tpLinkCommon, line 291
+					break // library marker davegut.tpLinkCommon, line 292
+				case "plug_em": // library marker davegut.tpLinkCommon, line 293
+					tpLinkType = "SMART.TAPOPLUG" // library marker davegut.tpLinkCommon, line 294
+					type = "Plug EM" // library marker davegut.tpLinkCommon, line 295
+					break // library marker davegut.tpLinkCommon, line 296
+				case "hub": // library marker davegut.tpLinkCommon, line 297
+					tpLinkType = "SMART.TAPOHUB" // library marker davegut.tpLinkCommon, line 298
+					type = "Hub" // library marker davegut.tpLinkCommon, line 299
+					break // library marker davegut.tpLinkCommon, line 300
+				case "robovac": // library marker davegut.tpLinkCommon, line 301
+					tpLinkType = "SMART.TAPOROBOVAC" // library marker davegut.tpLinkCommon, line 302
+					type = "Robovac" // library marker davegut.tpLinkCommon, line 303
+					break // library marker davegut.tpLinkCommon, line 304
+				default: // library marker davegut.tpLinkCommon, line 305
+					break // library marker davegut.tpLinkCommon, line 306
+			} // library marker davegut.tpLinkCommon, line 307
+			updateDataValue("tpLinkType", tpLinkType) // library marker davegut.tpLinkCommon, line 308
+			updateDataValue("type", type) // library marker davegut.tpLinkCommon, line 309
+			removeDataValue("capability") // library marker davegut.tpLinkCommon, line 310
+		} else { // library marker davegut.tpLinkCommon, line 311
+			logData << [status: "noUpdates"] // library marker davegut.tpLinkCommon, line 312
+		} // library marker davegut.tpLinkCommon, line 313
+		updateDataValue("version", version())	 // library marker davegut.tpLinkCommon, line 314
 	} // library marker davegut.tpLinkCommon, line 315
-	pauseExecution(5000) // library marker davegut.tpLinkCommon, line 316
-	logDebug(logData) // library marker davegut.tpLinkCommon, line 317
-	return logData // library marker davegut.tpLinkCommon, line 318
-} // library marker davegut.tpLinkCommon, line 319
+	logInfo(logData) // library marker davegut.tpLinkCommon, line 316
+	return // library marker davegut.tpLinkCommon, line 317
+} // library marker davegut.tpLinkCommon, line 318
 
-// ~~~~~ end include (35) davegut.tpLinkCommon ~~~~~
+//	===== Device Handshake ===== // library marker davegut.tpLinkCommon, line 320
+def deviceHandshake() { // library marker davegut.tpLinkCommon, line 321
+	def protocol = getDataValue("protocol") // library marker davegut.tpLinkCommon, line 322
+	Map logData = [method: "deviceHandshake", protocol: protocol] // library marker davegut.tpLinkCommon, line 323
+	if (protocol == "KLAP") { // library marker davegut.tpLinkCommon, line 324
+		klapHandshake() // library marker davegut.tpLinkCommon, line 325
+	} else if (protocol == "AES") { // library marker davegut.tpLinkCommon, line 326
+		aesHandshake() // library marker davegut.tpLinkCommon, line 327
+	} else { // library marker davegut.tpLinkCommon, line 328
+		logData << [ERROR: "Protocol not supported"] // library marker davegut.tpLinkCommon, line 329
+	} // library marker davegut.tpLinkCommon, line 330
+	pauseExecution(5000) // library marker davegut.tpLinkCommon, line 331
+	logDebug(logData) // library marker davegut.tpLinkCommon, line 332
+	return logData // library marker davegut.tpLinkCommon, line 333
+} // library marker davegut.tpLinkCommon, line 334
 
-// ~~~~~ start include (34) davegut.tpLinkChildInst ~~~~~
+// ~~~~~ end include (64) davegut.tpLinkCommon ~~~~~
+
+// ~~~~~ start include (63) davegut.tpLinkChildInst ~~~~~
 library ( // library marker davegut.tpLinkChildInst, line 1
 	name: "tpLinkChildInst", // library marker davegut.tpLinkChildInst, line 2
 	namespace: "davegut", // library marker davegut.tpLinkChildInst, line 3
@@ -499,9 +514,9 @@ logWarn("TRV not supported.  Requires TEST Volunteer to finish") // library mark
 	return deviceType // library marker davegut.tpLinkChildInst, line 93
 } // library marker davegut.tpLinkChildInst, line 94
 
-// ~~~~~ end include (34) davegut.tpLinkChildInst ~~~~~
+// ~~~~~ end include (63) davegut.tpLinkChildInst ~~~~~
 
-// ~~~~~ start include (36) davegut.tpLinkComms ~~~~~
+// ~~~~~ start include (56) davegut.tpLinkComms ~~~~~
 library ( // library marker davegut.tpLinkComms, line 1
 	name: "tpLinkComms", // library marker davegut.tpLinkComms, line 2
 	namespace: "davegut", // library marker davegut.tpLinkComms, line 3
@@ -619,9 +634,9 @@ def errorDeviceHandshake() {  // library marker davegut.tpLinkComms, line 113
 	deviceHandshake() // library marker davegut.tpLinkComms, line 115
 } // library marker davegut.tpLinkComms, line 116
 
-// ~~~~~ end include (36) davegut.tpLinkComms ~~~~~
+// ~~~~~ end include (56) davegut.tpLinkComms ~~~~~
 
-// ~~~~~ start include (37) davegut.tpLinkCrypto ~~~~~
+// ~~~~~ start include (65) davegut.tpLinkCrypto ~~~~~
 library ( // library marker davegut.tpLinkCrypto, line 1
 	name: "tpLinkCrypto", // library marker davegut.tpLinkCrypto, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCrypto, line 3
@@ -839,7 +854,7 @@ def parseKlapHandshake2(resp, data) { // library marker davegut.tpLinkCrypto, li
 	if (resp.status == 200 && resp.data == null) { // library marker davegut.tpLinkCrypto, line 215
 		logData << [respStatus: "Login OK"] // library marker davegut.tpLinkCrypto, line 216
 		state.errorCount = 0 // library marker davegut.tpLinkCrypto, line 217
-		if (device.currentValue("commsError") == "true") { // library marker davegut.tpLinkCrypto, line 218
+		if (device && device.currentValue("commsError") == "true") { // library marker davegut.tpLinkCrypto, line 218
 			logData << [setCommsError: setCommsError(false)] // library marker davegut.tpLinkCrypto, line 219
 		} // library marker davegut.tpLinkCrypto, line 220
 		logDebug(logData) // library marker davegut.tpLinkCrypto, line 221
@@ -915,7 +930,7 @@ def parseAesData(resp) { // library marker davegut.tpLinkCrypto, line 285
 														 encKey, encIv)) // library marker davegut.tpLinkCrypto, line 291
 		parseData << [status: "OK", cmdResp: cmdResp] // library marker davegut.tpLinkCrypto, line 292
 		state.errorCount = 0 // library marker davegut.tpLinkCrypto, line 293
-		if (device.currentValue("commsError") == "true") { // library marker davegut.tpLinkCrypto, line 294
+		if (device && device.currentValue("commsError") == "true") { // library marker davegut.tpLinkCrypto, line 294
 			parseData << [setCommsError: setCommsError(false)] // library marker davegut.tpLinkCrypto, line 295
 		} // library marker davegut.tpLinkCrypto, line 296
 	} catch (err) { // library marker davegut.tpLinkCrypto, line 297
@@ -1005,9 +1020,9 @@ def getRsaKey() { // library marker davegut.tpLinkCrypto, line 379
 			private: "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAMav+YcErxqrHtQBL6D5O4C8TcnYN3CypGf0yYCSM8Y2ifVmXAzqctAd8kd5t2iHJWqQ1ZoIQIZed+2eULwIzZz9G6O8KtK1EDSVUP6OLE71An09xhNrTtnUW4TN7tDk4hrqkSg/GiauPHNWVRYsNe33TWoJ2ff/NFmkF2lfNVm1AgMBAAECgYEAocxCHmKBGe2KAEkq+SKdAxvVGO77TsobOhDMWug0Q1C8jduaUGZHsxT/7JbA9d1AagSh/XqE2Sdq8FUBF+7vSFzozBHyGkrX1iKURpQFEQM2j9JgUCucEavnxvCqDYpscyNRAgqz9jdh+BjEMcKAG7o68bOw41ZC+JyYR41xSe0CQQD1os71NcZiMVqYcBud6fTYFHZz3HBNcbzOk+RpIHyi8aF3zIqPKIAh2pO4s7vJgrMZTc2wkIe0ZnUrm0oaC//jAkEAzxIPW1mWd3+KE3gpgyX0cFkZsDmlIbWojUIbyz8NgeUglr+BczARG4ITrTV4fxkGwNI4EZxBT8vXDSIXJ8NDhwJBAIiKndx0rfg7Uw7VkqRvPqk2hrnU2aBTDw8N6rP9WQsCoi0DyCnX65Hl/KN5VXOocYIpW6NAVA8VvSAmTES6Ut0CQQCX20jD13mPfUsHaDIZafZPhiheoofFpvFLVtYHQeBoCF7T7vHCRdfl8oj3l6UcoH/hXMmdsJf9KyI1EXElyf91AkAvLfmAS2UvUnhX4qyFioitjxwWawSnf+CewN8LDbH7m5JVXJEh3hqp+aLHg1EaW4wJtkoKLCF+DeVIgbSvOLJw"] // library marker davegut.tpLinkCrypto, line 381
 } // library marker davegut.tpLinkCrypto, line 382
 
-// ~~~~~ end include (37) davegut.tpLinkCrypto ~~~~~
+// ~~~~~ end include (65) davegut.tpLinkCrypto ~~~~~
 
-// ~~~~~ start include (30) davegut.Logging ~~~~~
+// ~~~~~ start include (49) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -1070,4 +1085,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 61
 
-// ~~~~~ end include (30) davegut.Logging ~~~~~
+// ~~~~~ end include (49) davegut.Logging ~~~~~

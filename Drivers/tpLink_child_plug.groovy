@@ -47,7 +47,7 @@ def parse_get_device_info(devData, data = null) {
 
 
 
-// ~~~~~ start include (32) davegut.tpLinkCapSwitch ~~~~~
+// ~~~~~ start include (51) davegut.tpLinkCapSwitch ~~~~~
 library ( // library marker davegut.tpLinkCapSwitch, line 1
 	name: "tpLinkCapSwitch", // library marker davegut.tpLinkCapSwitch, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCapSwitch, line 3
@@ -76,9 +76,9 @@ def setPower(onOff) { // library marker davegut.tpLinkCapSwitch, line 16
 	} // library marker davegut.tpLinkCapSwitch, line 26
 } // library marker davegut.tpLinkCapSwitch, line 27
 
-// ~~~~~ end include (32) davegut.tpLinkCapSwitch ~~~~~
+// ~~~~~ end include (51) davegut.tpLinkCapSwitch ~~~~~
 
-// ~~~~~ start include (39) davegut.tpLinkChildCommon ~~~~~
+// ~~~~~ start include (62) davegut.tpLinkChildCommon ~~~~~
 library ( // library marker davegut.tpLinkChildCommon, line 1
 	name: "tpLinkChildCommon", // library marker davegut.tpLinkChildCommon, line 2
 	namespace: "davegut", // library marker davegut.tpLinkChildCommon, line 3
@@ -163,9 +163,9 @@ def updateAttr(attr, value) { // library marker davegut.tpLinkChildCommon, line 
 	} // library marker davegut.tpLinkChildCommon, line 82
 } // library marker davegut.tpLinkChildCommon, line 83
 
-// ~~~~~ end include (39) davegut.tpLinkChildCommon ~~~~~
+// ~~~~~ end include (62) davegut.tpLinkChildCommon ~~~~~
 
-// ~~~~~ start include (30) davegut.Logging ~~~~~
+// ~~~~~ start include (49) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -228,4 +228,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 61
 
-// ~~~~~ end include (30) davegut.Logging ~~~~~
+// ~~~~~ end include (49) davegut.Logging ~~~~~
