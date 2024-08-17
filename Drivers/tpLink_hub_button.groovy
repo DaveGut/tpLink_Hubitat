@@ -26,18 +26,10 @@ metadata {
 def installed() { runIn(1, updated) }
 
 def updated() {
-	if (getTriggerLogs == true) {
-		getTriggerLog(20)
-	} else {
-		unschedule()
-		def logData = [method: "updated"]
-		logData << setLogsOff()
-		def start = Math.round((5) * Math.random()).toInteger()
-		schedule("${start}/5 * * * * ?", getTriggerLog)
-		logData << [triggerLogInterval: "5 secs"]
-		logInfo(logData)
-	}
-	pauseExecution(5000)
+	unschedule()
+	def logData = [method: "updated"]
+	logData << setLogsOff()
+	logInfo(logData)
 }
 
 def refresh() { parent.refresh() }
@@ -46,6 +38,12 @@ def refresh() { parent.refresh() }
 def parseDevData(childData) {
 	try {
 		updateAttr("lowBattery", childData.at_low_battery.toString())
+		logDebug([method: "parseDevData", battery: childData.at_low_battery.toString()])
+		if (getTriggerLogs) {
+			getTriggerLog(20)
+		} else {
+			getTriggerLog(1)
+		}
 	} catch (err) {
 		logWarn([method: "parseDevData", status: "FAILED", error: err])
 	}
@@ -65,8 +63,12 @@ def getTriggerLog(count = 1) {
 	parent.asyncSend(cmdBody, device.getDeviceNetworkId(), "distTriggerLog")
 }
 
-def parseTriggerLog(Map triggerData, data=null) {
-	Map triggerLog = triggerData.result.responseData
+def parseTriggerLog(triggerData) {
+	Map respData = [method: "parseTriggerLog"]
+	//	Device changes spelling of responseData at random.  Fix:
+	def keyData = triggerData.result.find{ it.key.contains("Data") }
+	def keyValue = keyData.key
+	def triggerLog = triggerData.result."${keyValue}"
 	if (triggerLog != null) {
 		triggerLog = triggerLog.result
 		if (triggerLog && device.currentValue("lastTriggerNo") != triggerLog.start_id) {
@@ -81,16 +83,17 @@ def parseTriggerLog(Map triggerData, data=null) {
 				}
 			}
 			sendEvent(name: "button", value: trigger, isStateChange: true)
-		} else {
-			Map logData = [method: "parseTriggerLog", status: "NEW DEVICE.  NO LOGS.",
-						   triggerData: triggerData, error: err]
-			logDebug(logData)
+			respData << [ lastTriggerNo: triggerLog.start_id, button: trigger]
 		}
 		if (getTriggerLogs) {
 			log.info "<b>TRIGGERLOGS</b>: ${triggerLog.logs}"
 			device.updateSetting("getTriggerLogs", [type:"bool", value: false])
+			respData << [getTriggerLogs: false]
 		}
+	} else {
+		respData << [invalidDeviceReturn: triggerData]
 	}
+	logDebug(respData)
 }
 
 def updateAttr(attr, value) {
@@ -101,7 +104,7 @@ def updateAttr(attr, value) {
 
 
 
-// ~~~~~ start include (49) davegut.Logging ~~~~~
+// ~~~~~ start include (79) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -164,4 +167,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 61
 
-// ~~~~~ end include (49) davegut.Logging ~~~~~
+// ~~~~~ end include (79) davegut.Logging ~~~~~

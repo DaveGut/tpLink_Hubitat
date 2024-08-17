@@ -24,15 +24,10 @@ metadata {
 def installed() { runIn(1, updated) }
 
 def updated() {
-	if (getTriggerLogs == true) {
-		getTriggerLog(20)
-	} else {
-		unschedule()
-		def logData = [method: "updated"]
-		logData << setLogsOff()
-		logInfo(logData)
-	}
-	pauseExecution(5000)
+	unschedule()
+	def logData = [method: "updated"]
+	logData << setLogsOff()
+	logInfo(logData)
 }
 
 def refresh() { parent.refresh() }
@@ -44,6 +39,10 @@ def parseDevData(childData) {
 		if (childData.detected) { motion = "active" }
 		updateAttr("motion", motion)
 		updateAttr("lowBattery", childData.at_low_battery.toString())
+		logDebug([method: "parseDevData", motion: motion, battery: childData.at_low_battery.toString()])
+		if (getTriggerLogs) {
+			getTriggerLog(20)
+		}
 	} catch (err) {
 		logWarn([method: "parseDevData", status: "FAILED", error: err])
 	}
@@ -63,9 +62,12 @@ def getTriggerLog(count = 1) {
 	parent.asyncSend(cmdBody, device.getDeviceNetworkId(), "distTriggerLog")
 }
 
-def parseTriggerLog(triggerData, data=null) {
-	def triggerLog = triggerData.result.responseData.result
-	log.info "<b>TRIGGERLOGS</b>: ${triggerLog.logs}"
+def parseTriggerLog(triggerData) {
+	//	Device changes spelling of responseData at random.  Fix:
+	def keyData = triggerData.result.find{ it.key.contains("Data") }
+	def keyValue = keyData.key
+	def triggerLog = triggerData.result."${keyValue}"
+	log.info "<b>TRIGGERLOGS</b>: ${triggerLog.result.logs}"
 	device.updateSetting("getTriggerLogs", [type:"bool", value: false])
 }
 
@@ -77,7 +79,7 @@ def updateAttr(attr, value) {
 
 
 
-// ~~~~~ start include (49) davegut.Logging ~~~~~
+// ~~~~~ start include (79) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -140,4 +142,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 61
 
-// ~~~~~ end include (49) davegut.Logging ~~~~~
+// ~~~~~ end include (79) davegut.Logging ~~~~~

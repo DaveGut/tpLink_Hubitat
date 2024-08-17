@@ -5,7 +5,7 @@ License:  https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/Licen
 =================================================================================================*/
 
 metadata {
-	definition (name: "TpLink Hub TempHumidity", namespace: nameSpace(), author: "Dave Gutheinz", 
+	definition (name: "tpLink Hub TempHumidity", namespace: nameSpace(), author: "Dave Gutheinz", 
 				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_tempHumidity.groovy")
 	{
 		capability "Refresh"
@@ -24,16 +24,11 @@ metadata {
 def installed() { runIn(1, updated) }
 
 def updated() {
-	if (getTriggerLogs == true) {
-		getTriggerLog(20)
-	} else {
-		unschedule()
-		def logData = [method: "updated"]
-		logData << setLogsOff()
-		logData << [status: "OK"]
-		logInfo(logData)
-	}
-	pauseExecution(5000)
+	unschedule()
+	def logData = [method: "updated"]
+	logData << setLogsOff()
+	logData << [status: "OK"]
+	logInfo(logData)
 }
 
 def refresh() { parent.refresh() }
@@ -48,6 +43,10 @@ def parseDevData(childData) {
 			sendEvent(name: "humidity", value: childData.current_humidity)
 		}
 		updateAttr("lowBattery", childData.at_low_battery.toString())
+		logDebug([method: "parseDevData", temperature: temperature, humidity: humidity, battery: childData.at_low_battery.toString()])
+		if (getTriggerLogs) {
+			getTriggerLog(20)
+		}
 	} catch (err) {
 		Map logData = [method: "devicePollParse", status: "ERROR",
 					   childData: childData, error: err]
@@ -75,15 +74,18 @@ def getTriggerLog(count = 1) {
 	parent.asyncSend(cmdBody, device.getDeviceNetworkId(), "distTriggerLog")
 }
 
-def parseTriggerLog(triggerData, data=null) {
-	def triggerLog = triggerData.result.responseData.result
-	log.info "<b>TRIGGERLOGS</b>: ${triggerLog.logs}"
+def parseTriggerLog(triggerData) {
+	//	Device changes spelling of responseData at random.  Fix:
+	def keyData = triggerData.result.find{ it.key.contains("Data") }
+	def keyValue = keyData.key
+	def triggerLog = triggerData.result."${keyValue}"
+	log.info "<b>TRIGGERLOGS</b>: ${triggerLog.result.logs}"
 	device.updateSetting("getTriggerLogs", [type:"bool", value: false])
 }
 
 
 
-// ~~~~~ start include (49) davegut.Logging ~~~~~
+// ~~~~~ start include (79) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -146,4 +148,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 61
 
-// ~~~~~ end include (49) davegut.Logging ~~~~~
+// ~~~~~ end include (79) davegut.Logging ~~~~~

@@ -42,8 +42,6 @@ metadata {
 		attribute "waterLevel", "number"
 	}
 	preferences {
-//		input ("ledRule", "enum", title: "LED Mode (if night mode, set type and times in phone app)",
-//			   options: ["always", "never", "night_mode"], defaultValue: "always")
 		List pollOptions = ["5 sec", "10 sec", "30 sec", "5 min", "10 min", "15 min", "30 min"]
 		input ("pollInterval", "enum", title: "Poll/Refresh Interval",
 			   options: pollOptions, defaultValue: "30 min")
@@ -72,12 +70,12 @@ def configure(checkApp = true) {
 	logData << [handshakeInterval: "3 Hours"]
 	logData << [pollInterval: setPollInterval()]
 	logData << [logging: setLogsOff()]
-	runIn(10, initSettings)
+//	runIn(10, initSettings)
 	logInfo(logData)
 	return logData
 }
 
-def initSettings() {
+def xxinitSettings() {
 	Map logData = [method: "initSettings"]
 	List requests = []
 	if (ledRule) { requests << [method: "get_led_info"] }
@@ -97,7 +95,7 @@ def updated() {
 	state.lastCmd = ""
 	logData << [pollInterval: setPollInterval()]
 	logData << [logging: setLogsOff()]
-	pauseExecution(5000)
+	runIn(3, refesh)
 	logInfo(logData)
 }
 
@@ -258,10 +256,10 @@ def parseVacAesLogin(resp, data) {
 		def newToken = resp.json.result.token
 		device.updateSetting("token", [type: "string", value: newToken])
 		logData << [token: newToken]
-		state.errorCount = 0
-		if (device && device.currentValue("commsError") == "true") {
-			logData << [setCommsError: setCommsError(false)]
-		}
+//		state.errorCount = 0
+//		if (device && device.currentValue("commsError") == "true") {
+			setCommsError(false)
+//		}
 		logDebug(logData)
 	} else {
 		logData << [respStatus: "ERROR in HTTP response", resp: resp.properties]
@@ -284,17 +282,17 @@ def parseVacAesData(resp) {
 	Map parseData = [parseMethod: "parseVacAesData"]
 	try {
 		parseData << [status: "OK", cmdResp: resp.json]
-		state.errorCount = 0
-		if (device.currentValue("commsError") == "true") {
-			parseData << [setCommsError: setCommsError(false)]
-		}
+//		state.errorCount = 0
+//		if (device.currentValue("commsError") == "true") {
+//			setCommsError(false)
+//		}
 		logDebug(parseData)
 	} catch (err) {
 		parseData << [status: "deviceDataParseError", error: err, dataLength: resp.data.length()]
 		logWarn(parseData)
 		handleCommsError()
 	}
-	return parseData	
+	return parseData
 }
 
 //	===== Capability Configuration =====
@@ -335,7 +333,7 @@ def parseUpdates(resp, data= null) {
 		}
 	} else {
 		logData << [status: "invalidRequest", resp: resp.properties, respData: respData]
-		logWarn(logData)				
+		logDebug(logData)				
 	}
 }
 	
@@ -346,10 +344,12 @@ def switchParse(devResp) {
 	switch(devResp.method) {
 		case "get_device_info":
 			logData << [deviceMethod: devResp.method]
-			parse_get_device_info(devResp.result, "switchParse")
+log.trace devResp.result
+//			parse_get_device_info(devResp.result, "switchParse")
 			break
 		case "get_led_info":
 			logData << [deviceMethod: devResp.method]
+log.trace devResp.result
 			if (ledRule != devResp.result.led_rule) {
 				Map requests = [
 					method: "set_led_info",
@@ -408,7 +408,7 @@ def updateAttr(attr, value) {
 
 
 
-// ~~~~~ start include (56) davegut.tpLinkComms ~~~~~
+// ~~~~~ start include (86) davegut.tpLinkComms ~~~~~
 library ( // library marker davegut.tpLinkComms, line 1
 	name: "tpLinkComms", // library marker davegut.tpLinkComms, line 2
 	namespace: "davegut", // library marker davegut.tpLinkComms, line 3
@@ -445,90 +445,100 @@ def asyncPost(reqParams, parseMethod, reqData=null) { // library marker davegut.
 		logData << [status: "OK"] // library marker davegut.tpLinkComms, line 34
 	} catch (err) { // library marker davegut.tpLinkComms, line 35
 		logData << [status: "FAILED", reqParams: reqParams, error: err] // library marker davegut.tpLinkComms, line 36
-		runIn(1, handleCommsError) // library marker davegut.tpLinkComms, line 37
-	} // library marker davegut.tpLinkComms, line 38
-	logDebug(logData) // library marker davegut.tpLinkComms, line 39
-} // library marker davegut.tpLinkComms, line 40
+	} // library marker davegut.tpLinkComms, line 37
+	logDebug(logData) // library marker davegut.tpLinkComms, line 38
+} // library marker davegut.tpLinkComms, line 39
 
-def parseData(resp, protocol = getDataValue("protocol")) { // library marker davegut.tpLinkComms, line 42
-	Map logData = [method: "parseData"] // library marker davegut.tpLinkComms, line 43
-	if (resp.status == 200) { // library marker davegut.tpLinkComms, line 44
-		if (protocol == "KLAP") { // library marker davegut.tpLinkComms, line 45
-			logData << parseKlapData(resp) // library marker davegut.tpLinkComms, line 46
-		} else if (protocol == "AES") { // library marker davegut.tpLinkComms, line 47
-			logData << parseAesData(resp) // library marker davegut.tpLinkComms, line 48
-		} else if (protocol == "vacAes") { // library marker davegut.tpLinkComms, line 49
-			logData << parseVacAesData(resp) // library marker davegut.tpLinkComms, line 50
-		} // library marker davegut.tpLinkComms, line 51
-	} else { // library marker davegut.tpLinkComms, line 52
-		logData << [status: "httpFailure"] // library marker davegut.tpLinkComms, line 53
-		runIn(1, handleCommsError) // library marker davegut.tpLinkComms, line 54
-	} // library marker davegut.tpLinkComms, line 55
-	return logData // library marker davegut.tpLinkComms, line 56
-} // library marker davegut.tpLinkComms, line 57
+def parseData(resp, protocol = getDataValue("protocol")) { // library marker davegut.tpLinkComms, line 41
+	Map logData = [method: "parseData"] // library marker davegut.tpLinkComms, line 42
+	if (resp.status == 200) { // library marker davegut.tpLinkComms, line 43
+		if (protocol == "KLAP") { // library marker davegut.tpLinkComms, line 44
+			logData << parseKlapData(resp) // library marker davegut.tpLinkComms, line 45
+		} else if (protocol == "AES") { // library marker davegut.tpLinkComms, line 46
+			logData << parseAesData(resp) // library marker davegut.tpLinkComms, line 47
+		} else if (protocol == "vacAes") { // library marker davegut.tpLinkComms, line 48
+			logData << parseVacAesData(resp) // library marker davegut.tpLinkComms, line 49
+		} // library marker davegut.tpLinkComms, line 50
+		if (logData.status == "OK") { // library marker davegut.tpLinkComms, line 51
+			setCommsError(false) // library marker davegut.tpLinkComms, line 52
+		} else { // library marker davegut.tpLinkComms, line 53
+			handleCommsError() // library marker davegut.tpLinkComms, line 54
+		} // library marker davegut.tpLinkComms, line 55
+	} else { // library marker davegut.tpLinkComms, line 56
+		logData << [status: "httpFailure"] // library marker davegut.tpLinkComms, line 57
+		handleCommsError() // library marker davegut.tpLinkComms, line 58
+	} // library marker davegut.tpLinkComms, line 59
+	return logData // library marker davegut.tpLinkComms, line 60
+} // library marker davegut.tpLinkComms, line 61
 
-//	===== Communications Error Handling ===== // library marker davegut.tpLinkComms, line 59
-def handleCommsError() { // library marker davegut.tpLinkComms, line 60
-	Map logData = [method: "handleCommsError"] // library marker davegut.tpLinkComms, line 61
-	if (state.lastCmd != "") { // library marker davegut.tpLinkComms, line 62
-		def count = state.errorCount + 1 // library marker davegut.tpLinkComms, line 63
-		logData << [count: count, lastCmd: state.lastCmd] // library marker davegut.tpLinkComms, line 64
-		switch (count) { // library marker davegut.tpLinkComms, line 65
-			case 1: // library marker davegut.tpLinkComms, line 66
-				logData << [action: "resendCommand"] // library marker davegut.tpLinkComms, line 67
-				runIn(2, delayedPassThrough) // library marker davegut.tpLinkComms, line 68
-				break // library marker davegut.tpLinkComms, line 69
-			case 2: // library marker davegut.tpLinkComms, line 70
-				logData << [attemptHandshake: deviceHandshake(), // library marker davegut.tpLinkComms, line 71
-						    action: "resendCommand"] // library marker davegut.tpLinkComms, line 72
-				runIn(2, delayedPassThrough) // library marker davegut.tpLinkComms, line 73
-				break // library marker davegut.tpLinkComms, line 74
-			case 3: // library marker davegut.tpLinkComms, line 75
-				logData << [configure: configure(true), // library marker davegut.tpLinkComms, line 76
-						    action: "resendCommand"] // library marker davegut.tpLinkComms, line 77
-				runIn(2, delayedPassThrough) // library marker davegut.tpLinkComms, line 78
-			default: // library marker davegut.tpLinkComms, line 79
-				if (device.currentValue("commsError") == "false") { // library marker davegut.tpLinkComms, line 80
-					logData << [setCommsError: setCommsError(true)] // library marker davegut.tpLinkComms, line 81
-				} // library marker davegut.tpLinkComms, line 82
-				logData << [retries: "disabled"] // library marker davegut.tpLinkComms, line 83
-				break // library marker davegut.tpLinkComms, line 84
-		} // library marker davegut.tpLinkComms, line 85
-		state.errorCount = count // library marker davegut.tpLinkComms, line 86
-	} else { // library marker davegut.tpLinkComms, line 87
-		logData << [status: "noCommandToRetry"] // library marker davegut.tpLinkComms, line 88
-	} // library marker davegut.tpLinkComms, line 89
-	logInfo(logData) // library marker davegut.tpLinkComms, line 90
-} // library marker davegut.tpLinkComms, line 91
+//	===== Communications Error Handling ===== // library marker davegut.tpLinkComms, line 63
+def handleCommsError() { // library marker davegut.tpLinkComms, line 64
+	Map logData = [method: "handleCommsError"] // library marker davegut.tpLinkComms, line 65
+	if (state.lastCmd != "") { // library marker davegut.tpLinkComms, line 66
+		def count = state.errorCount + 1 // library marker davegut.tpLinkComms, line 67
+		logData << [count: count, lastCmd: state.lastCmd] // library marker davegut.tpLinkComms, line 68
+		switch (count) { // library marker davegut.tpLinkComms, line 69
+			case 1: // library marker davegut.tpLinkComms, line 70
+				logData << [action: "resendCommand"] // library marker davegut.tpLinkComms, line 71
+				runIn(2, delayedPassThrough) // library marker davegut.tpLinkComms, line 72
+				break // library marker davegut.tpLinkComms, line 73
+			case 2: // library marker davegut.tpLinkComms, line 74
+				logData << [attemptHandshake: deviceHandshake(), // library marker davegut.tpLinkComms, line 75
+						    action: "deviceHandshake"] // library marker davegut.tpLinkComms, line 76
+				runIn(2, delayedPassThrough) // library marker davegut.tpLinkComms, line 77
+				break // library marker davegut.tpLinkComms, line 78
+			case 3: // library marker davegut.tpLinkComms, line 79
+				logData << [configure: configure(true), // library marker davegut.tpLinkComms, line 80
+						    action: "configure"] // library marker davegut.tpLinkComms, line 81
+				runIn(2, delayedPassThrough) // library marker davegut.tpLinkComms, line 82
+				break // library marker davegut.tpLinkComms, line 83
+			default: // library marker davegut.tpLinkComms, line 84
+				setCommsError(true) // library marker davegut.tpLinkComms, line 85
+				break // library marker davegut.tpLinkComms, line 86
+		} // library marker davegut.tpLinkComms, line 87
+		state.errorCount = count // library marker davegut.tpLinkComms, line 88
+	} else { // library marker davegut.tpLinkComms, line 89
+		logData << [status: "noCommandToRetry"] // library marker davegut.tpLinkComms, line 90
+	} // library marker davegut.tpLinkComms, line 91
+	logDebug(logData) // library marker davegut.tpLinkComms, line 92
+logInfo(logData) // library marker davegut.tpLinkComms, line 93
+} // library marker davegut.tpLinkComms, line 94
 
-def delayedPassThrough() { // library marker davegut.tpLinkComms, line 93
-	def cmdData = new JSONObject(state.lastCmd) // library marker davegut.tpLinkComms, line 94
-	def cmdBody = parseJson(cmdData.cmdBody.toString()) // library marker davegut.tpLinkComms, line 95
-	asyncSend(cmdBody, cmdData.reqData, cmdData.action) // library marker davegut.tpLinkComms, line 96
-} // library marker davegut.tpLinkComms, line 97
+def delayedPassThrough() { // library marker davegut.tpLinkComms, line 96
+	def cmdData = new JSONObject(state.lastCmd) // library marker davegut.tpLinkComms, line 97
+	def cmdBody = parseJson(cmdData.cmdBody.toString()) // library marker davegut.tpLinkComms, line 98
+	asyncSend(cmdBody, cmdData.reqData, cmdData.action) // library marker davegut.tpLinkComms, line 99
+} // library marker davegut.tpLinkComms, line 100
 
-def setCommsError(status) { // library marker davegut.tpLinkComms, line 99
-	if (device.currentValue("commsError") == "true" && status == false) { // library marker davegut.tpLinkComms, line 100
-		updateAttr("commsError", "false") // library marker davegut.tpLinkComms, line 101
-		setPollInterval() // library marker davegut.tpLinkComms, line 102
-		unschedule(errorDeviceHandshake) // library marker davegut.tpLinkComms, line 103
-		return "false" // library marker davegut.tpLinkComms, line 104
-	} else if (device.currentValue("commsError") == "false" && status == true) { // library marker davegut.tpLinkComms, line 105
-		updateAttr("commsError", "true") // library marker davegut.tpLinkComms, line 106
-		setPollInterval("30 min") // library marker davegut.tpLinkComms, line 107
-		runEvery5Minutes(errorDeviceHandshake) // library marker davegut.tpLinkComms, line 108
-		return "true" // library marker davegut.tpLinkComms, line 109
-	} // library marker davegut.tpLinkComms, line 110
-} // library marker davegut.tpLinkComms, line 111
+def setCommsError(status) { // library marker davegut.tpLinkComms, line 102
+	if (device && status == false) { // library marker davegut.tpLinkComms, line 103
+		state.errorCount = 0 // library marker davegut.tpLinkComms, line 104
+		if (device.currentValue("commsError") == "true") { // library marker davegut.tpLinkComms, line 105
+			updateAttr("commsError", "false") // library marker davegut.tpLinkComms, line 106
+			setPollInterval() // library marker davegut.tpLinkComms, line 107
+			unschedule(errorDeviceHandshake) // library marker davegut.tpLinkComms, line 108
+			logInfo([method: "setCommsError", action: "setFalse"]) // library marker davegut.tpLinkComms, line 109
+		} // library marker davegut.tpLinkComms, line 110
+	} else if (device && status == true) { // library marker davegut.tpLinkComms, line 111
+		if (device.currentValue("commsError") == "false") { // library marker davegut.tpLinkComms, line 112
+			updateAttr("commsError", "true") // library marker davegut.tpLinkComms, line 113
+			setPollInterval("30 min") // library marker davegut.tpLinkComms, line 114
+			runEvery10Minutes(errorDeviceHandshake) // library marker davegut.tpLinkComms, line 115
+			logWarn([method: "setCommsError", errorCount: state.errorCount, action: "setTrue"]) // library marker davegut.tpLinkComms, line 116
+		} else { // library marker davegut.tpLinkComms, line 117
+			logWarn([method: "setCommsError", errorCount: state.errorCount]) // library marker davegut.tpLinkComms, line 118
+		} // library marker davegut.tpLinkComms, line 119
+	} // library marker davegut.tpLinkComms, line 120
+} // library marker davegut.tpLinkComms, line 121
 
-def errorDeviceHandshake() {  // library marker davegut.tpLinkComms, line 113
-	logInfo([method: "errorDeviceHandshake"]) // library marker davegut.tpLinkComms, line 114
-	deviceHandshake() // library marker davegut.tpLinkComms, line 115
-} // library marker davegut.tpLinkComms, line 116
+def errorDeviceHandshake() {  // library marker davegut.tpLinkComms, line 123
+	logDebug([method: "errorDeviceHandshake"]) // library marker davegut.tpLinkComms, line 124
+	deviceHandshake() // library marker davegut.tpLinkComms, line 125
+} // library marker davegut.tpLinkComms, line 126
 
-// ~~~~~ end include (56) davegut.tpLinkComms ~~~~~
+// ~~~~~ end include (86) davegut.tpLinkComms ~~~~~
 
-// ~~~~~ start include (49) davegut.Logging ~~~~~
+// ~~~~~ start include (79) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -591,4 +601,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 61
 
-// ~~~~~ end include (49) davegut.Logging ~~~~~
+// ~~~~~ end include (79) davegut.Logging ~~~~~
