@@ -606,7 +606,7 @@ private sendLanCmd(ip, port, cmdData, action, commsTo = 5, ignore = false) {
 	return
 }
 
-// ~~~~~ start include (78) davegut.appTpLinkSmart ~~~~~
+// ~~~~~ start include (104) davegut.appTpLinkSmart ~~~~~
 library ( // library marker davegut.appTpLinkSmart, line 1
 	name: "appTpLinkSmart", // library marker davegut.appTpLinkSmart, line 2
 	namespace: "davegut", // library marker davegut.appTpLinkSmart, line 3
@@ -785,295 +785,322 @@ def addToDevices(devData, cmdResp) { // library marker davegut.appTpLinkSmart, l
 	def ctLow // library marker davegut.appTpLinkSmart, line 176
 	def driver = "Plug" // library marker davegut.appTpLinkSmart, line 177
 	def comps = components.result.component_list // library marker davegut.appTpLinkSmart, line 178
-	comps.each { cap -> // library marker davegut.appTpLinkSmart, line 179
-		switch(cap.id) { // library marker davegut.appTpLinkSmart, line 180
-			case "control_child": // library marker davegut.appTpLinkSmart, line 181
-				if (devData.type.contains("HUB")) { // library marker davegut.appTpLinkSmart, line 182
-					driver = "Hub" // library marker davegut.appTpLinkSmart, line 183
-				} else if (devData.type.contains("PLUG") || devData.type.contains("SWITCH")) { // library marker davegut.appTpLinkSmart, line 184
-					driver = "Parent" // library marker davegut.appTpLinkSmart, line 185
-				} // library marker davegut.appTpLinkSmart, line 186
-				break // library marker davegut.appTpLinkSmart, line 187
-			case "energy_monitoring": // library marker davegut.appTpLinkSmart, line 188
-				driver = "Plug EM" // library marker davegut.appTpLinkSmart, line 189
-				break // library marker davegut.appTpLinkSmart, line 190
-			case "brightness":  // library marker davegut.appTpLinkSmart, line 191
-				if (!cmdResp.color_temp_range) { // library marker davegut.appTpLinkSmart, line 192
-					driver = "Dimmer" // library marker davegut.appTpLinkSmart, line 193
-				} // library marker davegut.appTpLinkSmart, line 194
-				break // library marker davegut.appTpLinkSmart, line 195
-			case "color": // library marker davegut.appTpLinkSmart, line 196
-				if (comps.find {it.id == "light_strip" }) { // library marker davegut.appTpLinkSmart, line 197
-					driver = "Lightstrip" // library marker davegut.appTpLinkSmart, line 198
-				} else { // library marker davegut.appTpLinkSmart, line 199
-					driver = "Color Bulb" // library marker davegut.appTpLinkSmart, line 200
-				} // library marker davegut.appTpLinkSmart, line 201
-				break // library marker davegut.appTpLinkSmart, line 202
-			case "color_temperature": // library marker davegut.appTpLinkSmart, line 203
-				ctHigh = cmdResp.color_temp_range[1] // library marker davegut.appTpLinkSmart, line 204
-				ctLow = cmdResp.color_temp_range[0] // library marker davegut.appTpLinkSmart, line 205
-				break // library marker davegut.appTpLinkSmart, line 206
-			case "clean": // library marker davegut.appTpLinkSmart, line 207
-				driver = "Robovac" // library marker davegut.appTpLinkSmart, line 208
-				break // library marker davegut.appTpLinkSmart, line 209
-		} // library marker davegut.appTpLinkSmart, line 210
-	} // library marker davegut.appTpLinkSmart, line 211
-	def devicesData = atomicState.tpLinkDevices // library marker davegut.appTpLinkSmart, line 212
-	Map deviceData = [deviceType: devData.type, protocol: devData.protocol,  // library marker davegut.appTpLinkSmart, line 213
-					  model: devData.model, baseUrl: devData.baseUrl, alias: alias,  // library marker davegut.appTpLinkSmart, line 214
-					  type: driver] // library marker davegut.appTpLinkSmart, line 215
-	if (ctHigh != null) { // library marker davegut.appTpLinkSmart, line 216
-		deviceData << [ctHigh: ctHigh, ctLow: ctLow] // library marker davegut.appTpLinkSmart, line 217
-	} // library marker davegut.appTpLinkSmart, line 218
-	devicesData << ["${dni}": deviceData] // library marker davegut.appTpLinkSmart, line 219
 
-	atomicState.tpLinkDevices = devicesData // library marker davegut.appTpLinkSmart, line 221
-	logData << ["${deviceData.alias}": deviceData, dni: dni] // library marker davegut.appTpLinkSmart, line 222
-	logDebug(logData) // library marker davegut.appTpLinkSmart, line 223
-} // library marker davegut.appTpLinkSmart, line 224
+	//	Priority order for driver type: [parent, lightStrip, // library marker davegut.appTpLinkSmart, line 180
+	//	colorBulb, EMPlug, dimmer, vacuum // library marker davegut.appTpLinkSmart, line 181
+	if (comps.find { it.id == "control_child" } ) { // library marker davegut.appTpLinkSmart, line 182
+		if (comps.find { it.id == "alarm" } ) { // library marker davegut.appTpLinkSmart, line 183
+			driver = "Hub" // library marker davegut.appTpLinkSmart, line 184
+		} else { // library marker davegut.appTpLinkSmart, line 185
+			driver = "Parent" // library marker davegut.appTpLinkSmart, line 186
+		} // library marker davegut.appTpLinkSmart, line 187
+	} else if (comps.find { it.id == "light_strip" } ) { // library marker davegut.appTpLinkSmart, line 188
+		driver = "Lightstrip" // library marker davegut.appTpLinkSmart, line 189
+	} else if (comps.find { it.id == "color" } ) { // library marker davegut.appTpLinkSmart, line 190
+		driver = "Color Bulb" // library marker davegut.appTpLinkSmart, line 191
+	} else if (comps.find { it.id == "energy_monitoring" } ) { // library marker davegut.appTpLinkSmart, line 192
+		driver = "Plug EM" // library marker davegut.appTpLinkSmart, line 193
+	} else if (comps.find { it.id == "brightness" } ) { // library marker davegut.appTpLinkSmart, line 194
+		driver = "Dimmer" // library marker davegut.appTpLinkSmart, line 195
+	} else if (comps.find { it.id == "clean" } ) { // library marker davegut.appTpLinkSmart, line 196
+		driver = "Robovac" // library marker davegut.appTpLinkSmart, line 197
+	} // library marker davegut.appTpLinkSmart, line 198
+	if (comps.find { it.id == "color_temperature" } ) { // library marker davegut.appTpLinkSmart, line 199
+		ctHigh = cmdResp.color_temp_range[1] // library marker davegut.appTpLinkSmart, line 200
+		ctLow = cmdResp.color_temp_range[0] // library marker davegut.appTpLinkSmart, line 201
+	} // library marker davegut.appTpLinkSmart, line 202
 
-//	===== get Smart KLAP Protocol Data ===== // library marker davegut.appTpLinkSmart, line 226
-def sendKlapDataCmd(handshakeData, data) { // library marker davegut.appTpLinkSmart, line 227
-	if (handshakeData.respStatus != "Login OK") { // library marker davegut.appTpLinkSmart, line 228
-		Map logData = [method: "sendKlapDataCmd", handshake: handshakeData] // library marker davegut.appTpLinkSmart, line 229
-		logWarn(logData) // library marker davegut.appTpLinkSmart, line 230
-	} else { // library marker davegut.appTpLinkSmart, line 231
-		Map reqParams = [timeout: 10, headers: ["Cookie": data.data.cookie]] // library marker davegut.appTpLinkSmart, line 232
-		def seqNo = data.data.seqNo + 1 // library marker davegut.appTpLinkSmart, line 233
-		String cmdBodyJson = new groovy.json.JsonBuilder(getDataCmd()).toString() // library marker davegut.appTpLinkSmart, line 234
-		Map encryptedData = klapEncrypt(cmdBodyJson.getBytes(), data.data.encKey,  // library marker davegut.appTpLinkSmart, line 235
-										data.data.encIv, data.data.encSig, seqNo) // library marker davegut.appTpLinkSmart, line 236
-		reqParams << [uri: "${data.data.baseUrl}/request?seq=${encryptedData.seqNumber}", // library marker davegut.appTpLinkSmart, line 237
-					  body: encryptedData.cipherData, // library marker davegut.appTpLinkSmart, line 238
-					  contentType: "application/octet-stream", // library marker davegut.appTpLinkSmart, line 239
-					  requestContentType: "application/octet-stream"] // library marker davegut.appTpLinkSmart, line 240
-		asyncPost(reqParams, "parseKlapResp", data.data) // library marker davegut.appTpLinkSmart, line 241
-	} // library marker davegut.appTpLinkSmart, line 242
-} // library marker davegut.appTpLinkSmart, line 243
 
-def parseKlapResp(resp, data) { // library marker davegut.appTpLinkSmart, line 245
-	Map logData = [method: "parseKlapResp"] // library marker davegut.appTpLinkSmart, line 246
-	if (resp.status == 200) { // library marker davegut.appTpLinkSmart, line 247
-		try { // library marker davegut.appTpLinkSmart, line 248
-			byte[] cipherResponse = resp.data.decodeBase64()[32..-1] // library marker davegut.appTpLinkSmart, line 249
-			def clearResp = klapDecrypt(cipherResponse, data.data.encKey, // library marker davegut.appTpLinkSmart, line 250
-										data.data.encIv, data.data.seqNo + 1) // library marker davegut.appTpLinkSmart, line 251
-			Map cmdResp =  new JsonSlurper().parseText(clearResp) // library marker davegut.appTpLinkSmart, line 252
-			logData << [status: "OK", cmdResp: cmdResp] // library marker davegut.appTpLinkSmart, line 253
-			if (cmdResp.error_code == 0) { // library marker davegut.appTpLinkSmart, line 254
-				addToDevices(data.data.devData, cmdResp.result.responses) // library marker davegut.appTpLinkSmart, line 255
-				logDebug(logData) // library marker davegut.appTpLinkSmart, line 256
-			} else { // library marker davegut.appTpLinkSmart, line 257
-				logData << [status: "errorInCmdResp"] // library marker davegut.appTpLinkSmart, line 258
-				logWarn(logData) // library marker davegut.appTpLinkSmart, line 259
-			} // library marker davegut.appTpLinkSmart, line 260
-		} catch (err) { // library marker davegut.appTpLinkSmart, line 261
-			logData << [status: "deviceDataParseError", error: err, dataLength: resp.data.length()] // library marker davegut.appTpLinkSmart, line 262
-			logWarn(logData) // library marker davegut.appTpLinkSmart, line 263
-		} // library marker davegut.appTpLinkSmart, line 264
-	} else { // library marker davegut.appTpLinkSmart, line 265
-		logData << [status: "httpFailure", data: resp.properties] // library marker davegut.appTpLinkSmart, line 266
-		logWarn(logData) // library marker davegut.appTpLinkSmart, line 267
-	} // library marker davegut.appTpLinkSmart, line 268
-} // library marker davegut.appTpLinkSmart, line 269
+/*	comps.each { cap -> // library marker davegut.appTpLinkSmart, line 205
+		switch(cap.id) { // library marker davegut.appTpLinkSmart, line 206
+			case "control_child":		/////////////////////////// // library marker davegut.appTpLinkSmart, line 207
+				if (devData.type.contains("HUB")) { // library marker davegut.appTpLinkSmart, line 208
+					driver = "Hub" // library marker davegut.appTpLinkSmart, line 209
+				} else if (devData.type.contains("PLUG") || devData.type.contains("SWITCH")) { // library marker davegut.appTpLinkSmart, line 210
+					driver = "Parent" // library marker davegut.appTpLinkSmart, line 211
+				} // library marker davegut.appTpLinkSmart, line 212
+				break // library marker davegut.appTpLinkSmart, line 213
+			case "energy_monitoring":			///////////////////////// // library marker davegut.appTpLinkSmart, line 214
+				driver = "Plug EM" // library marker davegut.appTpLinkSmart, line 215
+				break // library marker davegut.appTpLinkSmart, line 216
+			case "brightness": 					///////////////////////// // library marker davegut.appTpLinkSmart, line 217
+				if (!cmdResp.color_temp_range) { // library marker davegut.appTpLinkSmart, line 218
+					driver = "Dimmer" // library marker davegut.appTpLinkSmart, line 219
+				} // library marker davegut.appTpLinkSmart, line 220
+				break // library marker davegut.appTpLinkSmart, line 221
+			case "color":		/////////////////////////////////// // library marker davegut.appTpLinkSmart, line 222
+				if (comps.find {it.id == "light_strip" }) { // library marker davegut.appTpLinkSmart, line 223
+					driver = "Lightstrip" // library marker davegut.appTpLinkSmart, line 224
+				} else { // library marker davegut.appTpLinkSmart, line 225
+					driver = "Color Bulb" // library marker davegut.appTpLinkSmart, line 226
+				} // library marker davegut.appTpLinkSmart, line 227
+				break // library marker davegut.appTpLinkSmart, line 228
+			case "color_temperature":	////////////////////// // library marker davegut.appTpLinkSmart, line 229
+				ctHigh = cmdResp.color_temp_range[1] // library marker davegut.appTpLinkSmart, line 230
+				ctLow = cmdResp.color_temp_range[0] // library marker davegut.appTpLinkSmart, line 231
+				break // library marker davegut.appTpLinkSmart, line 232
+			case "clean":	///////////////////////// // library marker davegut.appTpLinkSmart, line 233
+				driver = "Robovac" // library marker davegut.appTpLinkSmart, line 234
+				break // library marker davegut.appTpLinkSmart, line 235
+		} // library marker davegut.appTpLinkSmart, line 236
+	}*/ // library marker davegut.appTpLinkSmart, line 237
+	def devicesData = atomicState.tpLinkDevices // library marker davegut.appTpLinkSmart, line 238
+	Map deviceData = [deviceType: devData.type, protocol: devData.protocol,  // library marker davegut.appTpLinkSmart, line 239
+					  model: devData.model, baseUrl: devData.baseUrl, alias: alias,  // library marker davegut.appTpLinkSmart, line 240
+					  type: driver] // library marker davegut.appTpLinkSmart, line 241
+	if (ctHigh != null) { // library marker davegut.appTpLinkSmart, line 242
+		deviceData << [ctHigh: ctHigh, ctLow: ctLow] // library marker davegut.appTpLinkSmart, line 243
+	} // library marker davegut.appTpLinkSmart, line 244
+	devicesData << ["${dni}": deviceData] // library marker davegut.appTpLinkSmart, line 245
 
-//	===== get Smart AES Protocol Data ===== // library marker davegut.appTpLinkSmart, line 271
-def getAesToken(resp, data) { // library marker davegut.appTpLinkSmart, line 272
-	Map logData = [method: "getAesToken"] // library marker davegut.appTpLinkSmart, line 273
+	atomicState.tpLinkDevices = devicesData // library marker davegut.appTpLinkSmart, line 247
+	logData << ["${deviceData.alias}": deviceData, dni: dni] // library marker davegut.appTpLinkSmart, line 248
+	logDebug(logData) // library marker davegut.appTpLinkSmart, line 249
+logTrace(logData) // library marker davegut.appTpLinkSmart, line 250
+} // library marker davegut.appTpLinkSmart, line 251
+
+//	===== get Smart KLAP Protocol Data ===== // library marker davegut.appTpLinkSmart, line 253
+def sendKlapDataCmd(handshakeData, data) { // library marker davegut.appTpLinkSmart, line 254
+	if (handshakeData.respStatus != "Login OK") { // library marker davegut.appTpLinkSmart, line 255
+		Map logData = [method: "sendKlapDataCmd", handshake: handshakeData] // library marker davegut.appTpLinkSmart, line 256
+		logWarn(logData) // library marker davegut.appTpLinkSmart, line 257
+	} else { // library marker davegut.appTpLinkSmart, line 258
+		Map reqParams = [timeout: 10, headers: ["Cookie": data.data.cookie]] // library marker davegut.appTpLinkSmart, line 259
+		def seqNo = data.data.seqNo + 1 // library marker davegut.appTpLinkSmart, line 260
+		String cmdBodyJson = new groovy.json.JsonBuilder(getDataCmd()).toString() // library marker davegut.appTpLinkSmart, line 261
+		Map encryptedData = klapEncrypt(cmdBodyJson.getBytes(), data.data.encKey,  // library marker davegut.appTpLinkSmart, line 262
+										data.data.encIv, data.data.encSig, seqNo) // library marker davegut.appTpLinkSmart, line 263
+		reqParams << [uri: "${data.data.baseUrl}/request?seq=${encryptedData.seqNumber}", // library marker davegut.appTpLinkSmart, line 264
+					  body: encryptedData.cipherData, // library marker davegut.appTpLinkSmart, line 265
+					  contentType: "application/octet-stream", // library marker davegut.appTpLinkSmart, line 266
+					  requestContentType: "application/octet-stream"] // library marker davegut.appTpLinkSmart, line 267
+		asyncPost(reqParams, "parseKlapResp", data.data) // library marker davegut.appTpLinkSmart, line 268
+	} // library marker davegut.appTpLinkSmart, line 269
+} // library marker davegut.appTpLinkSmart, line 270
+
+def parseKlapResp(resp, data) { // library marker davegut.appTpLinkSmart, line 272
+	Map logData = [method: "parseKlapResp"] // library marker davegut.appTpLinkSmart, line 273
 	if (resp.status == 200) { // library marker davegut.appTpLinkSmart, line 274
-		if (resp.json.error_code == 0) { // library marker davegut.appTpLinkSmart, line 275
-			try { // library marker davegut.appTpLinkSmart, line 276
-				def clearResp = aesDecrypt(resp.json.result.response, data.encKey, data.encIv) // library marker davegut.appTpLinkSmart, line 277
-				Map cmdResp = new JsonSlurper().parseText(clearResp) // library marker davegut.appTpLinkSmart, line 278
-				if (cmdResp.error_code == 0) { // library marker davegut.appTpLinkSmart, line 279
-					def token = cmdResp.result.token // library marker davegut.appTpLinkSmart, line 280
-					logData << [respStatus: "OK", token: token] // library marker davegut.appTpLinkSmart, line 281
-					logDebug(logData) // library marker davegut.appTpLinkSmart, line 282
-					sendAesDataCmd(token, data) // library marker davegut.appTpLinkSmart, line 283
-				} else { // library marker davegut.appTpLinkSmart, line 284
-					logData << [respStatus: "ERROR code in cmdResp",  // library marker davegut.appTpLinkSmart, line 285
-								error_code: cmdResp.error_code, // library marker davegut.appTpLinkSmart, line 286
-								check: "cryptoArray, credentials", data: cmdResp] // library marker davegut.appTpLinkSmart, line 287
-					logWarn(logData) // library marker davegut.appTpLinkSmart, line 288
-				} // library marker davegut.appTpLinkSmart, line 289
-			} catch (err) { // library marker davegut.appTpLinkSmart, line 290
-				logData << [respStatus: "ERROR parsing respJson", respJson: resp.json, // library marker davegut.appTpLinkSmart, line 291
-							error: err] // library marker davegut.appTpLinkSmart, line 292
-				logWarn(logData) // library marker davegut.appTpLinkSmart, line 293
-			} // library marker davegut.appTpLinkSmart, line 294
-		} else { // library marker davegut.appTpLinkSmart, line 295
-			logData << [respStatus: "ERROR code in resp.json", errorCode: resp.json.error_code, // library marker davegut.appTpLinkSmart, line 296
-						respJson: resp.json] // library marker davegut.appTpLinkSmart, line 297
-			logWarn(logData) // library marker davegut.appTpLinkSmart, line 298
-		} // library marker davegut.appTpLinkSmart, line 299
-	} else { // library marker davegut.appTpLinkSmart, line 300
-		logData << [respStatus: "ERROR in HTTP response", respStatus: resp.status, data: resp.properties] // library marker davegut.appTpLinkSmart, line 301
-		logWarn(logData) // library marker davegut.appTpLinkSmart, line 302
-	} // library marker davegut.appTpLinkSmart, line 303
-} // library marker davegut.appTpLinkSmart, line 304
+		try { // library marker davegut.appTpLinkSmart, line 275
+			byte[] cipherResponse = resp.data.decodeBase64()[32..-1] // library marker davegut.appTpLinkSmart, line 276
+			def clearResp = klapDecrypt(cipherResponse, data.data.encKey, // library marker davegut.appTpLinkSmart, line 277
+										data.data.encIv, data.data.seqNo + 1) // library marker davegut.appTpLinkSmart, line 278
+			Map cmdResp =  new JsonSlurper().parseText(clearResp) // library marker davegut.appTpLinkSmart, line 279
+			logData << [status: "OK", cmdResp: cmdResp] // library marker davegut.appTpLinkSmart, line 280
+			if (cmdResp.error_code == 0) { // library marker davegut.appTpLinkSmart, line 281
+				addToDevices(data.data.devData, cmdResp.result.responses) // library marker davegut.appTpLinkSmart, line 282
+				logDebug(logData) // library marker davegut.appTpLinkSmart, line 283
+			} else { // library marker davegut.appTpLinkSmart, line 284
+				logData << [status: "errorInCmdResp"] // library marker davegut.appTpLinkSmart, line 285
+				logWarn(logData) // library marker davegut.appTpLinkSmart, line 286
+			} // library marker davegut.appTpLinkSmart, line 287
+		} catch (err) { // library marker davegut.appTpLinkSmart, line 288
+			logData << [status: "deviceDataParseError", error: err, dataLength: resp.data.length()] // library marker davegut.appTpLinkSmart, line 289
+			logWarn(logData) // library marker davegut.appTpLinkSmart, line 290
+		} // library marker davegut.appTpLinkSmart, line 291
+	} else { // library marker davegut.appTpLinkSmart, line 292
+		logData << [status: "httpFailure", data: resp.properties] // library marker davegut.appTpLinkSmart, line 293
+		logWarn(logData) // library marker davegut.appTpLinkSmart, line 294
+	} // library marker davegut.appTpLinkSmart, line 295
+} // library marker davegut.appTpLinkSmart, line 296
 
-def sendAesDataCmd(token, data) { // library marker davegut.appTpLinkSmart, line 306
-	def cmdStr = JsonOutput.toJson(getDataCmd()).toString() // library marker davegut.appTpLinkSmart, line 307
-	Map reqBody = [method: "securePassthrough", // library marker davegut.appTpLinkSmart, line 308
-				   params: [request: aesEncrypt(cmdStr, data.encKey, data.encIv)]] // library marker davegut.appTpLinkSmart, line 309
-	Map reqParams = [uri: "${data.baseUrl}?token=${token}", // library marker davegut.appTpLinkSmart, line 310
-					 body: new groovy.json.JsonBuilder(reqBody).toString(), // library marker davegut.appTpLinkSmart, line 311
-					 contentType: "application/json", // library marker davegut.appTpLinkSmart, line 312
-					 requestContentType: "application/json", // library marker davegut.appTpLinkSmart, line 313
-					 timeout: 10,  // library marker davegut.appTpLinkSmart, line 314
-					 headers: ["Cookie": data.cookie]] // library marker davegut.appTpLinkSmart, line 315
-	asyncPost(reqParams, "parseAesResp", data) // library marker davegut.appTpLinkSmart, line 316
-} // library marker davegut.appTpLinkSmart, line 317
+//	===== get Smart AES Protocol Data ===== // library marker davegut.appTpLinkSmart, line 298
+def getAesToken(resp, data) { // library marker davegut.appTpLinkSmart, line 299
+	Map logData = [method: "getAesToken"] // library marker davegut.appTpLinkSmart, line 300
+	if (resp.status == 200) { // library marker davegut.appTpLinkSmart, line 301
+		if (resp.json.error_code == 0) { // library marker davegut.appTpLinkSmart, line 302
+			try { // library marker davegut.appTpLinkSmart, line 303
+				def clearResp = aesDecrypt(resp.json.result.response, data.encKey, data.encIv) // library marker davegut.appTpLinkSmart, line 304
+				Map cmdResp = new JsonSlurper().parseText(clearResp) // library marker davegut.appTpLinkSmart, line 305
+				if (cmdResp.error_code == 0) { // library marker davegut.appTpLinkSmart, line 306
+					def token = cmdResp.result.token // library marker davegut.appTpLinkSmart, line 307
+					logData << [respStatus: "OK", token: token] // library marker davegut.appTpLinkSmart, line 308
+					logDebug(logData) // library marker davegut.appTpLinkSmart, line 309
+					sendAesDataCmd(token, data) // library marker davegut.appTpLinkSmart, line 310
+				} else { // library marker davegut.appTpLinkSmart, line 311
+					logData << [respStatus: "ERROR code in cmdResp",  // library marker davegut.appTpLinkSmart, line 312
+								error_code: cmdResp.error_code, // library marker davegut.appTpLinkSmart, line 313
+								check: "cryptoArray, credentials", data: cmdResp] // library marker davegut.appTpLinkSmart, line 314
+					logWarn(logData) // library marker davegut.appTpLinkSmart, line 315
+				} // library marker davegut.appTpLinkSmart, line 316
+			} catch (err) { // library marker davegut.appTpLinkSmart, line 317
+				logData << [respStatus: "ERROR parsing respJson", respJson: resp.json, // library marker davegut.appTpLinkSmart, line 318
+							error: err] // library marker davegut.appTpLinkSmart, line 319
+				logWarn(logData) // library marker davegut.appTpLinkSmart, line 320
+			} // library marker davegut.appTpLinkSmart, line 321
+		} else { // library marker davegut.appTpLinkSmart, line 322
+			logData << [respStatus: "ERROR code in resp.json", errorCode: resp.json.error_code, // library marker davegut.appTpLinkSmart, line 323
+						respJson: resp.json] // library marker davegut.appTpLinkSmart, line 324
+			logWarn(logData) // library marker davegut.appTpLinkSmart, line 325
+		} // library marker davegut.appTpLinkSmart, line 326
+	} else { // library marker davegut.appTpLinkSmart, line 327
+		logData << [respStatus: "ERROR in HTTP response", respStatus: resp.status, data: resp.properties] // library marker davegut.appTpLinkSmart, line 328
+		logWarn(logData) // library marker davegut.appTpLinkSmart, line 329
+	} // library marker davegut.appTpLinkSmart, line 330
+} // library marker davegut.appTpLinkSmart, line 331
 
-def parseAesResp(resp, data) { // library marker davegut.appTpLinkSmart, line 319
-	Map logData = [method: "parseAesResp"] // library marker davegut.appTpLinkSmart, line 320
-	if (resp.status == 200) { // library marker davegut.appTpLinkSmart, line 321
-		try { // library marker davegut.appTpLinkSmart, line 322
-			Map cmdResp = new JsonSlurper().parseText(aesDecrypt(resp.json.result.response, // library marker davegut.appTpLinkSmart, line 323
-																 data.data.encKey, data.data.encIv)) // library marker davegut.appTpLinkSmart, line 324
-			logData << [status: "OK", cmdResp: cmdResp] // library marker davegut.appTpLinkSmart, line 325
-			if (cmdResp.error_code == 0) { // library marker davegut.appTpLinkSmart, line 326
-				addToDevices(data.data.devData, cmdResp.result.responses) // library marker davegut.appTpLinkSmart, line 327
-				logDebug(logData) // library marker davegut.appTpLinkSmart, line 328
-			} else { // library marker davegut.appTpLinkSmart, line 329
-				logData << [status: "errorInCmdResp"] // library marker davegut.appTpLinkSmart, line 330
-				logWarn(logData) // library marker davegut.appTpLinkSmart, line 331
-			} // library marker davegut.appTpLinkSmart, line 332
-		} catch (err) { // library marker davegut.appTpLinkSmart, line 333
-			logData << [status: "deviceDataParseError", error: err, dataLength: resp.data.length()] // library marker davegut.appTpLinkSmart, line 334
-			logWarn(logData) // library marker davegut.appTpLinkSmart, line 335
-		} // library marker davegut.appTpLinkSmart, line 336
-	} else { // library marker davegut.appTpLinkSmart, line 337
-		logData << [status: "httpFailure", data: resp.properties] // library marker davegut.appTpLinkSmart, line 338
-		logWarn(logData) // library marker davegut.appTpLinkSmart, line 339
-	} // library marker davegut.appTpLinkSmart, line 340
-} // library marker davegut.appTpLinkSmart, line 341
+def sendAesDataCmd(token, data) { // library marker davegut.appTpLinkSmart, line 333
+	def cmdStr = JsonOutput.toJson(getDataCmd()).toString() // library marker davegut.appTpLinkSmart, line 334
+	Map reqBody = [method: "securePassthrough", // library marker davegut.appTpLinkSmart, line 335
+				   params: [request: aesEncrypt(cmdStr, data.encKey, data.encIv)]] // library marker davegut.appTpLinkSmart, line 336
+	Map reqParams = [uri: "${data.baseUrl}?token=${token}", // library marker davegut.appTpLinkSmart, line 337
+					 body: new groovy.json.JsonBuilder(reqBody).toString(), // library marker davegut.appTpLinkSmart, line 338
+					 contentType: "application/json", // library marker davegut.appTpLinkSmart, line 339
+					 requestContentType: "application/json", // library marker davegut.appTpLinkSmart, line 340
+					 timeout: 10,  // library marker davegut.appTpLinkSmart, line 341
+					 headers: ["Cookie": data.cookie]] // library marker davegut.appTpLinkSmart, line 342
+	asyncPost(reqParams, "parseAesResp", data) // library marker davegut.appTpLinkSmart, line 343
+} // library marker davegut.appTpLinkSmart, line 344
 
-//	===== get Smart VAC Protocol Data ===== // library marker davegut.appTpLinkSmart, line 343
-def vacAesHandshake(baseUrl, devData) { // library marker davegut.appTpLinkSmart, line 344
-	Map reqData = [baseUrl: baseUrl, devData: devData] // library marker davegut.appTpLinkSmart, line 345
-	Map cmdBody = [method: "login", // library marker davegut.appTpLinkSmart, line 346
-				   params: [hashed: true,  // library marker davegut.appTpLinkSmart, line 347
-							password: encPasswordVac, // library marker davegut.appTpLinkSmart, line 348
-							username: userName]] // library marker davegut.appTpLinkSmart, line 349
-	Map reqParams = [uri: baseUrl, // library marker davegut.appTpLinkSmart, line 350
-					 ignoreSSLIssues: true, // library marker davegut.appTpLinkSmart, line 351
-					 body: cmdBody, // library marker davegut.appTpLinkSmart, line 352
-					 contentType: "application/json", // library marker davegut.appTpLinkSmart, line 353
-					 requestContentType: "application/json", // library marker davegut.appTpLinkSmart, line 354
-					 timeout: 10] // library marker davegut.appTpLinkSmart, line 355
-	asyncPost(reqParams, "parseVacAesLogin", reqData) // library marker davegut.appTpLinkSmart, line 356
-} // library marker davegut.appTpLinkSmart, line 357
+def parseAesResp(resp, data) { // library marker davegut.appTpLinkSmart, line 346
+	Map logData = [method: "parseAesResp"] // library marker davegut.appTpLinkSmart, line 347
+	if (resp.status == 200) { // library marker davegut.appTpLinkSmart, line 348
+		try { // library marker davegut.appTpLinkSmart, line 349
+			Map cmdResp = new JsonSlurper().parseText(aesDecrypt(resp.json.result.response, // library marker davegut.appTpLinkSmart, line 350
+																 data.data.encKey, data.data.encIv)) // library marker davegut.appTpLinkSmart, line 351
+			logData << [status: "OK", cmdResp: cmdResp] // library marker davegut.appTpLinkSmart, line 352
+			if (cmdResp.error_code == 0) { // library marker davegut.appTpLinkSmart, line 353
+				addToDevices(data.data.devData, cmdResp.result.responses) // library marker davegut.appTpLinkSmart, line 354
+				logDebug(logData) // library marker davegut.appTpLinkSmart, line 355
+			} else { // library marker davegut.appTpLinkSmart, line 356
+				logData << [status: "errorInCmdResp"] // library marker davegut.appTpLinkSmart, line 357
+				logWarn(logData) // library marker davegut.appTpLinkSmart, line 358
+			} // library marker davegut.appTpLinkSmart, line 359
+		} catch (err) { // library marker davegut.appTpLinkSmart, line 360
+			logData << [status: "deviceDataParseError", error: err, dataLength: resp.data.length()] // library marker davegut.appTpLinkSmart, line 361
+			logWarn(logData) // library marker davegut.appTpLinkSmart, line 362
+		} // library marker davegut.appTpLinkSmart, line 363
+	} else { // library marker davegut.appTpLinkSmart, line 364
+		logData << [status: "httpFailure", data: resp.properties] // library marker davegut.appTpLinkSmart, line 365
+		logWarn(logData) // library marker davegut.appTpLinkSmart, line 366
+	} // library marker davegut.appTpLinkSmart, line 367
+} // library marker davegut.appTpLinkSmart, line 368
 
-def parseVacAesLogin(resp, data) { // library marker davegut.appTpLinkSmart, line 359
-	Map logData = [method: "parseVacAesLogin", oldToken: token] // library marker davegut.appTpLinkSmart, line 360
-	if (resp.status == 200 && resp.json != null) { // library marker davegut.appTpLinkSmart, line 361
-		logData << [status: "OK"] // library marker davegut.appTpLinkSmart, line 362
-		logData << [token: resp.json.result.token] // library marker davegut.appTpLinkSmart, line 363
-		sendVacDataCmd(resp.json.result.token, data) // library marker davegut.appTpLinkSmart, line 364
-		logDebug(logData) // library marker davegut.appTpLinkSmart, line 365
-	} else { // library marker davegut.appTpLinkSmart, line 366
-		logData << [respStatus: "ERROR in HTTP response", resp: resp.properties] // library marker davegut.appTpLinkSmart, line 367
-		logWarn(logData) // library marker davegut.appTpLinkSmart, line 368
-	} // library marker davegut.appTpLinkSmart, line 369
-} // library marker davegut.appTpLinkSmart, line 370
-
-def sendVacDataCmd(token, data) { // library marker davegut.appTpLinkSmart, line 372
-	Map devData = data.data.devData // library marker davegut.appTpLinkSmart, line 373
-	Map reqParams = [uri: "${data.data.baseUrl}/?token=${token}", // library marker davegut.appTpLinkSmart, line 374
-					 body: getDataCmd(), // library marker davegut.appTpLinkSmart, line 375
-					 contentType: "application/json", // library marker davegut.appTpLinkSmart, line 376
-					 requestContentType: "application/json", // library marker davegut.appTpLinkSmart, line 377
+//	===== get Smart VAC Protocol Data ===== // library marker davegut.appTpLinkSmart, line 370
+def vacAesHandshake(baseUrl, devData) { // library marker davegut.appTpLinkSmart, line 371
+	Map reqData = [baseUrl: baseUrl, devData: devData] // library marker davegut.appTpLinkSmart, line 372
+	Map cmdBody = [method: "login", // library marker davegut.appTpLinkSmart, line 373
+				   params: [hashed: true,  // library marker davegut.appTpLinkSmart, line 374
+							password: encPasswordVac, // library marker davegut.appTpLinkSmart, line 375
+							username: userName]] // library marker davegut.appTpLinkSmart, line 376
+	Map reqParams = [uri: baseUrl, // library marker davegut.appTpLinkSmart, line 377
 					 ignoreSSLIssues: true, // library marker davegut.appTpLinkSmart, line 378
-					 timeout: 10] // library marker davegut.appTpLinkSmart, line 379
-	asyncPost(reqParams, "parseVacResp", devData) // library marker davegut.appTpLinkSmart, line 380
-} // library marker davegut.appTpLinkSmart, line 381
+					 body: cmdBody, // library marker davegut.appTpLinkSmart, line 379
+					 contentType: "application/json", // library marker davegut.appTpLinkSmart, line 380
+					 requestContentType: "application/json", // library marker davegut.appTpLinkSmart, line 381
+					 timeout: 10] // library marker davegut.appTpLinkSmart, line 382
+	asyncPost(reqParams, "parseVacAesLogin", reqData) // library marker davegut.appTpLinkSmart, line 383
+} // library marker davegut.appTpLinkSmart, line 384
 
-def parseVacResp(resp, devData) { // library marker davegut.appTpLinkSmart, line 383
-	Map logData = [parseMethod: "parseVacResp"] // library marker davegut.appTpLinkSmart, line 384
-	try { // library marker davegut.appTpLinkSmart, line 385
-		Map cmdResp = resp.json // library marker davegut.appTpLinkSmart, line 386
-		logData << [status: "OK", cmdResp: cmdResp] // library marker davegut.appTpLinkSmart, line 387
-			if (cmdResp.error_code == 0) { // library marker davegut.appTpLinkSmart, line 388
-				addToDevices(devData.data, cmdResp.result.responses) // library marker davegut.appTpLinkSmart, line 389
-				logDebug(logData) // library marker davegut.appTpLinkSmart, line 390
-			} else { // library marker davegut.appTpLinkSmart, line 391
-				logData << [status: "errorInCmdResp"] // library marker davegut.appTpLinkSmart, line 392
-				logWarn(logData) // library marker davegut.appTpLinkSmart, line 393
-			} // library marker davegut.appTpLinkSmart, line 394
-	} catch (err) { // library marker davegut.appTpLinkSmart, line 395
-		logData << [status: "deviceDataParseError", error: err, dataLength: resp.data.length()] // library marker davegut.appTpLinkSmart, line 396
-		logWarn(logData) // library marker davegut.appTpLinkSmart, line 397
-	} // library marker davegut.appTpLinkSmart, line 398
-	return parseData	 // library marker davegut.appTpLinkSmart, line 399
-} // library marker davegut.appTpLinkSmart, line 400
+def parseVacAesLogin(resp, data) { // library marker davegut.appTpLinkSmart, line 386
+	Map logData = [method: "parseVacAesLogin", oldToken: token] // library marker davegut.appTpLinkSmart, line 387
+	if (resp.status == 200 && resp.json != null) { // library marker davegut.appTpLinkSmart, line 388
+		logData << [status: "OK"] // library marker davegut.appTpLinkSmart, line 389
+		logData << [token: resp.json.result.token] // library marker davegut.appTpLinkSmart, line 390
+		sendVacDataCmd(resp.json.result.token, data) // library marker davegut.appTpLinkSmart, line 391
+		logDebug(logData) // library marker davegut.appTpLinkSmart, line 392
+	} else { // library marker davegut.appTpLinkSmart, line 393
+		logData << [respStatus: "ERROR in HTTP response", resp: resp.properties] // library marker davegut.appTpLinkSmart, line 394
+		logWarn(logData) // library marker davegut.appTpLinkSmart, line 395
+	} // library marker davegut.appTpLinkSmart, line 396
+} // library marker davegut.appTpLinkSmart, line 397
 
-def tpLinkCheckForDevices(timeout = 5) { // library marker davegut.appTpLinkSmart, line 402
-	Map logData = [method: "tpLinkCheckForDevices"] // library marker davegut.appTpLinkSmart, line 403
-	if (state.tpLinkChecked == true) { // library marker davegut.appTpLinkSmart, line 404
-		logData << [status: "noCheck", reason: "Completed within last 10 minutes"] // library marker davegut.appTpLinkSmart, line 405
-	} else { // library marker davegut.appTpLinkSmart, line 406
-		def findData = findTpLinkDevices("parseTpLinkCheck", timeout) // library marker davegut.appTpLinkSmart, line 407
-		logData << [status: "checking"] // library marker davegut.appTpLinkSmart, line 408
-	} // library marker davegut.appTpLinkSmart, line 409
-	return logData // library marker davegut.appTpLinkSmart, line 410
-} // library marker davegut.appTpLinkSmart, line 411
+def sendVacDataCmd(token, data) { // library marker davegut.appTpLinkSmart, line 399
+	Map devData = data.data.devData // library marker davegut.appTpLinkSmart, line 400
+	Map reqParams = [uri: "${data.data.baseUrl}/?token=${token}", // library marker davegut.appTpLinkSmart, line 401
+					 body: getDataCmd(), // library marker davegut.appTpLinkSmart, line 402
+					 contentType: "application/json", // library marker davegut.appTpLinkSmart, line 403
+					 requestContentType: "application/json", // library marker davegut.appTpLinkSmart, line 404
+					 ignoreSSLIssues: true, // library marker davegut.appTpLinkSmart, line 405
+					 timeout: 10] // library marker davegut.appTpLinkSmart, line 406
+	asyncPost(reqParams, "parseVacResp", devData) // library marker davegut.appTpLinkSmart, line 407
+} // library marker davegut.appTpLinkSmart, line 408
 
-def resetTpLinkChecked() { state.tpLinkChecked = false } // library marker davegut.appTpLinkSmart, line 413
+def parseVacResp(resp, devData) { // library marker davegut.appTpLinkSmart, line 410
+	Map logData = [parseMethod: "parseVacResp"] // library marker davegut.appTpLinkSmart, line 411
+	try { // library marker davegut.appTpLinkSmart, line 412
+		Map cmdResp = resp.json // library marker davegut.appTpLinkSmart, line 413
+		logData << [status: "OK", cmdResp: cmdResp] // library marker davegut.appTpLinkSmart, line 414
+			if (cmdResp.error_code == 0) { // library marker davegut.appTpLinkSmart, line 415
+				addToDevices(devData.data, cmdResp.result.responses) // library marker davegut.appTpLinkSmart, line 416
+				logDebug(logData) // library marker davegut.appTpLinkSmart, line 417
+			} else { // library marker davegut.appTpLinkSmart, line 418
+				logData << [status: "errorInCmdResp"] // library marker davegut.appTpLinkSmart, line 419
+				logWarn(logData) // library marker davegut.appTpLinkSmart, line 420
+			} // library marker davegut.appTpLinkSmart, line 421
+	} catch (err) { // library marker davegut.appTpLinkSmart, line 422
+		logData << [status: "deviceDataParseError", error: err, dataLength: resp.data.length()] // library marker davegut.appTpLinkSmart, line 423
+		logWarn(logData) // library marker davegut.appTpLinkSmart, line 424
+	} // library marker davegut.appTpLinkSmart, line 425
+	return parseData	 // library marker davegut.appTpLinkSmart, line 426
+} // library marker davegut.appTpLinkSmart, line 427
 
-def parseTpLinkCheck(response) { // library marker davegut.appTpLinkSmart, line 415
-	List discData = [] // library marker davegut.appTpLinkSmart, line 416
-	if (response instanceof Map) { // library marker davegut.appTpLinkSmart, line 417
-		Map devdata = getDiscData(response) // library marker davegut.appTpLinkSmart, line 418
-		if (devData.status != "INVALID") { // library marker davegut.appTpLinkSmart, line 419
-			discData << devData // library marker davegut.appTpLinkSmart, line 420
-		} // library marker davegut.appTpLinkSmart, line 421
-	} else { // library marker davegut.appTpLinkSmart, line 422
-		response.each { // library marker davegut.appTpLinkSmart, line 423
-			Map devData = getDiscData(it) // library marker davegut.appTpLinkSmart, line 424
-			if (devData.status == "OK") { // library marker davegut.appTpLinkSmart, line 425
-				discData << devData // library marker davegut.appTpLinkSmart, line 426
-			} // library marker davegut.appTpLinkSmart, line 427
-		} // library marker davegut.appTpLinkSmart, line 428
-	} // library marker davegut.appTpLinkSmart, line 429
-	updateTpLinkDevices(discData) // library marker davegut.appTpLinkSmart, line 430
-} // library marker davegut.appTpLinkSmart, line 431
+def tpLinkCheckForDevices(timeout = 5) { // library marker davegut.appTpLinkSmart, line 429
+	Map logData = [method: "tpLinkCheckForDevices"] // library marker davegut.appTpLinkSmart, line 430
+	if (state.tpLinkChecked == true) { // library marker davegut.appTpLinkSmart, line 431
+		logData << [status: "noCheck", reason: "Completed within last 10 minutes"] // library marker davegut.appTpLinkSmart, line 432
+	} else { // library marker davegut.appTpLinkSmart, line 433
+		def findData = findTpLinkDevices("parseTpLinkCheck", timeout) // library marker davegut.appTpLinkSmart, line 434
+		logData << [status: "checking"] // library marker davegut.appTpLinkSmart, line 435
+	} // library marker davegut.appTpLinkSmart, line 436
+	return logData // library marker davegut.appTpLinkSmart, line 437
+} // library marker davegut.appTpLinkSmart, line 438
 
-def updateTpLinkDevices(discData) { // library marker davegut.appTpLinkSmart, line 433
-	Map logData = [method: "updateTpLinkDevices"] // library marker davegut.appTpLinkSmart, line 434
-	state.tpLinkChecked = true // library marker davegut.appTpLinkSmart, line 435
-	runIn(570, resetTpLinkChecked) // library marker davegut.appTpLinkSmart, line 436
-	List children = getChildDevices() // library marker davegut.appTpLinkSmart, line 437
-	children.each { childDev -> // library marker davegut.appTpLinkSmart, line 438
-		Map childData = [:] // library marker davegut.appTpLinkSmart, line 439
-		def dni = childDev.deviceNetworkId // library marker davegut.appTpLinkSmart, line 440
-		def connected = "false" // library marker davegut.appTpLinkSmart, line 441
-		Map devData = discData.find{ it.dni == dni } // library marker davegut.appTpLinkSmart, line 442
-		if (childDev.getDataValue("baseUrl")) { // library marker davegut.appTpLinkSmart, line 443
-			if (devData != null) { // library marker davegut.appTpLinkSmart, line 444
-				if (childDev.getDataValue("baseUrl") == devData.baseUrl && // library marker davegut.appTpLinkSmart, line 445
-				    childDev.getDataValue("protocol") == devData.protocol) { // library marker davegut.appTpLinkSmart, line 446
-					childData << [status: "noChanges"] // library marker davegut.appTpLinkSmart, line 447
-				} else { // library marker davegut.appTpLinkSmart, line 448
-					childDev.updateDataValue("baseUrl", devData.baseUrl) // library marker davegut.appTpLinkSmart, line 449
-					childDev.updateDataValue("protocol", devData.protocol) // library marker davegut.appTpLinkSmart, line 450
-					childData << ["baseUrl": devData.baseUrl, // library marker davegut.appTpLinkSmart, line 451
-								  "protocol": devData.protocol, // library marker davegut.appTpLinkSmart, line 452
-								  "connected": "true"] // library marker davegut.appTpLinkSmart, line 453
-				} // library marker davegut.appTpLinkSmart, line 454
-			} else { // library marker davegut.appTpLinkSmart, line 455
-				childData << [connected: "false", reason: "not Discovered By App"] // library marker davegut.appTpLinkSmart, line 456
-				logWarn(logData) // library marker davegut.appTpLinkSmart, line 457
-			} // library marker davegut.appTpLinkSmart, line 458
-			pauseExecution(500) // library marker davegut.appTpLinkSmart, line 459
-		} // library marker davegut.appTpLinkSmart, line 460
-		logData << ["${childDev}": childData] // library marker davegut.appTpLinkSmart, line 461
-	} // library marker davegut.appTpLinkSmart, line 462
-	logDebug(logData) // library marker davegut.appTpLinkSmart, line 463
-logInfo(logData) // library marker davegut.appTpLinkSmart, line 464
-} // library marker davegut.appTpLinkSmart, line 465
+def resetTpLinkChecked() { state.tpLinkChecked = false } // library marker davegut.appTpLinkSmart, line 440
 
-// ~~~~~ end include (78) davegut.appTpLinkSmart ~~~~~
+def parseTpLinkCheck(response) { // library marker davegut.appTpLinkSmart, line 442
+	List discData = [] // library marker davegut.appTpLinkSmart, line 443
+	if (response instanceof Map) { // library marker davegut.appTpLinkSmart, line 444
+		Map devdata = getDiscData(response) // library marker davegut.appTpLinkSmart, line 445
+		if (devData.status != "INVALID") { // library marker davegut.appTpLinkSmart, line 446
+			discData << devData // library marker davegut.appTpLinkSmart, line 447
+		} // library marker davegut.appTpLinkSmart, line 448
+	} else { // library marker davegut.appTpLinkSmart, line 449
+		response.each { // library marker davegut.appTpLinkSmart, line 450
+			Map devData = getDiscData(it) // library marker davegut.appTpLinkSmart, line 451
+			if (devData.status == "OK") { // library marker davegut.appTpLinkSmart, line 452
+				discData << devData // library marker davegut.appTpLinkSmart, line 453
+			} // library marker davegut.appTpLinkSmart, line 454
+		} // library marker davegut.appTpLinkSmart, line 455
+	} // library marker davegut.appTpLinkSmart, line 456
+	updateTpLinkDevices(discData) // library marker davegut.appTpLinkSmart, line 457
+} // library marker davegut.appTpLinkSmart, line 458
+
+def updateTpLinkDevices(discData) { // library marker davegut.appTpLinkSmart, line 460
+	Map logData = [method: "updateTpLinkDevices"] // library marker davegut.appTpLinkSmart, line 461
+	state.tpLinkChecked = true // library marker davegut.appTpLinkSmart, line 462
+	runIn(570, resetTpLinkChecked) // library marker davegut.appTpLinkSmart, line 463
+	List children = getChildDevices() // library marker davegut.appTpLinkSmart, line 464
+	children.each { childDev -> // library marker davegut.appTpLinkSmart, line 465
+		Map childData = [:] // library marker davegut.appTpLinkSmart, line 466
+		def dni = childDev.deviceNetworkId // library marker davegut.appTpLinkSmart, line 467
+		def connected = "false" // library marker davegut.appTpLinkSmart, line 468
+		Map devData = discData.find{ it.dni == dni } // library marker davegut.appTpLinkSmart, line 469
+		if (childDev.getDataValue("baseUrl")) { // library marker davegut.appTpLinkSmart, line 470
+			if (devData != null) { // library marker davegut.appTpLinkSmart, line 471
+				if (childDev.getDataValue("baseUrl") == devData.baseUrl && // library marker davegut.appTpLinkSmart, line 472
+				    childDev.getDataValue("protocol") == devData.protocol) { // library marker davegut.appTpLinkSmart, line 473
+					childData << [status: "noChanges"] // library marker davegut.appTpLinkSmart, line 474
+				} else { // library marker davegut.appTpLinkSmart, line 475
+					childDev.updateDataValue("baseUrl", devData.baseUrl) // library marker davegut.appTpLinkSmart, line 476
+					childDev.updateDataValue("protocol", devData.protocol) // library marker davegut.appTpLinkSmart, line 477
+					childData << ["baseUrl": devData.baseUrl, // library marker davegut.appTpLinkSmart, line 478
+								  "protocol": devData.protocol, // library marker davegut.appTpLinkSmart, line 479
+								  "connected": "true"] // library marker davegut.appTpLinkSmart, line 480
+				} // library marker davegut.appTpLinkSmart, line 481
+			} else { // library marker davegut.appTpLinkSmart, line 482
+				childData << [connected: "false", reason: "not Discovered By App"] // library marker davegut.appTpLinkSmart, line 483
+				logWarn(logData) // library marker davegut.appTpLinkSmart, line 484
+			} // library marker davegut.appTpLinkSmart, line 485
+			pauseExecution(500) // library marker davegut.appTpLinkSmart, line 486
+		} // library marker davegut.appTpLinkSmart, line 487
+		logData << ["${childDev}": childData] // library marker davegut.appTpLinkSmart, line 488
+	} // library marker davegut.appTpLinkSmart, line 489
+	logDebug(logData) // library marker davegut.appTpLinkSmart, line 490
+logInfo(logData) // library marker davegut.appTpLinkSmart, line 491
+} // library marker davegut.appTpLinkSmart, line 492
+
+// ~~~~~ end include (104) davegut.appTpLinkSmart ~~~~~
 
 // ~~~~~ start include (86) davegut.tpLinkComms ~~~~~
 library ( // library marker davegut.tpLinkComms, line 1
@@ -1205,7 +1232,7 @@ def errorDeviceHandshake() {  // library marker davegut.tpLinkComms, line 123
 
 // ~~~~~ end include (86) davegut.tpLinkComms ~~~~~
 
-// ~~~~~ start include (87) davegut.tpLinkCrypto ~~~~~
+// ~~~~~ start include (111) davegut.tpLinkCrypto ~~~~~
 library ( // library marker davegut.tpLinkCrypto, line 1
 	name: "tpLinkCrypto", // library marker davegut.tpLinkCrypto, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCrypto, line 3
@@ -1570,7 +1597,7 @@ def getRsaKey() { // library marker davegut.tpLinkCrypto, line 360
 			private: "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAMav+YcErxqrHtQBL6D5O4C8TcnYN3CypGf0yYCSM8Y2ifVmXAzqctAd8kd5t2iHJWqQ1ZoIQIZed+2eULwIzZz9G6O8KtK1EDSVUP6OLE71An09xhNrTtnUW4TN7tDk4hrqkSg/GiauPHNWVRYsNe33TWoJ2ff/NFmkF2lfNVm1AgMBAAECgYEAocxCHmKBGe2KAEkq+SKdAxvVGO77TsobOhDMWug0Q1C8jduaUGZHsxT/7JbA9d1AagSh/XqE2Sdq8FUBF+7vSFzozBHyGkrX1iKURpQFEQM2j9JgUCucEavnxvCqDYpscyNRAgqz9jdh+BjEMcKAG7o68bOw41ZC+JyYR41xSe0CQQD1os71NcZiMVqYcBud6fTYFHZz3HBNcbzOk+RpIHyi8aF3zIqPKIAh2pO4s7vJgrMZTc2wkIe0ZnUrm0oaC//jAkEAzxIPW1mWd3+KE3gpgyX0cFkZsDmlIbWojUIbyz8NgeUglr+BczARG4ITrTV4fxkGwNI4EZxBT8vXDSIXJ8NDhwJBAIiKndx0rfg7Uw7VkqRvPqk2hrnU2aBTDw8N6rP9WQsCoi0DyCnX65Hl/KN5VXOocYIpW6NAVA8VvSAmTES6Ut0CQQCX20jD13mPfUsHaDIZafZPhiheoofFpvFLVtYHQeBoCF7T7vHCRdfl8oj3l6UcoH/hXMmdsJf9KyI1EXElyf91AkAvLfmAS2UvUnhX4qyFioitjxwWawSnf+CewN8LDbH7m5JVXJEh3hqp+aLHg1EaW4wJtkoKLCF+DeVIgbSvOLJw"] // library marker davegut.tpLinkCrypto, line 362
 } // library marker davegut.tpLinkCrypto, line 363
 
-// ~~~~~ end include (87) davegut.tpLinkCrypto ~~~~~
+// ~~~~~ end include (111) davegut.tpLinkCrypto ~~~~~
 
 // ~~~~~ start include (79) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
