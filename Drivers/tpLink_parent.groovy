@@ -6,7 +6,7 @@ Name Change to TpLink Parent.
 
 Verified on TP25(US) and P306(US)
 =================================================================================================*/
-
+//	TEST MOD FOR Kasa 240
 metadata {
 	definition (name: "TpLink Parent", namespace: nameSpace(), author: "Dave Gutheinz", 
 				singleThreaded: true,
