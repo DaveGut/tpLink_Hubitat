@@ -50,14 +50,14 @@
     },
     {
       "id": "b9c64b4a-8b7e-4aca-b575-c1248e7976b4",
-      "name": "TpLink HUB Button",
+      "name": "     TpLink HUB Button",
       "namespace": "davegut",
       "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_button.groovy",
       "required": false
     },
     {
       "id": "504c09cc-d955-4b16-8baa-89ce9f4c4542",
-      "name": "TpLink Hub Contact",
+      "name": "     TpLink Hub Contact",
       "namespace": "davegut",
       "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_contact.groovy",
       "required": false
