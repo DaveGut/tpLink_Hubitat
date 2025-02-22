@@ -6,7 +6,7 @@
   "documentationLink": "https://github.com/DaveGut/tpLink_Hubitat",
   "communityLink": "https://community.hubitat.com/t/tp-link-tapo-devices/121084",
   "dateReleased": "2024-08-04",
-  "releaseNotes": "Major update to support new KASA and TAPO devices as well as future-proof as much as possible.  See release notes in gitHub repository docs folder for detailed information.",
+  "releaseNotes": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/releaseNotes.md",
   "licenseFile": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/LICENSE",
   "apps": [
     {
