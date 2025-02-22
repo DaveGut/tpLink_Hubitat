@@ -1,6 +1,7 @@
 Version 2.4.1 Changes
 
 Application Changes:
+
 a.	Needed Driver List.  Now check for Hub installed drivers and drivers 
 	required for found devices.  Creates list of drivers NOT installed
 	and inform user of need to install on the Add Devices page.
