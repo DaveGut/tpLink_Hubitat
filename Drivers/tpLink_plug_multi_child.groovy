@@ -49,7 +49,7 @@ Level
 
 
 
-// ~~~~~ start include (81) davegut.tpLinkCapSwitch ~~~~~
+// ~~~~~ start include (51) davegut.tpLinkCapSwitch ~~~~~
 library ( // library marker davegut.tpLinkCapSwitch, line 1
 	name: "tpLinkCapSwitch", // library marker davegut.tpLinkCapSwitch, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCapSwitch, line 3
@@ -78,9 +78,9 @@ def setPower(onOff) { // library marker davegut.tpLinkCapSwitch, line 16
 	} // library marker davegut.tpLinkCapSwitch, line 26
 } // library marker davegut.tpLinkCapSwitch, line 27
 
-// ~~~~~ end include (81) davegut.tpLinkCapSwitch ~~~~~
+// ~~~~~ end include (51) davegut.tpLinkCapSwitch ~~~~~
 
-// ~~~~~ start include (82) davegut.tpLinkCapSwitchLevel ~~~~~
+// ~~~~~ start include (61) davegut.tpLinkCapSwitchLevel ~~~~~
 library ( // library marker davegut.tpLinkCapSwitchLevel, line 1
 	name: "tpLinkCapSwitchLevel", // library marker davegut.tpLinkCapSwitchLevel, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCapSwitchLevel, line 3
@@ -195,9 +195,9 @@ def levelDown() { // library marker davegut.tpLinkCapSwitchLevel, line 103
 	} // library marker davegut.tpLinkCapSwitchLevel, line 112
 } // library marker davegut.tpLinkCapSwitchLevel, line 113
 
-// ~~~~~ end include (82) davegut.tpLinkCapSwitchLevel ~~~~~
+// ~~~~~ end include (61) davegut.tpLinkCapSwitchLevel ~~~~~
 
-// ~~~~~ start include (83) davegut.tpLinkChildCommon ~~~~~
+// ~~~~~ start include (62) davegut.tpLinkChildCommon ~~~~~
 library ( // library marker davegut.tpLinkChildCommon, line 1
 	name: "tpLinkChildCommon", // library marker davegut.tpLinkChildCommon, line 2
 	namespace: "davegut", // library marker davegut.tpLinkChildCommon, line 3
@@ -282,9 +282,9 @@ def updateAttr(attr, value) { // library marker davegut.tpLinkChildCommon, line 
 	} // library marker davegut.tpLinkChildCommon, line 82
 } // library marker davegut.tpLinkChildCommon, line 83
 
-// ~~~~~ end include (83) davegut.tpLinkChildCommon ~~~~~
+// ~~~~~ end include (62) davegut.tpLinkChildCommon ~~~~~
 
-// ~~~~~ start include (79) davegut.Logging ~~~~~
+// ~~~~~ start include (49) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -347,4 +347,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 61
 
-// ~~~~~ end include (79) davegut.Logging ~~~~~
+// ~~~~~ end include (49) davegut.Logging ~~~~~

@@ -2,85 +2,452 @@
 		Copyright Dave Gutheinz
 License:  https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/License.md
 
-Name Change to TpLink Parent.
+Name change to TpLink Lightstrip.
 
-Verified on TP25(US) and P306(US)
+Verified on L900-5(US).
 =================================================================================================*/
+//	=====	NAMESPACE	in library davegut.Logging	============
 
 metadata {
-	definition (name: "TpLink Parent", namespace: nameSpace(), author: "Dave Gutheinz", 
+	definition (name: "TpLink Lightstrip", namespace: nameSpace(), author: "Dave Gutheinz", 
 				singleThreaded: true,
-				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_parent.groovy")
+				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_lightStrip.groovy")
 	{
+		capability "Light"
+		command "setLightingEffect", [[
+			name: "Lighting Effect",
+			constraints: effectList(),
+			type: "ENUM"
+			]]
+		attribute "effectName", "string"
+		attribute "effectEnable", "string"
 	}
 	preferences {
-		input ("ledRule", "enum", title: "LED Mode (if night mode, set type and times in phone app)",
-			   options: ["always", "never", "night_mode"], defaultValue: "always")
-		input ("installChild", "bool", title: "Install Child Devices", defaultValue: true)
 		commonPreferences()
 	}
 }
 
 def installed() {
 	Map logData = [method: "installed", commonInstalled: commonInstalled()]
-	if (installChild) {
-		logData << [children: "installing"]
-		runIn(5, installChildDevices)
-		pauseExecution(5000)
-	}
 	logInfo(logData)
 }
 
-def updated() { 
-	Map logData = [method: updated, installChild: installChild,
-				   commonUpdated: commonUpdated()]
-	if (installChild) {
-		runIn(5, installChildDevices)
-		pauseExecution(5000)
-	}
+def updated() {
+	Map logData = [method: "updated", commonUpdated: commonUpdated()]
 	logInfo(logData)
+}
+
+def setLightingEffect(effect) {
+	Map effData = getEffect(effect)
+	List requests  = [[
+		method: "set_lighting_effect",
+		params: effData
+	]]
+	requests << [method: "get_device_info"]
+	asyncSend(createMultiCmd(requests), "setLightingEffect", "parseUpdates")
+}
+
+def getEffect(effect) {
+	List effects = [
+		[custom:0, id:"TapoStrip_1MClvV18i15Jq3bvJVf0eP", brightness:100, name:"Aurora", enable:1, segments:[0], expansion_strategy:1, display_colors:[[120, 100, 100], [240, 100, 100], [260, 100, 100], [280, 100, 100]], type:"sequence", duration:0, transition:1500, direction:4, spread:7, repeat_times:0, sequence:[[120, 100, 100], [240, 100, 100], [260, 100, 100], [280, 100, 100]]],
+		[custom:0, id:"TapoStrip_6DlumDwO2NdfHppy50vJtu", brightness:100, name:"Bubbling Cauldron", enable:1, segments:[0], expansion_strategy:1, display_colors:[[100, 100, 100], [270, 100, 100]], type:"random", hue_range:[100, 270], saturation_range:[80, 100], brightness_range:[50, 100], duration:0, transition:200, init_states:[[270, 100, 100]], fadeoff:1000, random_seed:24, backgrounds:[[270, 40, 50]]],
+		[custom:0, id:"TapoStrip_6Dy0Nc45vlhFPEzG021Pe9", brightness:100, name:"Candy Cane", enable:1, segments:[0], expansion_strategy:1, display_colors:[[0, 0, 100], [360, 81, 100]], type:"sequence", duration:700, transition:500, direction:1, spread:1, repeat_times:0, sequence:[[0, 0, 100], [0, 0, 100], [360, 81, 100], [0, 0, 100], [0, 0, 100], [360, 81, 100], [360, 81, 100], [0, 0, 100], [0, 0, 100], [360, 81, 100], [360, 81, 100], [360, 81, 100], [360, 81, 100], [0, 0, 100], [0, 0, 100], [360, 81, 100]]],
+		[custom:0, id:"TapoStrip_5zkiG6avJ1IbhjiZbRlWvh", brightness:100, name:"Christmas", enable:1, segments:[0], expansion_strategy:1, display_colors:[[136, 98, 100], [350, 97, 100]], type:"random", hue_range:[136, 146], saturation_range:[90, 100], brightness_range:[50, 100], duration:5000, transition:0, init_states:[[136, 0, 100]], fadeoff:2000, random_seed:100, backgrounds:[[136, 98, 75], [136, 0, 0], [350, 0, 100], [350, 97, 94]]],
+		[custom:0, id:"TapoStrip_4HVKmMc6vEzjm36jXaGwMs", brightness:100, name:"Flicker", enable:1, segments:[1], expansion_strategy:1, display_colors:[[30, 81, 100], [40, 100, 100]], type:"random", hue_range:[30, 40], saturation_range:[100, 100], brightness_range:[50, 100], duration:0, transition:0, transition_range:[375, 500], init_states:[[30, 81, 80]]],
+		[custom:0, id:"TapoStrip_3Gk6CmXOXbjCiwz9iD543C", brightness:100, name:"""Grandma's Christmas Lights""", enable:1, segments:[0], expansion_strategy:1, display_colors:[[30, 100, 100], [240, 100, 100], [130, 100, 100], [0, 100, 100]], type:"sequence", duration:5000, transition:100, direction:1, spread:1, repeat_times:0, sequence:[[30, 100, 100], [30, 0, 0], [30, 0, 0], [240, 100, 100], [240, 0, 0], [240, 0, 0], [240, 0, 100], [240, 0, 0], [240, 0, 0], [130, 100, 100], [130, 0, 0], [130, 0, 0], [0, 100, 100], [0, 0, 0], [0, 0, 0]]],
+		[custom:0, id:"TapoStrip_2YTk4wramLKv5XZ9KFDVYm", brightness:100, name:"Hanukkah", enable:1, segments:[1], expansion_strategy:1, display_colors:[[200, 100, 100]], type:"random", hue_range:[200, 210], saturation_range:[0, 100], brightness_range:[50, 100], duration:1500, transition:0, transition_range:[400, 500], init_states:[[35, 81, 80]]],
+		[custom:0, id:"TapoStrip_4rJ6JwC7I9st3tQ8j4lwlI", brightness:100, name:"Haunted Mansion", enable:1, segments:[80], expansion_strategy:2, display_colors:[[45, 10, 100]], type:"random", hue_range:[45, 45], saturation_range:[10, 10], brightness_range:[0, 80], duration:0, transition:0, transition_range:[50, 1500], init_states:[[45, 10, 100]], fadeoff:200, random_seed:1, backgrounds:[[45, 10, 100]]],
+		[custom:0, id:"TapoStrip_7UcYLeJbiaxVIXCxr21tpx", brightness:100, name:"Icicle", enable:1, segments:[0], expansion_strategy:1, display_colors:[[190, 100, 100]], type:"sequence", duration:0, transition:400, direction:4, spread:3, repeat_times:0, sequence:[[190, 100, 70], [190, 100, 70], [190, 30, 50], [190, 100, 70], [190, 100, 70]]],
+		[custom:0, id:"TapoStrip_7OGzfSfnOdhoO2ri4gOHWn", brightness:100, name:"Lightning", enable:1, segments:[7], expansion_strategy:1, display_colors:[[210, 10, 100], [200, 50, 100], [200, 100, 100]], type:"random", hue_range:[240, 240], saturation_range:[10, 11], brightness_range:[90, 100], duration:0, transition:50, init_states:[[240, 30, 100]], fadeoff:150, random_seed:50, backgrounds:[[200, 100, 100], [200, 50, 10], [210, 10, 50], [240, 10, 0]]],
+		[custom:0, id:"TapoStrip_0fOleCdwSgR0nfjkReeYfw", brightness:100, name:"Ocean", enable:1, segments:[0], expansion_strategy:1, display_colors:[[198, 84, 100]], type:"sequence", duration:0, transition:2000, direction:3, spread:16, repeat_times:0, sequence:[[198, 84, 30], [198, 70, 30], [198, 10, 30]]],
+		[custom:0, id:"TapoStrip_7CC5y4lsL8pETYvmz7UOpQ", brightness:100, name:"Rainbow", enable:1, segments:[0], expansion_strategy:1, display_colors:[[0, 100, 100], [100, 100, 100], [200, 100, 100], [300, 100, 100]], type:"sequence", duration:0, transition:1500, direction:1, spread:12, repeat_times:0, sequence:[[0, 100, 100], [100, 100, 100], [200, 100, 100], [300, 100, 100]]],
+		[custom:0, id:"TapoStrip_1t2nWlTBkV8KXBZ0TWvBjs", brightness:100, name:"Raindrop", enable:1, segments:[0], expansion_strategy:1, display_colors:[[200, 10, 100], [200, 20, 100]], type:"random", hue_range:[200, 200], saturation_range:[10, 20], brightness_range:[10, 30], duration:0, transition:1000, init_states:[[200, 40, 100]], fadeoff:1000, random_seed:24, backgrounds:[[200, 40, 0]]],
+		[custom:0, id:"TapoStrip_1nL6GqZ5soOxj71YDJOlZL", brightness:100, name:"Spring", enable:1, segments:[0], expansion_strategy:1, display_colors:[[0, 30, 100], [130, 100, 100]], type:"random", hue_range:[0, 90], saturation_range:[30, 100], brightness_range:[90, 100], duration:600, transition:0, transition_range:[2000, 6000], init_states:[[80, 30, 100]], fadeoff:1000, random_seed:20, backgrounds:[[130, 100, 40]]],
+		[custom:0, id:"TapoStrip_1OVSyXIsDxrt4j7OxyRvqi", brightness:100, name:"Sunrise", enable:1, segments:[0], expansion_strategy:2, display_colors:[[30, 0, 100], [30, 95, 100], [0, 100, 100]], type:"pulse", duration:600, transition:60000, direction:1, spread:1, repeat_times:1, run_time:0, sequence:[[0, 100, 5], [0, 100, 5], [10, 100, 6], [15, 100, 7], [20, 100, 8], [20, 100, 10], [30, 100, 12], [30, 95, 15], [30, 90, 20], [30, 80, 25], [30, 75, 30], [30, 70, 40], [30, 60, 50], [30, 50, 60], [30, 20, 70], [30, 0, 100]], trans_sequence:[]],
+		[custom:0, id:"TapoStrip_5NiN0Y8GAUD78p4neKk9EL", brightness:100, name:"Sunset", enable:1, segments:[0], expansion_strategy:2, display_colors:[[0, 100, 100], [30, 95, 100], [30, 0, 100]], type:"pulse", duration:600, transition:60000, direction:1, spread:1, repeat_times:1, run_time:0, sequence:[[30, 0, 100], [30, 20, 100], [30, 50, 99], [30, 60, 98], [30, 70, 97], [30, 75, 95], [30, 80, 93], [30, 90, 90], [30, 95, 85], [30, 100, 80], [20, 100, 70], [20, 100, 60], [15, 100, 50], [10, 100, 40], [0, 100, 30], [0, 100, 0]], trans_sequence:[]],
+		[custom:0, id:"TapoStrip_2q1Vio9sSjHmaC7JS9d30l", brightness:100, name:"Valentines", enable:1, segments:[0], expansion_strategy:1, display_colors:[[340, 20, 100], [20, 50, 100], [0, 100, 100], [340, 40, 100]], type:"random", hue_range:[340, 340], saturation_range:[30, 40], brightness_range:[90, 100], duration:600, transition:2000, init_states:[[340, 30, 100]], fadeoff:3000, random_seed:100, backgrounds:[[340, 20, 50], [20, 50, 50], [0, 100, 50]]]
+	]
+	return effects.find { it.name == effect }
+}
+
+def effectList() {
+	List effects = [
+		"Aurora", "Bubbling Cauldron", "Candy Cane", "Christmas", 
+		"Flicker", """Grandma's Christmas Lights""", "Hanukkah", 
+		"Haunted Mansion", "Icicle", "Lightning", "Ocean", 
+		"Rainbow", "Raindrop", "Spring", "Sunrise", "Sunset", "Valentines"]
+	return effects
 }
 
 def parse_get_device_info(result, data) {
 	Map logData = [method: "parse_get_device_info", data: data]
-	logDebug(logData)
-}
-
-//	===== Child Command Response =====
-def parse_get_child_device_list(result, data) {
-	Map logData = [method: "get_child_device_list",data: data]
-	def children = getChildDevices()
-	children.each { child ->
-		def devId = child.getDataValue("deviceId")
-		def childData = result.child_device_list.find{ it.device_id == devId }
-		child.parse_get_device_info(childData, data)
+	if (result.device_on != null) {
+		def onOff = "off"
+		if (result.device_on == true) { onOff = "on" }
+		sendEvent(name: "switch", value: onOff, type: state.eventType)
+		state.eventType = "physical"
+		logData << [switch: onOff]
 	}
-	logData << [status: "OK"]
-	logDebug(logData)
-}
-
-def childRespDist(resp, data) {
-	def respData = parseData(resp).cmdResp
-	if (respData.error_code== 0) {
-		def child = getChildDevice(data.data)
-		if (child != null) {
-			child.distChildData(respData.result.responseData.result.responses, data)
+	if (result.brightness != null) {
+		updateAttr("level", result.brightness)
+		logData << [level: result.brightness]
+	}
+	if (result.color_temp != null) {
+		if (result.color_temp == 0) {
+			updateAttr("colorMode", "COLOR")
+			def hubHue = (result.hue / 3.6).toInteger()
+			updateAttr("hue", hubHue)
+			updateAttr("saturation", result.saturation)
+			updateAttr("color", "[hue: ${hubHue}, saturation: ${result.saturation}]")
+			def colorName = convertHueToGenericColorName(hubHue)
+			updateAttr("colorName", colorName)
+			def rgb = hubitat.helper.ColorUtils.hsvToRGB([hubHue,
+														  result.saturation,
+														  result.brightness])
+			updateAttr("RGB", rgb)
+			updateAttr("colorTemperature", 0)
+			logData << [colorMode: "COLOR", colorName: colorName, color: color, 
+						RGB: RGB, colorTemperature: 0]
 		} else {
-			logWarn([method: "childRespDist", data: data, status: "notChild"])
+			updateAttr("colorMode", "CT")
+			updateAttr("colorTemperature", result.color_temp)
+			def colorName = convertTemperatureToGenericColorName(result.color_temp.toInteger())
+			updateAttr("hue", 0)
+			updateAttr("saturation", 0)
+			updateAttr("colorName", colorName)
+			updateAttr("color", "[:]")
+			updateAttr("RGB", "[]")
+			logData << [colorMode: "CT", colorName: colorName, color: color, 
+						RGB: RGB, colorTemperature: result.color_temp]
 		}
-	} else {
-		logWarn([method: "childRespDist", data: data, error: respData.error_code, status: "errorInResp"])
 	}
+	if (result.lighting_effect != null) {
+		if (result.lighting_effect.enable == 0) { 
+			updateAttr("effectName", " ")
+			updateAttr("effectEnable", "false")
+			logData << [effectName: "", effectEnable: "false"]
+		} else {
+			updateAttr("effectName", result.lighting_effect.name)
+			updateAttr("effectEnable", "true")
+			logData << [effectName: result.lighting_effect.name, effectEnable: "true"]
+		}
+	}
+	logDebug(logData)
 }
 
-//	===== Include Libraries =====
+//	Library Inclusion
+
+Level
 
 
 
 
 
 
-// ~~~~~ start include (110) davegut.tpLinkCommon ~~~~~
+// ~~~~~ start include (97) davegut.tpLinkCapSwitch ~~~~~
+library ( // library marker davegut.tpLinkCapSwitch, line 1
+	name: "tpLinkCapSwitch", // library marker davegut.tpLinkCapSwitch, line 2
+	namespace: "davegut", // library marker davegut.tpLinkCapSwitch, line 3
+	author: "Compied by Dave Gutheinz", // library marker davegut.tpLinkCapSwitch, line 4
+	description: "Hubitat capability Switch methods", // library marker davegut.tpLinkCapSwitch, line 5
+	category: "utilities", // library marker davegut.tpLinkCapSwitch, line 6
+	documentationLink: "" // library marker davegut.tpLinkCapSwitch, line 7
+) // library marker davegut.tpLinkCapSwitch, line 8
+
+capability "Switch" // library marker davegut.tpLinkCapSwitch, line 10
+
+def on() { setPower(true) } // library marker davegut.tpLinkCapSwitch, line 12
+
+def off() { setPower(false) } // library marker davegut.tpLinkCapSwitch, line 14
+
+def setPower(onOff) { // library marker davegut.tpLinkCapSwitch, line 16
+	state.eventType = "digital" // library marker davegut.tpLinkCapSwitch, line 17
+	logDebug("setPower: [device_on: ${onOff}]") // library marker davegut.tpLinkCapSwitch, line 18
+	List requests = [[ // library marker davegut.tpLinkCapSwitch, line 19
+		method: "set_device_info", // library marker davegut.tpLinkCapSwitch, line 20
+		params: [device_on: onOff]]] // library marker davegut.tpLinkCapSwitch, line 21
+	requests << [method: "get_device_info"] // library marker davegut.tpLinkCapSwitch, line 22
+	sendDevCmd(requests, "setPower", "parseUpdates")  // library marker davegut.tpLinkCapSwitch, line 23
+	if (getDataValue("type") == "Plug EM") { // library marker davegut.tpLinkCapSwitch, line 24
+		runIn(5, plugEmRefresh) // library marker davegut.tpLinkCapSwitch, line 25
+	} // library marker davegut.tpLinkCapSwitch, line 26
+} // library marker davegut.tpLinkCapSwitch, line 27
+
+// ~~~~~ end include (97) davegut.tpLinkCapSwitch ~~~~~
+
+// ~~~~~ start include (98) davegut.tpLinkCapSwitchLevel ~~~~~
+library ( // library marker davegut.tpLinkCapSwitchLevel, line 1
+	name: "tpLinkCapSwitchLevel", // library marker davegut.tpLinkCapSwitchLevel, line 2
+	namespace: "davegut", // library marker davegut.tpLinkCapSwitchLevel, line 3
+	author: "Compied by Dave Gutheinz", // library marker davegut.tpLinkCapSwitchLevel, line 4
+	description: "Hubitat capability Switch Level and Change Level methods", // library marker davegut.tpLinkCapSwitchLevel, line 5
+	category: "utilities", // library marker davegut.tpLinkCapSwitchLevel, line 6
+	documentationLink: "" // library marker davegut.tpLinkCapSwitchLevel, line 7
+) // library marker davegut.tpLinkCapSwitchLevel, line 8
+
+capability "Switch Level" // library marker davegut.tpLinkCapSwitchLevel, line 10
+capability "Change Level" // library marker davegut.tpLinkCapSwitchLevel, line 11
+
+def setLevel(level, transTime=0) { // library marker davegut.tpLinkCapSwitchLevel, line 13
+	logDebug([method: "setLevel", level: level, transTime: transTime]) // library marker davegut.tpLinkCapSwitchLevel, line 14
+	if (level == null) { level = device.currentValue("level") toInteger() } // library marker davegut.tpLinkCapSwitchLevel, line 15
+	if (transTime < 0) { transTime = 0 } // library marker davegut.tpLinkCapSwitchLevel, line 16
+	if (transTime > 0) { // library marker davegut.tpLinkCapSwitchLevel, line 17
+		startLevelTransition(level, transTime) // library marker davegut.tpLinkCapSwitchLevel, line 18
+	} else { // library marker davegut.tpLinkCapSwitchLevel, line 19
+		if (level == 0) { // library marker davegut.tpLinkCapSwitchLevel, line 20
+			off() // library marker davegut.tpLinkCapSwitchLevel, line 21
+		} else { // library marker davegut.tpLinkCapSwitchLevel, line 22
+			List requests = [[ // library marker davegut.tpLinkCapSwitchLevel, line 23
+				method: "set_device_info", // library marker davegut.tpLinkCapSwitchLevel, line 24
+				params: [ // library marker davegut.tpLinkCapSwitchLevel, line 25
+					brightness: level // library marker davegut.tpLinkCapSwitchLevel, line 26
+				]]] // library marker davegut.tpLinkCapSwitchLevel, line 27
+			requests << [method: "get_device_info"] // library marker davegut.tpLinkCapSwitchLevel, line 28
+			sendDevCmd(requests, "setLevel", "parseUpdates") // library marker davegut.tpLinkCapSwitchLevel, line 29
+		} // library marker davegut.tpLinkCapSwitchLevel, line 30
+	} // library marker davegut.tpLinkCapSwitchLevel, line 31
+} // library marker davegut.tpLinkCapSwitchLevel, line 32
+
+def startLevelTransition(level, transTime) { // library marker davegut.tpLinkCapSwitchLevel, line 34
+	def startTime = (now()/1000).toInteger() // library marker davegut.tpLinkCapSwitchLevel, line 35
+	def endTime = startTime + transTime // library marker davegut.tpLinkCapSwitchLevel, line 36
+	Map transData = [endTime: endTime, targetLevel: level, cmdIncr: 180] // library marker davegut.tpLinkCapSwitchLevel, line 37
+	//	Command increment derived from experimentation with Tapo Lan devices. // library marker davegut.tpLinkCapSwitchLevel, line 38
+	def totalIncrs = (transTime * 5).toInteger() // library marker davegut.tpLinkCapSwitchLevel, line 39
+
+	//	Level Increment (based on total level Change, cmdIncr, and transTime) // library marker davegut.tpLinkCapSwitchLevel, line 41
+	def currLevel = device.currentValue("level").toInteger() // library marker davegut.tpLinkCapSwitchLevel, line 42
+	def levelChange = level - currLevel // library marker davegut.tpLinkCapSwitchLevel, line 43
+	def levelIncr = levelChange/totalIncrs // library marker davegut.tpLinkCapSwitchLevel, line 44
+	if (levelIncr < 0 ) { levelIncr = (levelIncr - 0.5).toInteger() } // library marker davegut.tpLinkCapSwitchLevel, line 45
+	else { levelIncr = (levelIncr + 0.5).toInteger() } // library marker davegut.tpLinkCapSwitchLevel, line 46
+	transData << [currLevel: currLevel, levelIncr: levelIncr] // library marker davegut.tpLinkCapSwitchLevel, line 47
+
+	logDebug([method: "startCtTransition", transData: transData]) // library marker davegut.tpLinkCapSwitchLevel, line 49
+	doLevelTransition(transData) // library marker davegut.tpLinkCapSwitchLevel, line 50
+} // library marker davegut.tpLinkCapSwitchLevel, line 51
+
+def doLevelTransition(Map transData) { // library marker davegut.tpLinkCapSwitchLevel, line 53
+	def newLevel = transData.targetLevel // library marker davegut.tpLinkCapSwitchLevel, line 54
+	def doAgain = true // library marker davegut.tpLinkCapSwitchLevel, line 55
+	def curTime = (now()/1000).toInteger() // library marker davegut.tpLinkCapSwitchLevel, line 56
+	if (newLevel == transData.currLevel || curTime >= transData.endTime) { // library marker davegut.tpLinkCapSwitchLevel, line 57
+		doAgain = false // library marker davegut.tpLinkCapSwitchLevel, line 58
+	} else { // library marker davegut.tpLinkCapSwitchLevel, line 59
+		newLevel = transData.currLevel + transData.levelIncr // library marker davegut.tpLinkCapSwitchLevel, line 60
+		if (transData.levelIncr >= 0 && newLevel > transData.targetLevel) { // library marker davegut.tpLinkCapSwitchLevel, line 61
+			newLevel = transData.targetLevel // library marker davegut.tpLinkCapSwitchLevel, line 62
+		} else if (transData.levelIncr < 0 && newLevel < transData.targetLevel) { // library marker davegut.tpLinkCapSwitchLevel, line 63
+			newLevel = transData.targetLevel // library marker davegut.tpLinkCapSwitchLevel, line 64
+		} // library marker davegut.tpLinkCapSwitchLevel, line 65
+	} // library marker davegut.tpLinkCapSwitchLevel, line 66
+	transData << [currLevel: newLevel] // library marker davegut.tpLinkCapSwitchLevel, line 67
+	if (currLevel != 0) { // library marker davegut.tpLinkCapSwitchLevel, line 68
+		sendSingleCmd([method: "set_device_info", params: [brightness: newLevel]], // library marker davegut.tpLinkCapSwitchLevel, line 69
+				  "doLevelTransition", "nullParse") // library marker davegut.tpLinkCapSwitchLevel, line 70
+		if (doAgain == true) { // library marker davegut.tpLinkCapSwitchLevel, line 71
+			runInMillis(transData.cmdIncr, doLevelTransition, [data: transData]) // library marker davegut.tpLinkCapSwitchLevel, line 72
+		} else { // library marker davegut.tpLinkCapSwitchLevel, line 73
+			runInMillis(500, setLevel, [data: transData.targetLevel]) // library marker davegut.tpLinkCapSwitchLevel, line 74
+		} // library marker davegut.tpLinkCapSwitchLevel, line 75
+	} else { // library marker davegut.tpLinkCapSwitchLevel, line 76
+		off() // library marker davegut.tpLinkCapSwitchLevel, line 77
+	} // library marker davegut.tpLinkCapSwitchLevel, line 78
+} // library marker davegut.tpLinkCapSwitchLevel, line 79
+
+def startLevelChange(direction) { // library marker davegut.tpLinkCapSwitchLevel, line 81
+	logDebug("startLevelChange: [level: ${device.currentValue("level")}, direction: ${direction}]") // library marker davegut.tpLinkCapSwitchLevel, line 82
+	if (direction == "up") { levelUp() } // library marker davegut.tpLinkCapSwitchLevel, line 83
+	else { levelDown() } // library marker davegut.tpLinkCapSwitchLevel, line 84
+} // library marker davegut.tpLinkCapSwitchLevel, line 85
+
+def stopLevelChange() { // library marker davegut.tpLinkCapSwitchLevel, line 87
+	logDebug("stopLevelChange: [level: ${device.currentValue("level")}]") // library marker davegut.tpLinkCapSwitchLevel, line 88
+	unschedule(levelUp) // library marker davegut.tpLinkCapSwitchLevel, line 89
+	unschedule(levelDown) // library marker davegut.tpLinkCapSwitchLevel, line 90
+} // library marker davegut.tpLinkCapSwitchLevel, line 91
+
+def levelUp() { // library marker davegut.tpLinkCapSwitchLevel, line 93
+	def curLevel = device.currentValue("level").toInteger() // library marker davegut.tpLinkCapSwitchLevel, line 94
+	if (curLevel != 100) { // library marker davegut.tpLinkCapSwitchLevel, line 95
+		def newLevel = curLevel + 4 // library marker davegut.tpLinkCapSwitchLevel, line 96
+		if (newLevel > 100) { newLevel = 100 } // library marker davegut.tpLinkCapSwitchLevel, line 97
+		setLevel(newLevel) // library marker davegut.tpLinkCapSwitchLevel, line 98
+		runIn(1, levelUp) // library marker davegut.tpLinkCapSwitchLevel, line 99
+	} // library marker davegut.tpLinkCapSwitchLevel, line 100
+} // library marker davegut.tpLinkCapSwitchLevel, line 101
+
+def levelDown() { // library marker davegut.tpLinkCapSwitchLevel, line 103
+	def curLevel = device.currentValue("level").toInteger() // library marker davegut.tpLinkCapSwitchLevel, line 104
+	if (device.currentValue("switch") == "on") { // library marker davegut.tpLinkCapSwitchLevel, line 105
+		def newLevel = curLevel - 4 // library marker davegut.tpLinkCapSwitchLevel, line 106
+		if (newLevel <= 0) { off() } // library marker davegut.tpLinkCapSwitchLevel, line 107
+		else { // library marker davegut.tpLinkCapSwitchLevel, line 108
+			setLevel(newLevel) // library marker davegut.tpLinkCapSwitchLevel, line 109
+			runIn(1, levelDown) // library marker davegut.tpLinkCapSwitchLevel, line 110
+		} // library marker davegut.tpLinkCapSwitchLevel, line 111
+	} // library marker davegut.tpLinkCapSwitchLevel, line 112
+} // library marker davegut.tpLinkCapSwitchLevel, line 113
+
+// ~~~~~ end include (98) davegut.tpLinkCapSwitchLevel ~~~~~
+
+// ~~~~~ start include (96) davegut.tpLinkCapColorControl ~~~~~
+library ( // library marker davegut.tpLinkCapColorControl, line 1
+	name: "tpLinkCapColorControl", // library marker davegut.tpLinkCapColorControl, line 2
+	namespace: "davegut", // library marker davegut.tpLinkCapColorControl, line 3
+	author: "Compied by Dave Gutheinz", // library marker davegut.tpLinkCapColorControl, line 4
+	description: "Hubitat capability ColorControl, Color Mode, and Color Temperature Methods.", // library marker davegut.tpLinkCapColorControl, line 5
+	category: "utilities", // library marker davegut.tpLinkCapColorControl, line 6
+	documentationLink: "" // library marker davegut.tpLinkCapColorControl, line 7
+) // library marker davegut.tpLinkCapColorControl, line 8
+
+capability "Color Control" // library marker davegut.tpLinkCapColorControl, line 10
+capability "Color Temperature" // library marker davegut.tpLinkCapColorControl, line 11
+capability "Color Mode" // library marker davegut.tpLinkCapColorControl, line 12
+
+def setHue(hue){ // library marker davegut.tpLinkCapColorControl, line 14
+	logDebug("setHue: ${hue}") // library marker davegut.tpLinkCapColorControl, line 15
+	hue = (3.6 * hue).toInteger() // library marker davegut.tpLinkCapColorControl, line 16
+	logDebug("setHue: ${hue}") // library marker davegut.tpLinkCapColorControl, line 17
+	List requests = [[ // library marker davegut.tpLinkCapColorControl, line 18
+		method: "set_device_info", // library marker davegut.tpLinkCapColorControl, line 19
+		params: [ // library marker davegut.tpLinkCapColorControl, line 20
+			device_on: true, // library marker davegut.tpLinkCapColorControl, line 21
+			hue: hue, // library marker davegut.tpLinkCapColorControl, line 22
+			color_temp: 0 // library marker davegut.tpLinkCapColorControl, line 23
+		]]] // library marker davegut.tpLinkCapColorControl, line 24
+	requests << [method: "get_device_info"] // library marker davegut.tpLinkCapColorControl, line 25
+	asyncSend(createMultiCmd(requests), "setHue", "parseUpdates") // library marker davegut.tpLinkCapColorControl, line 26
+} // library marker davegut.tpLinkCapColorControl, line 27
+
+def setSaturation(saturation) { // library marker davegut.tpLinkCapColorControl, line 29
+	logDebug("setSatiratopm: ${saturation}") // library marker davegut.tpLinkCapColorControl, line 30
+	List requests = [[ // library marker davegut.tpLinkCapColorControl, line 31
+		method: "set_device_info", // library marker davegut.tpLinkCapColorControl, line 32
+		params: [ // library marker davegut.tpLinkCapColorControl, line 33
+			device_on: true, // library marker davegut.tpLinkCapColorControl, line 34
+			saturation: saturation, // library marker davegut.tpLinkCapColorControl, line 35
+			color_temp: 0 // library marker davegut.tpLinkCapColorControl, line 36
+		]]] // library marker davegut.tpLinkCapColorControl, line 37
+	requests << [method: "get_device_info"] // library marker davegut.tpLinkCapColorControl, line 38
+	asyncSend(createMultiCmd(requests), "setSaturation", "parseUpdates") // library marker davegut.tpLinkCapColorControl, line 39
+} // library marker davegut.tpLinkCapColorControl, line 40
+
+def setColor(color) { // library marker davegut.tpLinkCapColorControl, line 42
+	logDebug("setColor: ${color}") // library marker davegut.tpLinkCapColorControl, line 43
+	def level = color.level // library marker davegut.tpLinkCapColorControl, line 44
+	if (level == 0) { level = device.currentValue("level") } // library marker davegut.tpLinkCapColorControl, line 45
+	def hue = (3.6 * color.hue).toInteger() // library marker davegut.tpLinkCapColorControl, line 46
+	List requests = [[ // library marker davegut.tpLinkCapColorControl, line 47
+		method: "set_device_info", // library marker davegut.tpLinkCapColorControl, line 48
+		params: [ // library marker davegut.tpLinkCapColorControl, line 49
+			device_on: true, // library marker davegut.tpLinkCapColorControl, line 50
+			hue: hue, // library marker davegut.tpLinkCapColorControl, line 51
+			saturation: color.saturation, // library marker davegut.tpLinkCapColorControl, line 52
+			brightness: level, // library marker davegut.tpLinkCapColorControl, line 53
+			color_temp: 0 // library marker davegut.tpLinkCapColorControl, line 54
+		]]] // library marker davegut.tpLinkCapColorControl, line 55
+	requests << [method: "get_device_info"] // library marker davegut.tpLinkCapColorControl, line 56
+	asyncSend(createMultiCmd(requests), "setColor", "parseUpdates") // library marker davegut.tpLinkCapColorControl, line 57
+} // library marker davegut.tpLinkCapColorControl, line 58
+
+def setColorTemperature(colorTemp, level = device.currentValue("level").toInteger(), transTime = 0) { // library marker davegut.tpLinkCapColorControl, line 60
+	logDebug([method: "setColorTemperature", level: level, colorTemp: colorTemp, transTime: transTime]) // library marker davegut.tpLinkCapColorControl, line 61
+	def lowCt = getDataValue("ctLow").toInteger() // library marker davegut.tpLinkCapColorControl, line 62
+	def highCt = getDataValue("ctHigh").toInteger() // library marker davegut.tpLinkCapColorControl, line 63
+	if (colorTemp < lowCt) { colorTemp = lowCt } // library marker davegut.tpLinkCapColorControl, line 64
+	else if (colorTemp > highCt) { colorTemp = highCt } // library marker davegut.tpLinkCapColorControl, line 65
+	if (level == null) { level = device.currentValue("level") toInteger() } // library marker davegut.tpLinkCapColorControl, line 66
+	if (transTime < 0) { transTime = 0 } // library marker davegut.tpLinkCapColorControl, line 67
+	if (getDataValue("type") == "Color Bulb" && transTime > 0) { // library marker davegut.tpLinkCapColorControl, line 68
+		def ctRange = highCt - lowCt // library marker davegut.tpLinkCapColorControl, line 69
+		startCtTransition(colorTemp, ctRange, level, transTime) // library marker davegut.tpLinkCapColorControl, line 70
+	} else { // library marker davegut.tpLinkCapColorControl, line 71
+		if (level == 0) { // library marker davegut.tpLinkCapColorControl, line 72
+			off() // library marker davegut.tpLinkCapColorControl, line 73
+		} else { // library marker davegut.tpLinkCapColorControl, line 74
+			List requests = [[ // library marker davegut.tpLinkCapColorControl, line 75
+				method: "set_device_info", // library marker davegut.tpLinkCapColorControl, line 76
+				params: [ // library marker davegut.tpLinkCapColorControl, line 77
+					brightness: level, // library marker davegut.tpLinkCapColorControl, line 78
+					color_temp: colorTemp // library marker davegut.tpLinkCapColorControl, line 79
+				]]] // library marker davegut.tpLinkCapColorControl, line 80
+			requests << [method: "get_device_info"] // library marker davegut.tpLinkCapColorControl, line 81
+			asyncSend(createMultiCmd(requests), "setColorTemperature", "parseUpdates") // library marker davegut.tpLinkCapColorControl, line 82
+		} // library marker davegut.tpLinkCapColorControl, line 83
+	} // library marker davegut.tpLinkCapColorControl, line 84
+} // library marker davegut.tpLinkCapColorControl, line 85
+
+def startCtTransition(colorTemp, ctRange, level, transTime) { // library marker davegut.tpLinkCapColorControl, line 87
+	def startTime = (now()/1000).toInteger() // library marker davegut.tpLinkCapColorControl, line 88
+	def endTime = startTime + transTime // library marker davegut.tpLinkCapColorControl, line 89
+	Map transData = [endTime: endTime, targetLevel: level, targetCt: colorTemp, cmdIncr: 180] // library marker davegut.tpLinkCapColorControl, line 90
+	//	Command increment derived from experimentation with Tapo Lan devices. // library marker davegut.tpLinkCapColorControl, line 91
+	def totalIncrs = (transTime * 5).toInteger() // library marker davegut.tpLinkCapColorControl, line 92
+
+	//	CT Increment (based on total CT Change, cmdIncr, and transTime) // library marker davegut.tpLinkCapColorControl, line 94
+	def currCt = device.currentValue("colorTemperature").toInteger() // library marker davegut.tpLinkCapColorControl, line 95
+	def ctChange = colorTemp - currCt // library marker davegut.tpLinkCapColorControl, line 96
+	def ctIncr = (0.5 + (ctChange/totalIncrs)).toInteger() // library marker davegut.tpLinkCapColorControl, line 97
+	transData << [currCt: currCt, ctIncr: ctIncr] // library marker davegut.tpLinkCapColorControl, line 98
+
+	//	Level Increment (based on total level Change, cmdIncr, and transTime) // library marker davegut.tpLinkCapColorControl, line 100
+	def currLevel = device.currentValue("level").toInteger() // library marker davegut.tpLinkCapColorControl, line 101
+	def levelChange = level - currLevel // library marker davegut.tpLinkCapColorControl, line 102
+	def levelIncr = levelChange/totalIncrs // library marker davegut.tpLinkCapColorControl, line 103
+	if (levelIncr < 0 ) { levelIncr = (levelIncr - 0.5).toInteger() } // library marker davegut.tpLinkCapColorControl, line 104
+	else { levelIncr = (levelIncr + 0.5).toInteger() } // library marker davegut.tpLinkCapColorControl, line 105
+	transData << [currLevel: currLevel, levelIncr: levelIncr] // library marker davegut.tpLinkCapColorControl, line 106
+
+	logDebug([method: "startCtTransition", transData: transData]) // library marker davegut.tpLinkCapColorControl, line 108
+	doCtTransition(transData) // library marker davegut.tpLinkCapColorControl, line 109
+} // library marker davegut.tpLinkCapColorControl, line 110
+
+def doCtTransition(Map transData) { // library marker davegut.tpLinkCapColorControl, line 112
+	def newLevel = transData.targetLevel // library marker davegut.tpLinkCapColorControl, line 113
+	def newCt = transData.targetCt // library marker davegut.tpLinkCapColorControl, line 114
+	def doAgain = true // library marker davegut.tpLinkCapColorControl, line 115
+	def curTime = (now()/1000).toInteger() // library marker davegut.tpLinkCapColorControl, line 116
+	if (newLevel == transData.currLevel && newCt == transData.currCt) { // library marker davegut.tpLinkCapColorControl, line 117
+		doAgain = false // library marker davegut.tpLinkCapColorControl, line 118
+	} else if (curTime >= transData.endTime) { // library marker davegut.tpLinkCapColorControl, line 119
+		doAgain = false // library marker davegut.tpLinkCapColorControl, line 120
+	} else { // library marker davegut.tpLinkCapColorControl, line 121
+		if (newLevel != transData.currLevel) { // library marker davegut.tpLinkCapColorControl, line 122
+			newLevel = transData.currLevel + transData.levelIncr // library marker davegut.tpLinkCapColorControl, line 123
+			if (transData.levelIncr >= 0 && newLevel > transData.targetLevel) { // library marker davegut.tpLinkCapColorControl, line 124
+				newLevel = transData.targetLevel // library marker davegut.tpLinkCapColorControl, line 125
+			} else if (transData.levelIncr < 0 && newLevel < transData.targetLevel) { // library marker davegut.tpLinkCapColorControl, line 126
+				newLevel = transData.targetLevel // library marker davegut.tpLinkCapColorControl, line 127
+			} // library marker davegut.tpLinkCapColorControl, line 128
+		} // library marker davegut.tpLinkCapColorControl, line 129
+		if (newCt != transData.currCt) { // library marker davegut.tpLinkCapColorControl, line 130
+			newCt = transData.currCt + transData.ctIncr // library marker davegut.tpLinkCapColorControl, line 131
+			if (transData.ctIncr >= 0 && newCt > transData.targetCt) { // library marker davegut.tpLinkCapColorControl, line 132
+				newCt = transData.targetCt // library marker davegut.tpLinkCapColorControl, line 133
+			} else if (transData.ctIncr < 0 && newCt < transData.targetCt) { // library marker davegut.tpLinkCapColorControl, line 134
+				newCt = transData.targetCt // library marker davegut.tpLinkCapColorControl, line 135
+			} // library marker davegut.tpLinkCapColorControl, line 136
+		} // library marker davegut.tpLinkCapColorControl, line 137
+	} // library marker davegut.tpLinkCapColorControl, line 138
+	transData << [currLevel: newLevel, currCt: newCt] // library marker davegut.tpLinkCapColorControl, line 139
+	if (currLevel != 0) { // library marker davegut.tpLinkCapColorControl, line 140
+		asyncSend([method: "set_device_info", params: [brightness: newLevel, color_temp: newCt]], // library marker davegut.tpLinkCapColorControl, line 141
+				  "doCtTransition", "nullParse") // library marker davegut.tpLinkCapColorControl, line 142
+		if (doAgain == true) { // library marker davegut.tpLinkCapColorControl, line 143
+			runInMillis(transData.cmdIncr, doCtTransition, [data: transData]) // library marker davegut.tpLinkCapColorControl, line 144
+		} else { // library marker davegut.tpLinkCapColorControl, line 145
+			runInMillis(500, setLevel, [data: transData.targetLevel]) // library marker davegut.tpLinkCapColorControl, line 146
+		} // library marker davegut.tpLinkCapColorControl, line 147
+	} else { // library marker davegut.tpLinkCapColorControl, line 148
+		off() // library marker davegut.tpLinkCapColorControl, line 149
+	} // library marker davegut.tpLinkCapColorControl, line 150
+} // library marker davegut.tpLinkCapColorControl, line 151
+
+// ~~~~~ end include (96) davegut.tpLinkCapColorControl ~~~~~
+
+// ~~~~~ start include (101) davegut.tpLinkCommon ~~~~~
 library ( // library marker davegut.tpLinkCommon, line 1
 	name: "tpLinkCommon", // library marker davegut.tpLinkCommon, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCommon, line 3
@@ -412,108 +779,7 @@ def deviceHandshake() { // library marker davegut.tpLinkCommon, line 317
 	return logData // library marker davegut.tpLinkCommon, line 329
 } // library marker davegut.tpLinkCommon, line 330
 
-// ~~~~~ end include (110) davegut.tpLinkCommon ~~~~~
-
-// ~~~~~ start include (109) davegut.tpLinkChildInst ~~~~~
-library ( // library marker davegut.tpLinkChildInst, line 1
-	name: "tpLinkChildInst", // library marker davegut.tpLinkChildInst, line 2
-	namespace: "davegut", // library marker davegut.tpLinkChildInst, line 3
-	author: "Compiled by Dave Gutheinz", // library marker davegut.tpLinkChildInst, line 4
-	description: "Child Installation Methods", // library marker davegut.tpLinkChildInst, line 5
-	category: "utilities", // library marker davegut.tpLinkChildInst, line 6
-	documentationLink: "" // library marker davegut.tpLinkChildInst, line 7
-) // library marker davegut.tpLinkChildInst, line 8
-
-def installChildDevices() { // library marker davegut.tpLinkChildInst, line 10
-	Map request = [method: "get_child_device_list"] // library marker davegut.tpLinkChildInst, line 11
-	asyncSend(request, "installChildDevices", "installChildren") // library marker davegut.tpLinkChildInst, line 12
-} // library marker davegut.tpLinkChildInst, line 13
-
-def installChildren(resp, data=null) { // library marker davegut.tpLinkChildInst, line 15
-	Map logData = [method: "installChildren", currentChildren: getChildDevices()] // library marker davegut.tpLinkChildInst, line 16
-	logInfo(logData) // library marker davegut.tpLinkChildInst, line 17
-	def respData = parseData(resp) // library marker davegut.tpLinkChildInst, line 18
-	if (respData.cmdResp != null) { // library marker davegut.tpLinkChildInst, line 19
-		def children = respData.cmdResp.result.child_device_list // library marker davegut.tpLinkChildInst, line 20
-		Integer position = 0 // library marker davegut.tpLinkChildInst, line 21
-		children.each { // library marker davegut.tpLinkChildInst, line 22
-			position += 1 // library marker davegut.tpLinkChildInst, line 23
-//			String childDni = it.mac // library marker davegut.tpLinkChildInst, line 24
-			String  childDni = "${it.mac}-${position.toString()}" // library marker davegut.tpLinkChildInst, line 25
-			def isChild = getChildDevice(childDni) // library marker davegut.tpLinkChildInst, line 26
-			byte[] plainBytes = it.nickname.decodeBase64() // library marker davegut.tpLinkChildInst, line 27
-			String alias = new String(plainBytes) // library marker davegut.tpLinkChildInst, line 28
-			Map instData = [alias: alias, childDni: childDni] // library marker davegut.tpLinkChildInst, line 29
-			if (isChild) { // library marker davegut.tpLinkChildInst, line 30
-				instData << [status: "device already installed"] // library marker davegut.tpLinkChildInst, line 31
-				logInfo(instData) // library marker davegut.tpLinkChildInst, line 32
-			} else { // library marker davegut.tpLinkChildInst, line 33
-				String devType = getDeviceType(it.category) // library marker davegut.tpLinkChildInst, line 34
-				instData << [label: alias, name: it.model, type: devType, deviceId:  // library marker davegut.tpLinkChildInst, line 35
-							 it.device_id, category: it.category] // library marker davegut.tpLinkChildInst, line 36
-				if (devType == "Child Undefined") { // library marker davegut.tpLinkChildInst, line 37
-					instData << [status: "notInstalled", error: "Currently Unsupported"] // library marker davegut.tpLinkChildInst, line 38
-					logInfo(instData) // library marker davegut.tpLinkChildInst, line 39
-				} else { // library marker davegut.tpLinkChildInst, line 40
-					try { // library marker davegut.tpLinkChildInst, line 41
-						addChildDevice( // library marker davegut.tpLinkChildInst, line 42
-							nameSpace(),  // library marker davegut.tpLinkChildInst, line 43
-							"TpLink ${devType}", // library marker davegut.tpLinkChildInst, line 44
-							childDni, // library marker davegut.tpLinkChildInst, line 45
-							[ // library marker davegut.tpLinkChildInst, line 46
-								"label": alias, // library marker davegut.tpLinkChildInst, line 47
-								"name": it.model, // library marker davegut.tpLinkChildInst, line 48
-								category: it.category, // library marker davegut.tpLinkChildInst, line 49
-								deviceId: it.device_id, // library marker davegut.tpLinkChildInst, line 50
-								type: devType // library marker davegut.tpLinkChildInst, line 51
-							]) // library marker davegut.tpLinkChildInst, line 52
-						instData << [status: "Installed"] // library marker davegut.tpLinkChildInst, line 53
-						logInfo(instData) // library marker davegut.tpLinkChildInst, line 54
-					} catch (err) { // library marker davegut.tpLinkChildInst, line 55
-						instData << [status: "FAILED", error: err] // library marker davegut.tpLinkChildInst, line 56
-						logWarn(instData) // library marker davegut.tpLinkChildInst, line 57
-					} // library marker davegut.tpLinkChildInst, line 58
-				} // library marker davegut.tpLinkChildInst, line 59
-			} // library marker davegut.tpLinkChildInst, line 60
-		} // library marker davegut.tpLinkChildInst, line 61
-		device.updateSetting("installChild", [type: "bool", value: "false"]) // library marker davegut.tpLinkChildInst, line 62
-	} // library marker davegut.tpLinkChildInst, line 63
-} // library marker davegut.tpLinkChildInst, line 64
-
-def getDeviceType(category) { // library marker davegut.tpLinkChildInst, line 66
-	String deviceType // library marker davegut.tpLinkChildInst, line 67
-	switch(category) { // library marker davegut.tpLinkChildInst, line 68
-		case "subg.trigger.contact-sensor": // library marker davegut.tpLinkChildInst, line 69
-			deviceType = "Hub Contact"; break // library marker davegut.tpLinkChildInst, line 70
-		case "subg.trigger.motion-sensor": // library marker davegut.tpLinkChildInst, line 71
-			deviceType = "Hub Motion"; break // library marker davegut.tpLinkChildInst, line 72
-		case "subg.trigger.button": // library marker davegut.tpLinkChildInst, line 73
-			deviceType = "Hub Button"; break // library marker davegut.tpLinkChildInst, line 74
-		case "subg.trigger.temp-hmdt-sensor": // library marker davegut.tpLinkChildInst, line 75
-logWarn("TEMP-HUMIDITY Sensor not supported.  Requires TEST Volunteer to finish") // library marker davegut.tpLinkChildInst, line 76
-			deviceType = "Child Undefined"; break // library marker davegut.tpLinkChildInst, line 77
-//			deviceType = "Hub TempHumidity"; break // library marker davegut.tpLinkChildInst, line 78
-		case "subg.trigger.water-leak-sensor": // library marker davegut.tpLinkChildInst, line 79
-			deviceType = "Hub Leak"; break // library marker davegut.tpLinkChildInst, line 80
-		case "subg.trv": // library marker davegut.tpLinkChildInst, line 81
-logWarn("TRV not supported.  Requires TEST Volunteer to finish") // library marker davegut.tpLinkChildInst, line 82
-			deviceType = "Child Undefined"; break // library marker davegut.tpLinkChildInst, line 83
-//			deviceType = "Hub Trv"; break // library marker davegut.tpLinkChildInst, line 84
-		case "plug.powerstrip.sub-plug": // library marker davegut.tpLinkChildInst, line 85
-			deviceType = "Child Plug"; break // library marker davegut.tpLinkChildInst, line 86
- 		case "kasa.switch.outlet.sub-fan": // library marker davegut.tpLinkChildInst, line 87
-			deviceType = "Child Fan"; break // library marker davegut.tpLinkChildInst, line 88
- 		case "kasa.switch.outlet.sub-dimmer": // library marker davegut.tpLinkChildInst, line 89
-			deviceType = "Child Dimmer"; break // library marker davegut.tpLinkChildInst, line 90
-		case "plug.powerstrip.sub-bulb": // library marker davegut.tpLinkChildInst, line 91
-			deviceType = "Child Dimmer"; break // library marker davegut.tpLinkChildInst, line 92
-		default: // library marker davegut.tpLinkChildInst, line 93
-			deviceType = "Child Undefined" // library marker davegut.tpLinkChildInst, line 94
-	} // library marker davegut.tpLinkChildInst, line 95
-	return deviceType // library marker davegut.tpLinkChildInst, line 96
-} // library marker davegut.tpLinkChildInst, line 97
-
-// ~~~~~ end include (109) davegut.tpLinkChildInst ~~~~~
+// ~~~~~ end include (101) davegut.tpLinkCommon ~~~~~
 
 // ~~~~~ start include (86) davegut.tpLinkComms ~~~~~
 library ( // library marker davegut.tpLinkComms, line 1
@@ -645,7 +911,7 @@ def errorDeviceHandshake() {  // library marker davegut.tpLinkComms, line 123
 
 // ~~~~~ end include (86) davegut.tpLinkComms ~~~~~
 
-// ~~~~~ start include (111) davegut.tpLinkCrypto ~~~~~
+// ~~~~~ start include (102) davegut.tpLinkCrypto ~~~~~
 library ( // library marker davegut.tpLinkCrypto, line 1
 	name: "tpLinkCrypto", // library marker davegut.tpLinkCrypto, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCrypto, line 3
@@ -1010,7 +1276,7 @@ def getRsaKey() { // library marker davegut.tpLinkCrypto, line 360
 			private: "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAMav+YcErxqrHtQBL6D5O4C8TcnYN3CypGf0yYCSM8Y2ifVmXAzqctAd8kd5t2iHJWqQ1ZoIQIZed+2eULwIzZz9G6O8KtK1EDSVUP6OLE71An09xhNrTtnUW4TN7tDk4hrqkSg/GiauPHNWVRYsNe33TWoJ2ff/NFmkF2lfNVm1AgMBAAECgYEAocxCHmKBGe2KAEkq+SKdAxvVGO77TsobOhDMWug0Q1C8jduaUGZHsxT/7JbA9d1AagSh/XqE2Sdq8FUBF+7vSFzozBHyGkrX1iKURpQFEQM2j9JgUCucEavnxvCqDYpscyNRAgqz9jdh+BjEMcKAG7o68bOw41ZC+JyYR41xSe0CQQD1os71NcZiMVqYcBud6fTYFHZz3HBNcbzOk+RpIHyi8aF3zIqPKIAh2pO4s7vJgrMZTc2wkIe0ZnUrm0oaC//jAkEAzxIPW1mWd3+KE3gpgyX0cFkZsDmlIbWojUIbyz8NgeUglr+BczARG4ITrTV4fxkGwNI4EZxBT8vXDSIXJ8NDhwJBAIiKndx0rfg7Uw7VkqRvPqk2hrnU2aBTDw8N6rP9WQsCoi0DyCnX65Hl/KN5VXOocYIpW6NAVA8VvSAmTES6Ut0CQQCX20jD13mPfUsHaDIZafZPhiheoofFpvFLVtYHQeBoCF7T7vHCRdfl8oj3l6UcoH/hXMmdsJf9KyI1EXElyf91AkAvLfmAS2UvUnhX4qyFioitjxwWawSnf+CewN8LDbH7m5JVXJEh3hqp+aLHg1EaW4wJtkoKLCF+DeVIgbSvOLJw"] // library marker davegut.tpLinkCrypto, line 362
 } // library marker davegut.tpLinkCrypto, line 363
 
-// ~~~~~ end include (111) davegut.tpLinkCrypto ~~~~~
+// ~~~~~ end include (102) davegut.tpLinkCrypto ~~~~~
 
 // ~~~~~ start include (79) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1

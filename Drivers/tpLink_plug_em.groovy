@@ -2,85 +2,100 @@
 		Copyright Dave Gutheinz
 License:  https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/License.md
 
-Name Change to TpLink Parent.
+Verified on KASA KP125M.
 
-Verified on TP25(US) and P306(US)
+New driver name.
 =================================================================================================*/
 
 metadata {
-	definition (name: "TpLink Parent", namespace: nameSpace(), author: "Dave Gutheinz", 
+	definition (name: "TpLink Plug EM", namespace: nameSpace(), author: "Dave Gutheinz", 
 				singleThreaded: true,
-				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_parent.groovy")
+				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug em.groovy")
 	{
+		capability "EnergyMeter"
+		capability "PowerMeter"
+		attribute "energyThisMonth", "number"
 	}
 	preferences {
 		input ("ledRule", "enum", title: "LED Mode (if night mode, set type and times in phone app)",
 			   options: ["always", "never", "night_mode"], defaultValue: "always")
-		input ("installChild", "bool", title: "Install Child Devices", defaultValue: true)
 		commonPreferences()
 	}
 }
 
+
 def installed() {
 	Map logData = [method: "installed", commonInstalled: commonInstalled()]
-	if (installChild) {
-		logData << [children: "installing"]
-		runIn(5, installChildDevices)
-		pauseExecution(5000)
-	}
 	logInfo(logData)
 }
 
-def updated() { 
-	Map logData = [method: updated, installChild: installChild,
-				   commonUpdated: commonUpdated()]
-	if (installChild) {
-		runIn(5, installChildDevices)
-		pauseExecution(5000)
-	}
+def updated() {
+	Map logData = [method: "updated", commonUpdated: commonUpdated()]
 	logInfo(logData)
 }
 
 def parse_get_device_info(result, data) {
 	Map logData = [method: "parse_get_device_info", data: data]
+	if (result.device_on != null) {
+		def onOff = "off"
+		if (result.device_on == true) { onOff = "on" }
+		sendEvent(name: "switch", value: onOff, type: state.eventType)
+		state.eventType = "physical"
+		logData << [switch: onOff]
+	}
 	logDebug(logData)
 }
 
-//	===== Child Command Response =====
-def parse_get_child_device_list(result, data) {
-	Map logData = [method: "get_child_device_list",data: data]
-	def children = getChildDevices()
-	children.each { child ->
-		def devId = child.getDataValue("deviceId")
-		def childData = result.child_device_list.find{ it.device_id == devId }
-		child.parse_get_device_info(childData, data)
-	}
-	logData << [status: "OK"]
+def parse_get_energy_usage(result, data) {
+	Map logData = [method: "parse_get_energy_usage", data: data]
+	def power = (result.current_power/1000).toInteger()
+	updateAttr("power", power)
+	def energy = result.today_energy/1000
+	updateAttr("energy", energy)
+	def engThisMo = result.month_energy
+	updateAttr("energyThisMonth", engThisMo)
+	logData << [power: power, energy:energy, energyThisMonth: engThisMo]
 	logDebug(logData)
 }
 
-def childRespDist(resp, data) {
-	def respData = parseData(resp).cmdResp
-	if (respData.error_code== 0) {
-		def child = getChildDevice(data.data)
-		if (child != null) {
-			child.distChildData(respData.result.responseData.result.responses, data)
-		} else {
-			logWarn([method: "childRespDist", data: data, status: "notChild"])
-		}
-	} else {
-		logWarn([method: "childRespDist", data: data, error: respData.error_code, status: "errorInResp"])
-	}
-}
-
-//	===== Include Libraries =====
 
 
 
 
 
 
-// ~~~~~ start include (110) davegut.tpLinkCommon ~~~~~
+// ~~~~~ start include (81) davegut.tpLinkCapSwitch ~~~~~
+library ( // library marker davegut.tpLinkCapSwitch, line 1
+	name: "tpLinkCapSwitch", // library marker davegut.tpLinkCapSwitch, line 2
+	namespace: "davegut", // library marker davegut.tpLinkCapSwitch, line 3
+	author: "Compied by Dave Gutheinz", // library marker davegut.tpLinkCapSwitch, line 4
+	description: "Hubitat capability Switch methods", // library marker davegut.tpLinkCapSwitch, line 5
+	category: "utilities", // library marker davegut.tpLinkCapSwitch, line 6
+	documentationLink: "" // library marker davegut.tpLinkCapSwitch, line 7
+) // library marker davegut.tpLinkCapSwitch, line 8
+
+capability "Switch" // library marker davegut.tpLinkCapSwitch, line 10
+
+def on() { setPower(true) } // library marker davegut.tpLinkCapSwitch, line 12
+
+def off() { setPower(false) } // library marker davegut.tpLinkCapSwitch, line 14
+
+def setPower(onOff) { // library marker davegut.tpLinkCapSwitch, line 16
+	state.eventType = "digital" // library marker davegut.tpLinkCapSwitch, line 17
+	logDebug("setPower: [device_on: ${onOff}]") // library marker davegut.tpLinkCapSwitch, line 18
+	List requests = [[ // library marker davegut.tpLinkCapSwitch, line 19
+		method: "set_device_info", // library marker davegut.tpLinkCapSwitch, line 20
+		params: [device_on: onOff]]] // library marker davegut.tpLinkCapSwitch, line 21
+	requests << [method: "get_device_info"] // library marker davegut.tpLinkCapSwitch, line 22
+	sendDevCmd(requests, "setPower", "parseUpdates")  // library marker davegut.tpLinkCapSwitch, line 23
+	if (getDataValue("type") == "Plug EM") { // library marker davegut.tpLinkCapSwitch, line 24
+		runIn(5, plugEmRefresh) // library marker davegut.tpLinkCapSwitch, line 25
+	} // library marker davegut.tpLinkCapSwitch, line 26
+} // library marker davegut.tpLinkCapSwitch, line 27
+
+// ~~~~~ end include (81) davegut.tpLinkCapSwitch ~~~~~
+
+// ~~~~~ start include (85) davegut.tpLinkCommon ~~~~~
 library ( // library marker davegut.tpLinkCommon, line 1
 	name: "tpLinkCommon", // library marker davegut.tpLinkCommon, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCommon, line 3
@@ -412,108 +427,7 @@ def deviceHandshake() { // library marker davegut.tpLinkCommon, line 317
 	return logData // library marker davegut.tpLinkCommon, line 329
 } // library marker davegut.tpLinkCommon, line 330
 
-// ~~~~~ end include (110) davegut.tpLinkCommon ~~~~~
-
-// ~~~~~ start include (109) davegut.tpLinkChildInst ~~~~~
-library ( // library marker davegut.tpLinkChildInst, line 1
-	name: "tpLinkChildInst", // library marker davegut.tpLinkChildInst, line 2
-	namespace: "davegut", // library marker davegut.tpLinkChildInst, line 3
-	author: "Compiled by Dave Gutheinz", // library marker davegut.tpLinkChildInst, line 4
-	description: "Child Installation Methods", // library marker davegut.tpLinkChildInst, line 5
-	category: "utilities", // library marker davegut.tpLinkChildInst, line 6
-	documentationLink: "" // library marker davegut.tpLinkChildInst, line 7
-) // library marker davegut.tpLinkChildInst, line 8
-
-def installChildDevices() { // library marker davegut.tpLinkChildInst, line 10
-	Map request = [method: "get_child_device_list"] // library marker davegut.tpLinkChildInst, line 11
-	asyncSend(request, "installChildDevices", "installChildren") // library marker davegut.tpLinkChildInst, line 12
-} // library marker davegut.tpLinkChildInst, line 13
-
-def installChildren(resp, data=null) { // library marker davegut.tpLinkChildInst, line 15
-	Map logData = [method: "installChildren", currentChildren: getChildDevices()] // library marker davegut.tpLinkChildInst, line 16
-	logInfo(logData) // library marker davegut.tpLinkChildInst, line 17
-	def respData = parseData(resp) // library marker davegut.tpLinkChildInst, line 18
-	if (respData.cmdResp != null) { // library marker davegut.tpLinkChildInst, line 19
-		def children = respData.cmdResp.result.child_device_list // library marker davegut.tpLinkChildInst, line 20
-		Integer position = 0 // library marker davegut.tpLinkChildInst, line 21
-		children.each { // library marker davegut.tpLinkChildInst, line 22
-			position += 1 // library marker davegut.tpLinkChildInst, line 23
-//			String childDni = it.mac // library marker davegut.tpLinkChildInst, line 24
-			String  childDni = "${it.mac}-${position.toString()}" // library marker davegut.tpLinkChildInst, line 25
-			def isChild = getChildDevice(childDni) // library marker davegut.tpLinkChildInst, line 26
-			byte[] plainBytes = it.nickname.decodeBase64() // library marker davegut.tpLinkChildInst, line 27
-			String alias = new String(plainBytes) // library marker davegut.tpLinkChildInst, line 28
-			Map instData = [alias: alias, childDni: childDni] // library marker davegut.tpLinkChildInst, line 29
-			if (isChild) { // library marker davegut.tpLinkChildInst, line 30
-				instData << [status: "device already installed"] // library marker davegut.tpLinkChildInst, line 31
-				logInfo(instData) // library marker davegut.tpLinkChildInst, line 32
-			} else { // library marker davegut.tpLinkChildInst, line 33
-				String devType = getDeviceType(it.category) // library marker davegut.tpLinkChildInst, line 34
-				instData << [label: alias, name: it.model, type: devType, deviceId:  // library marker davegut.tpLinkChildInst, line 35
-							 it.device_id, category: it.category] // library marker davegut.tpLinkChildInst, line 36
-				if (devType == "Child Undefined") { // library marker davegut.tpLinkChildInst, line 37
-					instData << [status: "notInstalled", error: "Currently Unsupported"] // library marker davegut.tpLinkChildInst, line 38
-					logInfo(instData) // library marker davegut.tpLinkChildInst, line 39
-				} else { // library marker davegut.tpLinkChildInst, line 40
-					try { // library marker davegut.tpLinkChildInst, line 41
-						addChildDevice( // library marker davegut.tpLinkChildInst, line 42
-							nameSpace(),  // library marker davegut.tpLinkChildInst, line 43
-							"TpLink ${devType}", // library marker davegut.tpLinkChildInst, line 44
-							childDni, // library marker davegut.tpLinkChildInst, line 45
-							[ // library marker davegut.tpLinkChildInst, line 46
-								"label": alias, // library marker davegut.tpLinkChildInst, line 47
-								"name": it.model, // library marker davegut.tpLinkChildInst, line 48
-								category: it.category, // library marker davegut.tpLinkChildInst, line 49
-								deviceId: it.device_id, // library marker davegut.tpLinkChildInst, line 50
-								type: devType // library marker davegut.tpLinkChildInst, line 51
-							]) // library marker davegut.tpLinkChildInst, line 52
-						instData << [status: "Installed"] // library marker davegut.tpLinkChildInst, line 53
-						logInfo(instData) // library marker davegut.tpLinkChildInst, line 54
-					} catch (err) { // library marker davegut.tpLinkChildInst, line 55
-						instData << [status: "FAILED", error: err] // library marker davegut.tpLinkChildInst, line 56
-						logWarn(instData) // library marker davegut.tpLinkChildInst, line 57
-					} // library marker davegut.tpLinkChildInst, line 58
-				} // library marker davegut.tpLinkChildInst, line 59
-			} // library marker davegut.tpLinkChildInst, line 60
-		} // library marker davegut.tpLinkChildInst, line 61
-		device.updateSetting("installChild", [type: "bool", value: "false"]) // library marker davegut.tpLinkChildInst, line 62
-	} // library marker davegut.tpLinkChildInst, line 63
-} // library marker davegut.tpLinkChildInst, line 64
-
-def getDeviceType(category) { // library marker davegut.tpLinkChildInst, line 66
-	String deviceType // library marker davegut.tpLinkChildInst, line 67
-	switch(category) { // library marker davegut.tpLinkChildInst, line 68
-		case "subg.trigger.contact-sensor": // library marker davegut.tpLinkChildInst, line 69
-			deviceType = "Hub Contact"; break // library marker davegut.tpLinkChildInst, line 70
-		case "subg.trigger.motion-sensor": // library marker davegut.tpLinkChildInst, line 71
-			deviceType = "Hub Motion"; break // library marker davegut.tpLinkChildInst, line 72
-		case "subg.trigger.button": // library marker davegut.tpLinkChildInst, line 73
-			deviceType = "Hub Button"; break // library marker davegut.tpLinkChildInst, line 74
-		case "subg.trigger.temp-hmdt-sensor": // library marker davegut.tpLinkChildInst, line 75
-logWarn("TEMP-HUMIDITY Sensor not supported.  Requires TEST Volunteer to finish") // library marker davegut.tpLinkChildInst, line 76
-			deviceType = "Child Undefined"; break // library marker davegut.tpLinkChildInst, line 77
-//			deviceType = "Hub TempHumidity"; break // library marker davegut.tpLinkChildInst, line 78
-		case "subg.trigger.water-leak-sensor": // library marker davegut.tpLinkChildInst, line 79
-			deviceType = "Hub Leak"; break // library marker davegut.tpLinkChildInst, line 80
-		case "subg.trv": // library marker davegut.tpLinkChildInst, line 81
-logWarn("TRV not supported.  Requires TEST Volunteer to finish") // library marker davegut.tpLinkChildInst, line 82
-			deviceType = "Child Undefined"; break // library marker davegut.tpLinkChildInst, line 83
-//			deviceType = "Hub Trv"; break // library marker davegut.tpLinkChildInst, line 84
-		case "plug.powerstrip.sub-plug": // library marker davegut.tpLinkChildInst, line 85
-			deviceType = "Child Plug"; break // library marker davegut.tpLinkChildInst, line 86
- 		case "kasa.switch.outlet.sub-fan": // library marker davegut.tpLinkChildInst, line 87
-			deviceType = "Child Fan"; break // library marker davegut.tpLinkChildInst, line 88
- 		case "kasa.switch.outlet.sub-dimmer": // library marker davegut.tpLinkChildInst, line 89
-			deviceType = "Child Dimmer"; break // library marker davegut.tpLinkChildInst, line 90
-		case "plug.powerstrip.sub-bulb": // library marker davegut.tpLinkChildInst, line 91
-			deviceType = "Child Dimmer"; break // library marker davegut.tpLinkChildInst, line 92
-		default: // library marker davegut.tpLinkChildInst, line 93
-			deviceType = "Child Undefined" // library marker davegut.tpLinkChildInst, line 94
-	} // library marker davegut.tpLinkChildInst, line 95
-	return deviceType // library marker davegut.tpLinkChildInst, line 96
-} // library marker davegut.tpLinkChildInst, line 97
-
-// ~~~~~ end include (109) davegut.tpLinkChildInst ~~~~~
+// ~~~~~ end include (85) davegut.tpLinkCommon ~~~~~
 
 // ~~~~~ start include (86) davegut.tpLinkComms ~~~~~
 library ( // library marker davegut.tpLinkComms, line 1
@@ -645,7 +559,7 @@ def errorDeviceHandshake() {  // library marker davegut.tpLinkComms, line 123
 
 // ~~~~~ end include (86) davegut.tpLinkComms ~~~~~
 
-// ~~~~~ start include (111) davegut.tpLinkCrypto ~~~~~
+// ~~~~~ start include (87) davegut.tpLinkCrypto ~~~~~
 library ( // library marker davegut.tpLinkCrypto, line 1
 	name: "tpLinkCrypto", // library marker davegut.tpLinkCrypto, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCrypto, line 3
@@ -1010,7 +924,7 @@ def getRsaKey() { // library marker davegut.tpLinkCrypto, line 360
 			private: "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAMav+YcErxqrHtQBL6D5O4C8TcnYN3CypGf0yYCSM8Y2ifVmXAzqctAd8kd5t2iHJWqQ1ZoIQIZed+2eULwIzZz9G6O8KtK1EDSVUP6OLE71An09xhNrTtnUW4TN7tDk4hrqkSg/GiauPHNWVRYsNe33TWoJ2ff/NFmkF2lfNVm1AgMBAAECgYEAocxCHmKBGe2KAEkq+SKdAxvVGO77TsobOhDMWug0Q1C8jduaUGZHsxT/7JbA9d1AagSh/XqE2Sdq8FUBF+7vSFzozBHyGkrX1iKURpQFEQM2j9JgUCucEavnxvCqDYpscyNRAgqz9jdh+BjEMcKAG7o68bOw41ZC+JyYR41xSe0CQQD1os71NcZiMVqYcBud6fTYFHZz3HBNcbzOk+RpIHyi8aF3zIqPKIAh2pO4s7vJgrMZTc2wkIe0ZnUrm0oaC//jAkEAzxIPW1mWd3+KE3gpgyX0cFkZsDmlIbWojUIbyz8NgeUglr+BczARG4ITrTV4fxkGwNI4EZxBT8vXDSIXJ8NDhwJBAIiKndx0rfg7Uw7VkqRvPqk2hrnU2aBTDw8N6rP9WQsCoi0DyCnX65Hl/KN5VXOocYIpW6NAVA8VvSAmTES6Ut0CQQCX20jD13mPfUsHaDIZafZPhiheoofFpvFLVtYHQeBoCF7T7vHCRdfl8oj3l6UcoH/hXMmdsJf9KyI1EXElyf91AkAvLfmAS2UvUnhX4qyFioitjxwWawSnf+CewN8LDbH7m5JVXJEh3hqp+aLHg1EaW4wJtkoKLCF+DeVIgbSvOLJw"] // library marker davegut.tpLinkCrypto, line 362
 } // library marker davegut.tpLinkCrypto, line 363
 
-// ~~~~~ end include (111) davegut.tpLinkCrypto ~~~~~
+// ~~~~~ end include (87) davegut.tpLinkCrypto ~~~~~
 
 // ~~~~~ start include (79) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
