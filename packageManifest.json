@@ -1,12 +1,12 @@
 {
-  "packageName": "Tapo Plugs, Switches and Bulbs",
+  "packageName": "Test Tapo Plugs, Switches and Bulbs",
   "author": "David Gutheinz",
-  "version": "2.3.9a",
-  "minimumHEVersion": "2.3.9",
+  "version": "2.4.1a",
+  "minimumHEVersion": "2.4.1",
   "documentationLink": "https://github.com/DaveGut/tpLink_Hubitat",
   "communityLink": "https://community.hubitat.com/t/tp-link-tapo-devices/121084",
-  "dateReleased": "2024-08-04",
-  "releaseNotes": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/releaseNotes.md",
+  "dateReleased": "2025-02-15",
+  "releaseNotes": "Note: After update, run the Application and Scan for Devices to update the device data.\n\nApp: Added check if driver is installed for device then notify user.\nDevices: Added Preference Sync Name.\nNew Devices:\n\ta. Added Hub TRV support.\n\tb. Added Multi-switch with Fan and Dimmer.\n\tc. Added Hub Switch Driver.",
   "licenseFile": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/LICENSE",
   "apps": [
     {
@@ -35,6 +35,48 @@
       "required": false
     },
     {
+      "id": "afdc84ce-c66e-46b9-a6c2-ea3a7e44a5c5",
+      "name": "Plug, Switch, or EM Plug",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug.groovy",
+      "required": false
+    },
+    {
+      "id": "19a7fb5c-195f-4dbc-abdc-7bddff78c79d",
+      "name": "Dimmer (Plug/Switch/Bulb)",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_dimmer.groovy",
+      "required": false
+    },
+    {
+      "id": "0dc4415c-4f7d-4fc8-a8d3-ce9c14f86462",
+      "name": "Parent (for multi-plugs/outlets/switches}",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_parent.groovy",
+      "required": false
+    },
+    {
+      "id": "136c0b05-d6d8-49bb-9177-16263786d290",
+      "name": "_____ Child Plug",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_plug.groovy",
+      "required": false
+    },
+    {
+      "id": "6002553a-1251-4fbb-8293-b7c1cc0cd820",
+      "name": "_____Child Dimmer",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_dimmer.groovy",
+      "required": false
+    },
+    {
+      "id": "e52db241-1c7e-438f-b633-3478e1a57883",
+      "name": "_____Child Fan",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_fan.groovy",
+      "required": false
+    },
+    {
       "id": "17c01a4b-34f7-4cb5-b6e3-10f6259b06c2",
       "name": "Hub (Tapo or Kasa)",
       "namespace": "davegut",
@@ -43,7 +85,7 @@
     },
     {
       "id": "b9c64b4a-8b7e-4aca-b575-c1248e7976b4",
-      "name": "_____HUB Button",
+      "name": "_____Hub Button",
       "namespace": "davegut",
       "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_button.groovy",
       "required": false
@@ -71,65 +113,44 @@
     },
     {
       "id": "2695f9fa-006f-4b6b-9c03-99b12d1cbde6",
-      "name": "_____Hub Leak Sensor",
+      "name": "_____Hub Leak Detector",
       "namespace": "davegut",
       "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_leak.groovy",
       "required": false
     },
     {
-      "id": "afdc84ce-c66e-46b9-a6c2-ea3a7e44a5c5",
-      "name": "Plug/Switch",
+      "id": "3dc9e589-b70f-4fc2-8907-b5fe46459870",
+      "name": "_____Hub Thermostatic Radiator Valve",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_trv.groovy",
+      "required": false
+    },
+    {
+      "id": "bc396825-4531-44a1-87fe-766e88656ce2",
+      "name": "_____Hub Plug/Switch",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_plug.groovy",
+      "required": false
+    },
+    {
+      "id": "4c432ca1-be13-4b30-b89b-bbf93104bff4",
+      "name": "Robovac",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_robovac.groovy",
+      "required": false
+    },
+    {
+      "id": "e3cd85e6-3da7-4576-a95a-f99ac0266b54",
+      "name": "Deprecated for new installations (Plug EM)",
       "namespace": "davegut",
       "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug.groovy",
       "required": false
     },
     {
-      "id": "19a7fb5c-195f-4dbc-abdc-7bddff78c79d",
-      "name": "Plug/Switch - Dimming",
+      "id": "53b8a000-57cc-4b31-bade-3b157b8774e9",
+      "name": "Deprecated for new installations (Dimming Bulb)",
       "namespace": "davegut",
       "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_dimmer.groovy",
-      "required": false
-    },
-    {
-      "id": "e3cd85e6-3da7-4576-a95a-f99ac0266b54",
-      "name": "Plug/Switch - Energy Monitor",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug_em.groovy",
-      "required": false
-    },
-    {
-      "id": "0dc4415c-4f7d-4fc8-a8d3-ce9c14f86462",
-      "name": "Multi-Plug/Switch/Outlet - Parent (requires Child)",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_parent.groovy",
-      "required": false
-    },
-    {
-      "id": "136c0b05-d6d8-49bb-9177-16263786d290",
-      "name": "_____Child Plug/Switch",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_plug.groovy",
-      "required": false
-    },
-    {
-      "id": "6002553a-1251-4fbb-8293-b7c1cc0cd820",
-      "name": "_____Child Plug/Switch - Dimming",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_dimmer.groovy",
-      "required": false
-    },
-    {
-      "id": "e52db241-1c7e-438f-b633-3478e1a57883",
-      "name": "_____Child Fan",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_fan.groovy",
-      "required": false
-    },
-    {
-      "id": "4c432ca1-be13-4b30-b89b-bbf93104bff4",
-      "name": "Robot Vacuum",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_robovac.groovy",
       "required": false
     }
   ]
