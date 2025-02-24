@@ -1,7 +1,0 @@
-# Version 2.3.9 Special Update Instructions
-##  File update
-  a.  Via HPM - standard update
-  b.  Manual- Use the Import function on the Driver/App edit page.
-## Post file update: 
-    RUN APP -> Scan for Devices and Add -> Next -> Done
-    (This will update version-specific data for all devices and the app.)
