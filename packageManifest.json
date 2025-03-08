@@ -2,7 +2,7 @@
   "packageName": "Tapo Plugs, Switches and Bulbs",
   "author": "David Gutheinz",
   "version": "2.4.1a",
-  "minimumHEVersion": "2.4.1",
+  "minimumHEVersion": "2.4.0",
   "documentationLink": "https://github.com/DaveGut/tpLink_Hubitat",
   "communityLink": "https://community.hubitat.com/t/tp-link-tapo-devices/121084",
   "dateReleased": "2025-02-15",
