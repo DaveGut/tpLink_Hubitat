@@ -30,68 +30,28 @@ Installation via manual direct links:
 * Application: https://github.com/DaveGut/tpLink_Hubitat/tree/main/App
 * Drivers: https://github.com/DaveGut/tpLink_Hubitat/tree/main/Drivers
 
-## Install Tapo/Kasa Devices
+## Before Hubitat Installation
+The device must be installed into the Tapo (or Kasa) phone application and SET UP on you LAN prior to installing into Hubitat.
 * Using the Tapo Phone App (or Kasa), install the device via the manufacturer's instructions.
 * In your Router, set a DHCP Reservation (Static IP Address) for the device.  This assures the IP does not change periodically causing potential failure in Hubitat control and status.
 * If devices are alreay installed, TEST the device via the Tapo phone app.  This assures the device is currently on your LAN.
 
-## Tapo Integration Application
-Initial installation of application:
-* Add the application to the Hubitat Applications.
+## Run the Tapo Integration Application
+If not already installed as a Hubitat App, install the application.
+Open the Tapo Integration App and check App Settings
+
+Device Installation:
+See the Application Instructions for images of application pages and details on the application.
+* If not already installed into Hubitat, add the application to the Hubitat Applications.
 * Open the "Tapo Integration" application
-  * See Application 
-* 
-
-
-
-
-Kasa or Tapo Phone App
-
-* Insure the devices are installed in either the Kasa or Tapo phone app (the Tapo phone app also handles all Kasa Devices).
-
-Using HPM, install the Tapo integration.  Search term is Tapo
-* Select the drivers for your Tapo devices.
-* Close HPM.
-
-Open the app.
-![image|615x464](upload://yp0DwbWZpkSzOxtf4yJQMmAbgqX.png)
-
-* Check the segement.  It should be the same segment as your hub.  If not, select Midify Application Setup to change the segment.
-* Enter/Update Username and password.  Used for LOCAL LAN security of the device.  Assure no spaces before/after fields.  When done, select Next.
-* Scan for devices and add
-![image|532x500](upload://iF21LNFoygtRJlVa1DwMN3BMqIu.png)
-  * Sometimes a device is not discovered (usually temporarily disconnected).  If you are missing devices, turn the device ON via the phone app the select Rescan for Additional devices.
-  * Assure all desired devices have drivers.  If not, use HPM to add the missing driver.
-  * Select the devices from the dropdown and then next.
-    * Note: be careful to not install already installed MATTER capable devices.  (This app will allow, it will likely cause no issues except confusion.)
-* Select done from the main page.# TPLINK HUBITAT
-Supports the following device products from TP-Link:
-
-	a.	Tapo Bulbs, Plugs, and Switches
- 	b.	Tapo and Kasa K100 and H100 Hubs.   DOES NOT SUPPORT THE H200/H500 HUBS/
-  	c.	Hub-connected sensors and the S200B Button (no support for Hub connected
-   		switches nor dimmer (need cooperative tester).
-    	d.	KASA Matter Devices.  Intention is an alternative to the Hubitat-native
-      		Matter implementation in case it does not support the device being installed.
-	e.	New KASA Models and NEW KASA Model Hardware versions.  Models and hardware
- 		hardware versions released in 2024 and later.  Depending on device, these
-   		devices are either supported by this integration or the Hubitat Build-In
-     	integration
-
-### Wifi connected devices not currently supported:
-	a.	Smart Cameras.  Not in Support Plan.
- 	b.	Tapo H200 and H500 Hubs (require camera security profile).
-
-## Documentation:
-
-App description:  https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TapoApplication.md
-
-Installation: https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TP-Link-Installation.md
-
-Installed Device Information: [https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TapoDevices.md](https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Docs/TapoDevices.md)
-
-GitHub data used in development.  I greatly appreciate the data provided in the below repositories in getting this implementation completed.
-
-	https://github.com/dickydoouk/tp-link-tapo-connect
-	https://github.com/mihai-dinculescu/tapo
- 
+* Check the following:
+  * Application Setup Parameters: lanDiscoveryParams: Assure the Lan Segment is the same as you Hubitat device's segment (unless you have set up other segments).
+  * Check that the Credentials are set.  If not select the Enter/Update Username and Password and add your credentials.  NOTE:  This Application does not access the Tapo/Kasa webserver.  The Credentials are used for local security of the devices.
+* Select Scan for devices and add.
+* From the Add Devices to Hubitat page
+  * Check Found Devices list to assure your device was found and the DRIVER for the device was found on your Hubitat server.  Note that child Hub and Parent devices are not discovered in this app.  They are discovered as a part of the parent device installation process,
+  * If the device is not on the Found Devices list, exercise the device via the Tapo (Kasa) application (at least two cycles with the device being ON when done).  The select Rescan for Additional Devices.
+  * Using the drop-down, select the devices you wish to add,
+  * Select Next
+* From the Application Setup Page, select Done.
+* Check that your device is installed in Hubitat and can be exercised (on/Off)
