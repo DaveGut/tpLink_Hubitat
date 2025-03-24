@@ -12,7 +12,7 @@ This description is based on version 2.4.1 of the Tapo Integration.
   * Host Address Range.  Single range for ALL segments.  App will search all IPs on the segment within this range.
 * Enter/Update Username and Password
   * Typically needs only accomplished on initial setup or if you changed your Tapo/Kasa credentials.
-    * ![image](https://github.com/user-attachments/assets/90bcfd1a-cdf9-4a63-a9ae-850d9116d7a4)
+    * ![image](https://github.com/user-attachments/assets/e7fa3e22-cb86-4203-9152-2b03dac2088e)
     * Hide Password will secure the password in an unreadable format.
     * Email Address and Account Password.  Must not have any spaces.
     * Press Next to update password and go to previous page.
