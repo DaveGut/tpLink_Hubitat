@@ -14,6 +14,7 @@ Supports the following device products from TP-Link:
 
 ### Wifi connected devices not currently supported:
 	a.	Smart Cameras.  Not in Support Plan.
+ 	b.	Tapo H200 and H500 Hubs (require camera security profile).
 
 ## Documentation:
 
