@@ -37,12 +37,7 @@ The device must be installed into the Tapo (or Kasa) phone application and SET U
 * If devices are alreay installed, TEST the device via the Tapo phone app.  This assures the device is currently on your LAN.
 
 ## Run the Tapo Integration Application
-If not already installed as a Hubitat App, install the application.
-Open the Tapo Integration App and check App Settings
-
-Device Installation:
-See the Application Instructions for images of application pages and details on the application.
-* If not already installed into Hubitat, add the application to the Hubitat Applications.
+* If not already installed as a Hubitat App, install the application.  See the Application Instructions for images of application pages and details on the application.
 * Open the "Tapo Integration" application
 * Check the following:
   * Application Setup Parameters: lanDiscoveryParams: Assure the Lan Segment is the same as you Hubitat device's segment (unless you have set up other segments).
