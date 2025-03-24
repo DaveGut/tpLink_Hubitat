@@ -1,6 +1,9 @@
 # Tapo Integration Installation
 The below instructions cover the installation of compable Tapo and Kasa devices (see readme for compatibility).
 
+## Note on Matter Devices
+Tapo and Kasa Matter devices can usually (not always) installed into Hubitat as a Matter device.  I recommend using the Hubitat Matter installation in preference to this when supported.
+
 ## Install Tapo Integration App and Drivers into Hubitat
 
 Installation packages (HPM Name: File Name)
