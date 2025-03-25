@@ -13,7 +13,8 @@ Installation packages (HPM Name: File Name)
 * Plug, Switch, or EM Plug: Drivers/tpLink_plug.groovy
 * Dimmer (Plug/Switch/Bulb): Drivers/tpLink_dimmer.groovy
 * Parent (for multi-plugs/outlets/switches}: tpLink_parent.groovy
-* _____Child Plug: Drivers/tpLink_child_dimmer.groovy
+* _____Child Plug: Drivers/tpLink_child_plug.groovy
+* _____Child Dimmer: Drivers/tpLink_child_dimmer.groovy
 * _____Child Fan: Drivers/tpLink_child_fan.groovy
 * Hub (Tapo or Kasa): Drivers/tpLink_hub.groovy
 * _____Hub Button: Drivers/tpLink_hub_button.groovy
