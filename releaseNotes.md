@@ -1,3 +1,22 @@
+NEW FILE NAMES FOR MANUAL UPDATE (HPM did this automatically)
+Some driver file names have changed to simplify the product structure and reduce the total number of drivers.  Below is a mapping of the changes:
+
+ 	tpLink_bulb_color : tpLink_color_bulb
+	tpLink_bulb_dimmer : tpLink_dimmer
+	tpLink_bulb_lightStrip : tpLink_lightStrip
+	tpLink_plug_dimmer : tpLink_dimmer
+	tpLink_plug_em tpLink_plug 
+	tpLink_plug_multi : tpLink_parent
+	tpLink_plug_multi_child : tpLink_child_plug
+
+ Version Update Instructions:
+ 
+ 	HPM:  Use HPM Update function.  Note: this may create some duplicate tpLink Plug drivers.  This is an artifact of reducing driver and will not impact performance.
+  	Manual:
+   	  a.  App: use the driver edit page "import" function using the default file path.
+	  b.  Drivers:  Use the driver edit pahge "import" function using the file paths from 'https://github.com/DaveGut/tpLink_Hubitat/tree/main/Drivers'
+  
+
 App Changes:
 The integration does not currently support Cameras, Doorbells, wifi Thermostat, nor
 the RoboVac.  I anticipate some level of support for the Thermostat when it finally is
