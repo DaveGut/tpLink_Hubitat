@@ -5,7 +5,7 @@ Some driver file names have changed to simplify the product structure and reduce
 	tpLink_bulb_dimmer : tpLink_dimmer
 	tpLink_bulb_lightStrip : tpLink_lightStrip
 	tpLink_plug_dimmer : tpLink_dimmer
-	tpLink_plug_em tpLink_plug 
+	tpLink_plug_em : tpLink_plug 
 	tpLink_plug_multi : tpLink_parent
 	tpLink_plug_multi_child : tpLink_child_plug
 
