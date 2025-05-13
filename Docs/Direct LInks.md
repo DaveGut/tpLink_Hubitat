@@ -1,146 +1,35 @@
-    {
-      "id": "79f31830-a697-40c5-9c87-76f9db0c63b7",
-      "name": "Tapo Device Install",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/App/tapo_device_install.groovy",
-      "required": true,
-      "oauth": false,
-      "primary": true
-    }
-  ],
-  "drivers": [
-    {
-      "id": "da263b7d-5b17-468a-836e-86ef98b11187",
-      "name": "Color Bulb",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_color_bulb.groovy",
-      "required": false
-    },
-    {
-      "id": "ec486eae-0c27-4e79-bcd2-77afbb4013f0",
-      "name": "Light Strip",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_lightStrip.groovy",
-      "required": false
-    },
-    {
-      "id": "afdc84ce-c66e-46b9-a6c2-ea3a7e44a5c5",
-      "name": "Plug, Switch, or EM Plug",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug.groovy",
-      "required": false
-    },
-    {
-      "id": "19a7fb5c-195f-4dbc-abdc-7bddff78c79d",
-      "name": "Dimmer (Plug/Switch/Bulb)",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_dimmer.groovy",
-      "required": false
-    },
-    {
-      "id": "0dc4415c-4f7d-4fc8-a8d3-ce9c14f86462",
-      "name": "Parent (for multi-plugs/outlets/switches}",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_parent.groovy",
-      "required": false
-    },
-    {
-      "id": "136c0b05-d6d8-49bb-9177-16263786d290",
-      "name": "_____ Child Plug",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_plug.groovy",
-      "required": false
-    },
-    {
-      "id": "6002553a-1251-4fbb-8293-b7c1cc0cd820",
-      "name": "_____Child Dimmer",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_dimmer.groovy",
-      "required": false
-    },
-    {
-      "id": "e52db241-1c7e-438f-b633-3478e1a57883",
-      "name": "_____Child Fan",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_fan.groovy",
-      "required": false
-    },
-    {
-      "id": "17c01a4b-34f7-4cb5-b6e3-10f6259b06c2",
-      "name": "Hub (Tapo or Kasa)",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub.groovy",
-      "required": false
-    },
-    {
-      "id": "b9c64b4a-8b7e-4aca-b575-c1248e7976b4",
-      "name": "_____Hub Button",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_button.groovy",
-      "required": false
-    },
-    {
-      "id": "504c09cc-d955-4b16-8baa-89ce9f4c4542",
-      "name": "_____Hub Contact Sensor",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_contact.groovy",
-      "required": false
-    },
-    {
-      "id": "09d5b8d6-d645-42f8-b982-2e113832841d",
-      "name": "_____Hub Motion Sensor",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_motion.groovy",
-      "required": false
-    },
-    {
-      "id": "52a4c55d-5e1b-4094-951d-1bfa6d760e61",
-      "name": "_____Hub TempHumidity Sensor",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_tempHumidity.groovy",
-      "required": false
-    },
-    {
-      "id": "2695f9fa-006f-4b6b-9c03-99b12d1cbde6",
-      "name": "_____Hub Leak Detector",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_leak.groovy",
-      "required": false
-    },
-    {
-      "id": "3dc9e589-b70f-4fc2-8907-b5fe46459870",
-      "name": "_____Hub Thermostatic Radiator Valve",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_trv.groovy",
-      "required": false
-    },
-    {
-      "id": "bc396825-4531-44a1-87fe-766e88656ce2",
-      "name": "_____Hub Plug/Switch",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_plug.groovy",
-      "required": false
-    },
-    {
-      "id": "4c432ca1-be13-4b30-b89b-bbf93104bff4",
-      "name": "Robovac",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_robovac.groovy",
-      "required": false
-    },
-    {
-      "id": "e3cd85e6-3da7-4576-a95a-f99ac0266b54",
-      "name": "Deprecated for new installations (Plug EM)",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug.groovy",
-      "required": false
-    },
-    {
-      "id": "53b8a000-57cc-4b31-bade-3b157b8774e9",
-      "name": "Deprecated for new installations (Dimming Bulb)",
-      "namespace": "davegut",
-      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_dimmer.groovy",
-      "required": false
-    }
-  ]
-}
+Tapo Device Install: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/App/tapo_device_install.groovy"
+
+Color Bulb: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_color_bulb.groovy"
+
+Light Strip: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_lightStrip.groovy"
+
+Plug, Switch, or EM Plug: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug.groovy"
+
+Dimmer (Plug/Switch/Bulb): "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_dimmer.groovy"
+
+Parent (for multi-plugs/outlets/switches}: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_parent.groovy"
+
+_____ Child Plug: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_plug.groovy"
+
+_____Child Dimmer: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_dimmer.groovy"
+
+_____Child Fan: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_child_fan.groovy"
+
+Hub (Tapo or Kasa): "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub.groovy"
+
+_____Hub Button: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_button.groovy"
+
+_____Hub Contact Sensor: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_contact.groovy"
+
+_____Hub Motion Sensor: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_motion.groovy"
+
+_____Hub TempHumidity Sensor: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_tempHumidity.groovy"
+
+_____Hub Leak Detector: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_leak.groovy"
+
+_____Hub Thermostatic Radiator Valve: https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_trv.groovy"
+
+_____Hub Plug/Switch: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_hub_plug.groovy",
+
+Robovac: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_robovac.groovy",
