@@ -3,7 +3,7 @@
 License:  https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/License.md
 =================================================================================================*/
 metadata {
-	definition (name: "TpLink Dimmer(1)", namespace: nameSpace(), author: "Dave Gutheinz", 
+	definition (name: "TpLink Dimmer (1)", namespace: nameSpace(), author: "Dave Gutheinz", 
 				singleThreaded: true,
 				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_dimmer(1).groovy")
 	{
@@ -32,7 +32,6 @@ def parse_get_device_info(result, data) {
 
 //	Library Inclusion
 
-Level
 
 
 

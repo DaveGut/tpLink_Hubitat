@@ -5,7 +5,7 @@ License:  https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/Licen
 Supports:  Tapo Plugs and Switches, New and Matter Kasa Plugs and Switches.
 =================================================================================================*/
 metadata {
-	definition (name: "TpLink Plug(1)", namespace: nameSpace(), author: "Dave Gutheinz", 
+	definition (name: "TpLink Plug (1)", namespace: nameSpace(), author: "Dave Gutheinz", 
 				singleThreaded: true,
 				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_plug(1).groovy")
 	{ }
