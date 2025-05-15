@@ -6,25 +6,25 @@ Tapo and Kasa Matter devices can usually (not always) be installed into Hubitat 
 
 ## Install Tapo Integration App and Drivers into Hubitat
 
-Installation packages (HPM Name: File Name)
-* Tapo Device Install: App/tapo_device_install.groovy
-* Color Bulb: Drivers/tpLink_color_bulb.groovy
-* Light Strip: Drivers/tpLink_lightStrip.groovy
-* Plug, Switch, or EM Plug: Drivers/tpLink_plug.groovy
-* Dimmer (Plug/Switch/Bulb): Drivers/tpLink_dimmer.groovy
-* Parent (for multi-plugs/outlets/switches}: tpLink_parent.groovy
-* _____Child Plug: Drivers/tpLink_child_plug.groovy
-* _____Child Dimmer: Drivers/tpLink_child_dimmer.groovy
-* _____Child Fan: Drivers/tpLink_child_fan.groovy
-* Hub (Tapo or Kasa): Drivers/tpLink_hub.groovy
-* _____Hub Button: Drivers/tpLink_hub_button.groovy
-* _____Hub Contact Sensor: Drivers/tpLink_hub_contact.groovy
-* _____Hub Motion Sensor: Drivers/tpLink_hub_motion.groovy
-* _____Hub TempHumidity Sensor: Drivers/tpLink_hub_tempHumidity.groovy
-* _____Hub Leak Detector: Drivers/tpLink_hub_leak.groovy
-* _____Hub Thermostatic Radiator Valve: Drivers/tpLink_hub_trv.groovy
-* _____Hub Plug/Switch: tpLink_hub_plug.groovy
-* Robovac: Drivers/tpLink_robovac.groovy
+Installation packages (HPM Name : File Name : Note (if any)
+* Tapo Installation : App/tapo_device_install.groovy
+* TpLink Color Bulb : Drivers/tpLink_color_bulb.groovy
+* TpLink Lightstrip : Drivers/tpLink_lightStrip.groovy
+* TpLink Plug : Drivers/tpLink_plug.groovy : (Plugs, EM Plugs, Switches)
+* TpLink Dimmer (Plug/Switch/Bulb): Drivers/tpLink_dimmer.groovy : (Plugs, Switches, Bulbs)
+* TpLink Parent : tpLink_parent.groovy : (for multi-plugs/outlets/switches}
+* TpLink Child Plug: Drivers/tpLink_child_plug.groovy
+* TpLink Child Dimmer: Drivers/tpLink_child_dimmer.groovy
+* TpLink Child Fan: Drivers/tpLink_child_fan.groovy
+* TpLink Hub : Drivers/tpLink_hub.groovy : (Tapo or Kasa, not H200 nor H500)
+* TpLink Hub Button: Drivers/tpLink_hub_button.groovy
+* TpLink Hub Contact : Drivers/tpLink_hub_contact.groovy
+* TpLink Hub Motion : Drivers/tpLink_hub_motion.groovy
+* TpLink Hub TempHumidity : Drivers/tpLink_hub_tempHumidity.groovy
+* TpLink Hub Leak  : Drivers/tpLink_hub_leak.groovy
+* TpLink Hub TRV: Drivers/tpLink_hub_trv.groovy :(Thermostat Radiator Valve)
+* TpLink Hub Plug/Switch: tpLink_hub_plug.groovy
+* TpLink Robovac: Drivers/tpLink_robovac.groovy
 	
 Installation via Hubitat Package Manager:
 * Search Term: Tapo
