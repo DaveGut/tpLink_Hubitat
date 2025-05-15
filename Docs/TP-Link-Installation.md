@@ -31,8 +31,7 @@ Installation via Hubitat Package Manager:
 * Title: Tapo Plugs, Switches and Bulbs
 
 Installation via manual direct links:
-* Application: https://github.com/DaveGut/tpLink_Hubitat/tree/main/App
-* Drivers: https://github.com/DaveGut/tpLink_Hubitat/tree/main/Drivers
+* https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/Direct%20LInks.md
 
 ## Before Hubitat Installation
 The device must be installed into the Tapo (or Kasa) phone application and SET UP on you LAN prior to installing into Hubitat.
