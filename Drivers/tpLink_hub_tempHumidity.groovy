@@ -38,7 +38,7 @@ def parse_get_device_info(result, data = null) {
 
 
 
-// ~~~~~ start include (200) davegut.tpLinkChildCommon ~~~~~
+// ~~~~~ start include (258) davegut.tpLinkChildCommon ~~~~~
 library ( // library marker davegut.tpLinkChildCommon, line 1
 	name: "tpLinkChildCommon", // library marker davegut.tpLinkChildCommon, line 2
 	namespace: "davegut", // library marker davegut.tpLinkChildCommon, line 3
@@ -135,9 +135,9 @@ def sendSingleCmd(request, data, action) { // library marker davegut.tpLinkChild
 	parent.asyncSend(cmdBody, device.getDeviceNetworkId(), action) // library marker davegut.tpLinkChildCommon, line 94
 } // library marker davegut.tpLinkChildCommon, line 95
 
-// ~~~~~ end include (200) davegut.tpLinkChildCommon ~~~~~
+// ~~~~~ end include (258) davegut.tpLinkChildCommon ~~~~~
 
-// ~~~~~ start include (195) davegut.Logging ~~~~~
+// ~~~~~ start include (253) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -149,7 +149,7 @@ library ( // library marker davegut.Logging, line 1
 
 def nameSpace() { return "davegut" } // library marker davegut.Logging, line 10
 
-def version() { return "2.4.1a" } // library marker davegut.Logging, line 12
+def version() { return "2.4.2a" } // library marker davegut.Logging, line 12
 
 def label() { // library marker davegut.Logging, line 14
 	if (device) {  // library marker davegut.Logging, line 15
@@ -206,4 +206,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 67
 
-// ~~~~~ end include (195) davegut.Logging ~~~~~
+// ~~~~~ end include (253) davegut.Logging ~~~~~

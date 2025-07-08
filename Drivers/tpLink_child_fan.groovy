@@ -108,7 +108,7 @@ def parse_get_device_info(result, data) {
 
 
 
-// ~~~~~ start include (198) davegut.tpLinkCapSwitch ~~~~~
+// ~~~~~ start include (256) davegut.tpLinkCapSwitch ~~~~~
 library ( // library marker davegut.tpLinkCapSwitch, line 1
 	name: "tpLinkCapSwitch", // library marker davegut.tpLinkCapSwitch, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCapSwitch, line 3
@@ -131,7 +131,7 @@ def setPower(onOff) { // library marker davegut.tpLinkCapSwitch, line 16
 		method: "set_device_info", // library marker davegut.tpLinkCapSwitch, line 20
 		params: [device_on: onOff]]] // library marker davegut.tpLinkCapSwitch, line 21
 	requests << [method: "get_device_info"] // library marker davegut.tpLinkCapSwitch, line 22
-	sendDevCmd(requests, device.getDeviceNetworkId(), "parseUpdates") // library marker davegut.tpLinkCapSwitch, line 23
+	sendDevCmd(requests, "setPower", "parseUpdates") // library marker davegut.tpLinkCapSwitch, line 23
 } // library marker davegut.tpLinkCapSwitch, line 24
 
 def switchParse(result) { // library marker davegut.tpLinkCapSwitch, line 26
@@ -151,9 +151,9 @@ def switchParse(result) { // library marker davegut.tpLinkCapSwitch, line 26
 	logDebug(logData) // library marker davegut.tpLinkCapSwitch, line 40
 } // library marker davegut.tpLinkCapSwitch, line 41
 
-// ~~~~~ end include (198) davegut.tpLinkCapSwitch ~~~~~
+// ~~~~~ end include (256) davegut.tpLinkCapSwitch ~~~~~
 
-// ~~~~~ start include (197) davegut.tpLinkCapEngMon ~~~~~
+// ~~~~~ start include (255) davegut.tpLinkCapEngMon ~~~~~
 library ( // library marker davegut.tpLinkCapEngMon, line 1
 	name: "tpLinkCapEngMon", // library marker davegut.tpLinkCapEngMon, line 2
 	namespace: "davegut", // library marker davegut.tpLinkCapEngMon, line 3
@@ -177,7 +177,7 @@ def emUpdated() { // library marker davegut.tpLinkCapEngMon, line 15
 
 def powerPoll() { // library marker davegut.tpLinkCapEngMon, line 22
 	List requests = [[method: "get_current_power"]] // library marker davegut.tpLinkCapEngMon, line 23
-	sendDevCmd(requests, device.getDeviceNetworkId(), "parseUpdates") // library marker davegut.tpLinkCapEngMon, line 24
+	sendDevCmd(requests, "powerPoll", "parseUpdates") // library marker davegut.tpLinkCapEngMon, line 24
 } // library marker davegut.tpLinkCapEngMon, line 25
 
 def parse_get_current_power(result, data) { // library marker davegut.tpLinkCapEngMon, line 27
@@ -189,7 +189,7 @@ def parse_get_current_power(result, data) { // library marker davegut.tpLinkCapE
 
 def getEmData() { // library marker davegut.tpLinkCapEngMon, line 34
 	List requests = [[method: "get_device_usage"]] // library marker davegut.tpLinkCapEngMon, line 35
-	sendDevCmd(requests, device.getDeviceNetworkId(), "parseUpdates") // library marker davegut.tpLinkCapEngMon, line 36
+	sendDevCmd(requests, "getEmData", "parseUpdates") // library marker davegut.tpLinkCapEngMon, line 36
 } // library marker davegut.tpLinkCapEngMon, line 37
 
 def parse_get_device_usage(result, data) { // library marker davegut.tpLinkCapEngMon, line 39
@@ -202,9 +202,9 @@ def parse_get_device_usage(result, data) { // library marker davegut.tpLinkCapEn
 	logDebug(logData) // library marker davegut.tpLinkCapEngMon, line 46
 } // library marker davegut.tpLinkCapEngMon, line 47
 
-// ~~~~~ end include (197) davegut.tpLinkCapEngMon ~~~~~
+// ~~~~~ end include (255) davegut.tpLinkCapEngMon ~~~~~
 
-// ~~~~~ start include (200) davegut.tpLinkChildCommon ~~~~~
+// ~~~~~ start include (258) davegut.tpLinkChildCommon ~~~~~
 library ( // library marker davegut.tpLinkChildCommon, line 1
 	name: "tpLinkChildCommon", // library marker davegut.tpLinkChildCommon, line 2
 	namespace: "davegut", // library marker davegut.tpLinkChildCommon, line 3
@@ -301,9 +301,9 @@ def sendSingleCmd(request, data, action) { // library marker davegut.tpLinkChild
 	parent.asyncSend(cmdBody, device.getDeviceNetworkId(), action) // library marker davegut.tpLinkChildCommon, line 94
 } // library marker davegut.tpLinkChildCommon, line 95
 
-// ~~~~~ end include (200) davegut.tpLinkChildCommon ~~~~~
+// ~~~~~ end include (258) davegut.tpLinkChildCommon ~~~~~
 
-// ~~~~~ start include (195) davegut.Logging ~~~~~
+// ~~~~~ start include (253) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -315,7 +315,7 @@ library ( // library marker davegut.Logging, line 1
 
 def nameSpace() { return "davegut" } // library marker davegut.Logging, line 10
 
-def version() { return "2.4.1a" } // library marker davegut.Logging, line 12
+def version() { return "2.4.2a" } // library marker davegut.Logging, line 12
 
 def label() { // library marker davegut.Logging, line 14
 	if (device) {  // library marker davegut.Logging, line 15
@@ -372,4 +372,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 67
 
-// ~~~~~ end include (195) davegut.Logging ~~~~~
+// ~~~~~ end include (253) davegut.Logging ~~~~~
