@@ -16,6 +16,9 @@ Supports the following device products from TP-Link:
 	a.	Smart Cameras.  Not in Support Plan.
  	b.	Tapo H200 and H500 Hubs (require camera security profile).
 
+### TP-Link TAPO devices now require enabling Third Party Services.
+Open the phone app (kasa or tapo), go to ME > Third Party Services > Third-Party-Compatibility and turn on.
+
 ## Documentation:
 
 App description:  https://github.com/DaveGut/tpLink_Hubitat/blob/main/Docs/TapoApplication.md
