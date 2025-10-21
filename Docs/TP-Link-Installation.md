@@ -1,6 +1,9 @@
 # Tapo Integration Installation
 The below instructions cover the installation of compable Tapo and Kasa devices (see readme for compatibility).  SEE THE APPLICATION DESCRIPTION for explicit information on the application.
 
+## TP-Link TAPO devices now require enabling Third Party Services.
+Open the phone app (kasa or tapo), go to ME > Third Party Services > Third-Party-Compatibility and turn on.
+
 ## Note on Matter Devices
 Tapo and Kasa Matter devices can usually (not always) be installed into Hubitat as a Matter device.  I recommend using the Hubitat Matter installation in preference to this when supported.
 
@@ -36,6 +39,7 @@ Installation via manual direct links:
 ## Before Hubitat Installation
 The device must be installed into the Tapo (or Kasa) phone application and SET UP on you LAN prior to installing into Hubitat.
 * Using the Tapo Phone App (or Kasa), install the device via the manufacturer's instructions.
+* Enable third party services.  Using the Tapo Phone App (or Kasa), go to ME > Third Party Services > Third-Party-Compatibility and turn on.
 * In your Router, set a DHCP Reservation (Static IP Address) for the device.  This assures the IP does not change periodically causing potential failure in Hubitat control and status.
 * If devices are alreay installed, TEST the device via the Tapo phone app.  This assures the device is currently on your LAN.
 
