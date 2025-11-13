@@ -1,11 +1,11 @@
 {
   "packageName": "Tapo Plugs, Switches and Bulbs",
   "author": "David Gutheinz",
-  "version": "2.4.2a",
+  "version": "2.4.3",
   "minimumHEVersion": "2.4.0",
   "documentationLink": "https://github.com/DaveGut/tpLink_Hubitat",
   "communityLink": "https://community.hubitat.com/t/tp-link-tapo-devices/121084",
-  "dateReleased": "2025-07-08",
+  "dateReleased": "2025-11-13",
   "releaseNotes": "Note: After update, run the Application and Scan for Devices to update the device data.\n\nApp: Added check if driver is installed for device then notify user.\nDevices: Added Preference Sync Name.\nNew Device: Tapo Camera.\nRobovac: Added new Klap over HTTPS transport capability and added Map functions.",
   "licenseFile": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/LICENSE",
   "apps": [
@@ -158,6 +158,13 @@
       "name": "TpLink Camera",
       "namespace": "davegut",
       "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/refs/heads/main/Drivers/tpLink_Camera.groovy",
+      "required": false
+    },
+    {
+      "id": "b50aff35-db1c-4b49-89d2-83f5a4da7eda",
+      "name": "TpLink Cam Ptz",
+      "namespace": "davegut",
+      "location": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/refs/heads/main/Drivers/tpLink_Cam_Ptz.groovy",
       "required": false
     }
   ]
