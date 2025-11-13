@@ -62,7 +62,7 @@ def updated() {
 	app?.updateSetting("appSetup", false)
 	app?.updateSetting("spInst", false)
 	state.needCreds = false
-	logData << [scheduledItems: scheduleItems()]
+	runIn(30, scheduledItems)
 	logInfo(logData)
 }
 
@@ -81,7 +81,6 @@ def scheduleItems() {
 	atomicState.devices = newDevices
 	atomicState.unsupported = [:]
 	logData << [devData: "Purged non-children"]
-	return logData
 }
 
 def uninstalled() {
