@@ -2,7 +2,7 @@
 		Copyright Dave Gutheinz
 License:  https://github.com/DaveGut/HubitatActive/blob/master/KasaDevices/License.md
 
-Supports:  Fixed Tapo Cameras
+Supports:  Tapo PTZ Cameras
 
 Known issues:
 1.	Not all setting functions available on Hubitat.  User should request.
@@ -21,25 +21,28 @@ b.	If not wired, the use of polling will have sever impact on battery time betwe
 		set inactive).
 =================================================================================================*/
 metadata {
-	definition (name: "TpLink Camera", namespace: nameSpace(), author: "Dave Gutheinz", 
+	definition (name: "TpLink Cam Ptz", namespace: nameSpace(), author: "Dave Gutheinz", 
 				singleThreaded: true,
-				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_camera.groovy")
+				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_cam_ptz.groovy")
 	{
+		command "patrolMode", [
+			[name: "Patrol between defined viewPoints. ",
+			 constraints: ["on", "off"], type: "ENUM"],
+			[name: "view duration (secs), ",
+			 constraints: [10, 20, 30], type: "ENUM"]]
+		attribute "patrolMode", "string"
+		command "setViewpoint", [[
+			name: "Go to camera viewpoint. ",
+			constraints: [1, 2, 3, 4, 5, 6, 7, 8], type: "ENUM"]]
+		attribute "currViewpoint", "string"
 	}
 	preferences {
-		if (getDataValue("isDoorbell") == "true") {
-			input ("ringOnOff", "enum", title: "Outside Doorbell Ring on/off", 
-				   options: ["on", "off"])
-			input ("wakeUpType", "enum", title: "Wake Up Doorbell On... ", 
-			   options: ["detection", "doorbell"])
-			input ("nvMode", "enum", title: "Night Vision Display Mode",
-			   options: ["infrared", "doorbell", "fullColor"])
-		}
 		commonPreferences()
 	}
 }
 
 def installed() {
+	state.viewPoints = []
 	Map logData = [method: "installed", commonInstalled: commonInstalled()]
 	logInfo(logData)
 }
@@ -50,50 +53,73 @@ def updated() {
 }
 
 def updDevSettings() {
-	List requests = []
-	if (getDataValue("isDoorbell") == "true") {
-		def nightMode = "inf_night_vision"
-		if (nvMode == "doorbell") { nightMode = "dbl_night_vision" }
-		else if (nvMode == "fullColor") {nightMode = "wtl_night_vision" }
-		requests << [method:"setNightVisionModeConfig", params:[
-			image:[switch:[night_vision_mode:nightMode]]]]
-		requests << [method:"setRingStatus", params:[ring:[status: [enabled: ringOnOff]]]]	
-		requests << [method:"setWakeUpConfig", params:[wake_up:[
-			config:[wake_up_type:wakeUpType]]]]
-	}
+	List requests = [
+	]
 	comUpdDevSettings(requests)
 	return "Device Settings Updated"
-}
+}	
 
 def refresh() {
-	List requests = []
-	if (getDataValue("isDoorbell") == "true") {
-		requests << [method:"getNightVisionModeConfig", params:[image:[name:"switch"]]]
-		requests << [method:"getRingStatus", params:[ring:[name:["status","config"]]]]
-		requests << [method:"getWakeUpConfig", params:[wake_up:[name:"config"]]]
-	}
+	List requests = [
+		[method:"getPresetConfig", params: [preset:[name: "preset"]]]
+	]
 	comRefresh(requests)
 	logDebug([method: "refresh"])
 }
 
-def parse_getNightVisionModeConfig(devData) {
-	def nightMode = "infrared"
-	if (devData.night_vision_mode == "dbl_night_vision") { nightMode = "doorbell" }
-	else if (devData.night_vision_mode == "wtl_night_vision") { nightMode = "fullColor" }
-	device.updateSetting("nvMode", [type: "enum", value: nightMode])
-	return [nvMode: nightMode]
+def parse_getPresetConfig(devResp) {
+	state.viewPoints = devResp.preset.preset.id
+	return [viewPoints: vPoints]
 }
 
-def parse_getWakeUpConfig(devData) {
-	device.updateSetting("wakeUpType", [type: "enum", value: devData.wake_up.config.wake_up_type])
-	return [wakeUpType: devData.wake_up.config.wake_up_type]
+def patrolMode(onOff = "on", vTime = 10) {
+	Map logData = [method: "patrolMode", onOff: onOff, lag: lag, viewPoints: state.viewPoints]
+	if (state.viewPoints.size() < 2) {
+		logData << [error: "Must have at least 2 viewPoints set for patrol mode"]
+		logWarn(logData)
+		return
+	}
+	if (onOff == "off") {
+		stopPatrol()
+	} else {
+		moveToPreset(state.viewPoints[0])
+		schedule("*/${vTime} * * * * ?", "runPatrol")
+		runIn(300, stopPatrol)
+	}
+	sendEvent(name: "patrolMode", value: onOff)
+	logData << [patrolMode: onOff]
+	logDebug(logData)
 }
 
-def parse_getRingStatus(devData) {
-	device.updateSetting("ringOnOff", [type: "enum", value: devData.ring.status.enabled])
-	return [ringOnOff: devData.ring.status.enabled]
+def runPatrol() {
+	def nextVpIndex = state.viewPoints.indexOf(state.lastViewpoint) + 1
+	if (nextVpIndex >= state.viewPoints.size()) { nextVpIndex = 0 }
+	moveToPreset(state.viewPoints[nextVpIndex])
 }
 
+def stopPatrol() {
+	unschedule("runPatrol")
+	sendEvent(name: "patrolMode", value: "off")
+	logDebug([method: "patrolMode", patrolMode: "off"])
+}
+
+def setViewpoint(presetId) {
+	Map logData = [method: "setViewpoint", viewpointNo: presetId, vpIds: state.viewPoints]
+	if (state.viewPoints.contains(presetId)) {
+		logData << [lastViewpoint: presetId]
+		moveToPreset(presetId)
+		logDebug(logData)
+	} else {
+		logData << [status: "ERROR", data: "Viewpoint ${presetId} is not defined."]
+		logWarn(logData)
+	}
+}
+
+def moveToPreset(presetId) {
+	List requests = [[method: "motorMoveToPreset", params: [preset: [goto_preset: [id:presetId]]]]]
+	state.lastViewpoint = presetId.toString()
+	sendDevCmd(requests, "moveToPreset", "parseUpdates")
+}
 
 
 

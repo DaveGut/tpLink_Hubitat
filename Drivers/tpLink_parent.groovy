@@ -113,60 +113,66 @@ def configure() { // library marker davegut.tpLinkCapConfiguration, line 12
 	Map logData = [method: "configure", devIp: devIp] // library marker davegut.tpLinkCapConfiguration, line 14
 	def cmdData = "0200000101e51100095c11706d6f58577b22706172616d73223a7b227273615f6b6579223a222d2d2d2d2d424547494e205055424c4943204b45592d2d2d2d2d5c6e4d494942496a414e42676b71686b6947397730424151454641414f43415138414d49494243674b43415145416d684655445279687367797073467936576c4d385c6e54646154397a61586133586a3042712f4d6f484971696d586e2b736b4e48584d525a6550564134627532416257386d79744a5033445073665173795679536e355c6e6f425841674d303149674d4f46736350316258367679784d523871614b33746e466361665a4653684d79536e31752f564f2f47474f795436507459716f384e315c6e44714d77373563334b5a4952387a4c71516f744657747239543337536e50754a7051555a7055376679574b676377716e7338785a657a78734e6a6465534171765c6e3167574e75436a5356686d437931564d49514942576d616a37414c47544971596a5442376d645348562f2b614a32564467424c6d7770344c7131664c4f6a466f5c6e33737241683144744a6b537376376a624f584d51695666453873764b6877586177717661546b5658382f7a4f44592b2f64684f5374694a4e6c466556636c35585c6e4a514944415141425c6e2d2d2d2d2d454e44205055424c4943204b45592d2d2d2d2d5c6e227d7d" // library marker davegut.tpLinkCapConfiguration, line 15
 	try { // library marker davegut.tpLinkCapConfiguration, line 16
-		sendFindCmd(devIp, "20002", cmdData, "configure2", timeout) // library marker davegut.tpLinkCapConfiguration, line 17
-		logInfo(logData) // library marker davegut.tpLinkCapConfiguration, line 18
-	} catch (err) { // library marker davegut.tpLinkCapConfiguration, line 19
-		def parentChecked = parent.tpLinkCheckForDevices(5) // library marker davegut.tpLinkCapConfiguration, line 20
-		logData << [status: "FAILED", error: err, parentChecked: parentChecked] // library marker davegut.tpLinkCapConfiguration, line 21
-		logWarn(logData) // library marker davegut.tpLinkCapConfiguration, line 22
-		configure3() // library marker davegut.tpLinkCapConfiguration, line 23
-	} // library marker davegut.tpLinkCapConfiguration, line 24
-} // library marker davegut.tpLinkCapConfiguration, line 25
+		if (getDataValue("power")) { // library marker davegut.tpLinkCapConfiguration, line 17
+			sendFindCmd(devIp, "20004", cmdData, "configure2", 5) // library marker davegut.tpLinkCapConfiguration, line 18
+		} else { // library marker davegut.tpLinkCapConfiguration, line 19
+			sendFindCmd(devIp, "20002", cmdData, "configure2", 5) // library marker davegut.tpLinkCapConfiguration, line 20
+		} // library marker davegut.tpLinkCapConfiguration, line 21
+		logInfo(logData) // library marker davegut.tpLinkCapConfiguration, line 22
+	} catch (err) { // library marker davegut.tpLinkCapConfiguration, line 23
+		def parentChecked = parent.tpLinkCheckForDevices(5) // library marker davegut.tpLinkCapConfiguration, line 24
+		logData << [status: "FAILED", error: err, parentChecked: parentChecked] // library marker davegut.tpLinkCapConfiguration, line 25
+		logWarn(logData) // library marker davegut.tpLinkCapConfiguration, line 26
+		configure3() // library marker davegut.tpLinkCapConfiguration, line 27
+	} // library marker davegut.tpLinkCapConfiguration, line 28
+} // library marker davegut.tpLinkCapConfiguration, line 29
 
-def configure2(response) { // library marker davegut.tpLinkCapConfiguration, line 27
-	Map logData = [method: "configure2"] // library marker davegut.tpLinkCapConfiguration, line 28
-	def respData = parseLanMessage(response) // library marker davegut.tpLinkCapConfiguration, line 29
-	String hubDni = device.getDeviceNetworkId() // library marker davegut.tpLinkCapConfiguration, line 30
-	logData << [dni: respData.mac, hubDni: hubDni] // library marker davegut.tpLinkCapConfiguration, line 31
-	def parentChecked = false // library marker davegut.tpLinkCapConfiguration, line 32
-	if (respData.mac != hubDni) { // library marker davegut.tpLinkCapConfiguration, line 33
-		logData << [status: "device/ip not found", action: "parentCheck", // library marker davegut.tpLinkCapConfiguration, line 34
-				    parentChecked: parent.tpLinkCheckForDevices(5)] // library marker davegut.tpLinkCapConfiguration, line 35
-	} else { // library marker davegut.tpLinkCapConfiguration, line 36
-		logData << [status: "device/ip found"] // library marker davegut.tpLinkCapConfiguration, line 37
-	} // library marker davegut.tpLinkCapConfiguration, line 38
-	configure3() // library marker davegut.tpLinkCapConfiguration, line 39
-	logInfo(logData) // library marker davegut.tpLinkCapConfiguration, line 40
-} // library marker davegut.tpLinkCapConfiguration, line 41
-def configure3() { // library marker davegut.tpLinkCapConfiguration, line 42
-	Map logData = [method: "configure3"] // library marker davegut.tpLinkCapConfiguration, line 43
-	logData <<[updateDeviceData: updateDeviceData(true)] // library marker davegut.tpLinkCapConfiguration, line 44
-	logData << [deviceHandshake: deviceHandshake()] // library marker davegut.tpLinkCapConfiguration, line 45
-	runEvery3Hours("deviceHandshake") // library marker davegut.tpLinkCapConfiguration, line 46
-	logData << [handshakeInterval: "3 Hours"] // library marker davegut.tpLinkCapConfiguration, line 47
-	runIn(5, refresh) // library marker davegut.tpLinkCapConfiguration, line 48
-	logInfo(logData) // library marker davegut.tpLinkCapConfiguration, line 49
-} // library marker davegut.tpLinkCapConfiguration, line 50
+def configure2(response) { // library marker davegut.tpLinkCapConfiguration, line 31
+	Map logData = [method: "configure2"] // library marker davegut.tpLinkCapConfiguration, line 32
+	def respData = parseLanMessage(response) // library marker davegut.tpLinkCapConfiguration, line 33
+	String hubDni = device.getDeviceNetworkId() // library marker davegut.tpLinkCapConfiguration, line 34
+	logData << [dni: respData.mac, hubDni: hubDni] // library marker davegut.tpLinkCapConfiguration, line 35
+	def parentChecked = false // library marker davegut.tpLinkCapConfiguration, line 36
+	if (respData.mac != hubDni) { // library marker davegut.tpLinkCapConfiguration, line 37
+		logData << [status: "device/ip not found", action: "parentCheck", // library marker davegut.tpLinkCapConfiguration, line 38
+				    parentChecked: parent.tpLinkCheckForDevices(5)] // library marker davegut.tpLinkCapConfiguration, line 39
+	} else { // library marker davegut.tpLinkCapConfiguration, line 40
+		logData << [status: "device/ip found"] // library marker davegut.tpLinkCapConfiguration, line 41
+	} // library marker davegut.tpLinkCapConfiguration, line 42
+	configure3() // library marker davegut.tpLinkCapConfiguration, line 43
+	logInfo(logData) // library marker davegut.tpLinkCapConfiguration, line 44
+} // library marker davegut.tpLinkCapConfiguration, line 45
+def configure3() { // library marker davegut.tpLinkCapConfiguration, line 46
+	Map logData = [method: "configure3"] // library marker davegut.tpLinkCapConfiguration, line 47
+	logData <<[updateDeviceData: updateDeviceData(true)] // library marker davegut.tpLinkCapConfiguration, line 48
+	logData << [deviceHandshake: deviceHandshake()] // library marker davegut.tpLinkCapConfiguration, line 49
+	if (getDataValue("protocol") != "camera") { // library marker davegut.tpLinkCapConfiguration, line 50
+		runEvery3Hours("deviceHandshake") // library marker davegut.tpLinkCapConfiguration, line 51
+		logData << [handshakeInterval: "3 Hours"] // library marker davegut.tpLinkCapConfiguration, line 52
+	} // library marker davegut.tpLinkCapConfiguration, line 53
+	runIn(5, refresh) // library marker davegut.tpLinkCapConfiguration, line 54
+	logInfo(logData) // library marker davegut.tpLinkCapConfiguration, line 55
+} // library marker davegut.tpLinkCapConfiguration, line 56
 
-def deviceHandshake() { // library marker davegut.tpLinkCapConfiguration, line 52
-	def protocol = getDataValue("protocol") // library marker davegut.tpLinkCapConfiguration, line 53
-	Map logData = [method: "deviceHandshake", protocol: protocol] // library marker davegut.tpLinkCapConfiguration, line 54
-	if (protocol == "KLAP") { // library marker davegut.tpLinkCapConfiguration, line 55
-		klapHandshake(getDataValue("baseUrl"), parent.localHash) // library marker davegut.tpLinkCapConfiguration, line 56
-	} else if (protocol == "camera") { // library marker davegut.tpLinkCapConfiguration, line 57
-		Map hsInput = [url: getDataValue("baseUrl"), user: parent.userName, // library marker davegut.tpLinkCapConfiguration, line 58
-					   pwd: parent.encPasswordCam] // library marker davegut.tpLinkCapConfiguration, line 59
-		cameraHandshake(hsInput) // library marker davegut.tpLinkCapConfiguration, line 60
-	} else if (protocol == "AES") { // library marker davegut.tpLinkCapConfiguration, line 61
-		aesHandshake() // library marker davegut.tpLinkCapConfiguration, line 62
-	} else if (protocol == "vacAes") { // library marker davegut.tpLinkCapConfiguration, line 63
-		vacAesHandshake(getDataValue("baseUrl"), parent.userName, parent.encPasswordVac) // library marker davegut.tpLinkCapConfiguration, line 64
-	} else { // library marker davegut.tpLinkCapConfiguration, line 65
-		logData << [ERROR: "Protocol not supported"] // library marker davegut.tpLinkCapConfiguration, line 66
-		logWarn(logData) // library marker davegut.tpLinkCapConfiguration, line 67
-	} // library marker davegut.tpLinkCapConfiguration, line 68
-	return logData // library marker davegut.tpLinkCapConfiguration, line 69
-} // library marker davegut.tpLinkCapConfiguration, line 70
+def deviceHandshake() { // library marker davegut.tpLinkCapConfiguration, line 58
+	def protocol = getDataValue("protocol") // library marker davegut.tpLinkCapConfiguration, line 59
+	Map logData = [method: "deviceHandshake", protocol: protocol] // library marker davegut.tpLinkCapConfiguration, line 60
+	if (protocol == "KLAP") { // library marker davegut.tpLinkCapConfiguration, line 61
+		klapHandshake(getDataValue("baseUrl"), parent.localHash) // library marker davegut.tpLinkCapConfiguration, line 62
+	} else if (protocol == "camera") { // library marker davegut.tpLinkCapConfiguration, line 63
+		Map hsInput = [url: getDataValue("baseUrl"), user: parent.userName, // library marker davegut.tpLinkCapConfiguration, line 64
+					   pwd: parent.encPasswordCam] // library marker davegut.tpLinkCapConfiguration, line 65
+		cameraHandshake(hsInput) // library marker davegut.tpLinkCapConfiguration, line 66
+	} else if (protocol == "AES") { // library marker davegut.tpLinkCapConfiguration, line 67
+		aesHandshake() // library marker davegut.tpLinkCapConfiguration, line 68
+	} else if (protocol == "vacAes") { // library marker davegut.tpLinkCapConfiguration, line 69
+		vacAesHandshake(getDataValue("baseUrl"), parent.userName, parent.encPasswordVac) // library marker davegut.tpLinkCapConfiguration, line 70
+	} else { // library marker davegut.tpLinkCapConfiguration, line 71
+		logData << [ERROR: "Protocol not supported"] // library marker davegut.tpLinkCapConfiguration, line 72
+		logWarn(logData) // library marker davegut.tpLinkCapConfiguration, line 73
+	} // library marker davegut.tpLinkCapConfiguration, line 74
+	return logData // library marker davegut.tpLinkCapConfiguration, line 75
+} // library marker davegut.tpLinkCapConfiguration, line 76
 
 // ~~~~~ end include (392) davegut.tpLinkCapConfiguration ~~~~~
 
@@ -636,7 +642,7 @@ import groovy.json.JsonOutput // library marker davegut.tpLinkComms, line 10
 import groovy.json.JsonBuilder // library marker davegut.tpLinkComms, line 11
 import groovy.json.JsonSlurper // library marker davegut.tpLinkComms, line 12
 
-//	===== Async Commsunications Methods ===== // library marker davegut.tpLinkComms, line 14
+//	===== Communications Methods ===== // library marker davegut.tpLinkComms, line 14
 def asyncSend(cmdBody, reqData, action) { // library marker davegut.tpLinkComms, line 15
 	Map cmdData = [cmdBody: cmdBody, reqData: reqData, action: action] // library marker davegut.tpLinkComms, line 16
 	def protocol = getDataValue("protocol") // library marker davegut.tpLinkComms, line 17
@@ -650,180 +656,173 @@ def asyncSend(cmdBody, reqData, action) { // library marker davegut.tpLinkComms,
 	} else if (protocol == "vacAes") { // library marker davegut.tpLinkComms, line 25
 		reqParams = getVacAesParams(cmdBody, "${getDataValue("baseUrl")}/?token=${token}") // library marker davegut.tpLinkComms, line 26
 	} // library marker davegut.tpLinkComms, line 27
-	if (state.errorCount == 0) { // library marker davegut.tpLinkComms, line 28
-		state.lastCommand = cmdData // library marker davegut.tpLinkComms, line 29
-	} // library marker davegut.tpLinkComms, line 30
-	logDebug([method: "asyncSend", reqData: reqData]) // library marker davegut.tpLinkComms, line 31
-	asynchttpPost(action, reqParams, [data: reqData]) // library marker davegut.tpLinkComms, line 32
-} // library marker davegut.tpLinkComms, line 33
+	if (reqParams != [:]) { // library marker davegut.tpLinkComms, line 28
+		if (state.errorCount == 0) { state.lastCommand = cmdData } // library marker davegut.tpLinkComms, line 29
+		asynchttpPost(action, reqParams, [data: reqData]) // library marker davegut.tpLinkComms, line 30
+		logDebug([method: "asyncSend", reqData: reqData]) // library marker davegut.tpLinkComms, line 31
+	} else { // library marker davegut.tpLinkComms, line 32
+		unknownProt(reqData) // library marker davegut.tpLinkComms, line 33
+	} // library marker davegut.tpLinkComms, line 34
+} // library marker davegut.tpLinkComms, line 35
 
-def parseData(resp, protocol = getDataValue("protocol"), data = null) { // library marker davegut.tpLinkComms, line 35
-	Map logData = [method: "parseData", status: resp.status, protocol: protocol, // library marker davegut.tpLinkComms, line 36
-				   sourceMethod: data] // library marker davegut.tpLinkComms, line 37
-	def message = "OK" // library marker davegut.tpLinkComms, line 38
-	if (resp.status != 200) { message = resp.errorMessage } // library marker davegut.tpLinkComms, line 39
-	if (resp.status == 200) { // library marker davegut.tpLinkComms, line 40
-		if (protocol == "KLAP") { // library marker davegut.tpLinkComms, line 41
-			logData << parseKlapData(resp, data) // library marker davegut.tpLinkComms, line 42
-		} else if (protocol == "AES") { // library marker davegut.tpLinkComms, line 43
-			logData << parseAesData(resp, data) // library marker davegut.tpLinkComms, line 44
-		} else if (protocol == "vacAes") { // library marker davegut.tpLinkComms, line 45
-			logData << parseVacAesData(resp, data) // library marker davegut.tpLinkComms, line 46
-		} else if (protocol == "camera") { // library marker davegut.tpLinkComms, line 47
-			logData << parseCameraData(resp, data) // library marker davegut.tpLinkComms, line 48
-		} // library marker davegut.tpLinkComms, line 49
-	} else { // library marker davegut.tpLinkComms, line 50
-		String userMessage = "unspecified" // library marker davegut.tpLinkComms, line 51
-		if (resp.status == 403) { // library marker davegut.tpLinkComms, line 52
-			userMessage = "<b>Try again. If error persists, check your credentials</b>" // library marker davegut.tpLinkComms, line 53
-		} else if (resp.status == 408) { // library marker davegut.tpLinkComms, line 54
-			userMessage = "<b>Your router connection to ${getDataValue("baseUrl")} failed.  Run Configure.</b>" // library marker davegut.tpLinkComms, line 55
-		} else { // library marker davegut.tpLinkComms, line 56
-			userMessage = "<b>Unhandled error Lan return</b>" // library marker davegut.tpLinkComms, line 57
-		} // library marker davegut.tpLinkComms, line 58
-		logData << [respMessage: message, userMessage: userMessage] // library marker davegut.tpLinkComms, line 59
-		logDebug(logData) // library marker davegut.tpLinkComms, line 60
-	} // library marker davegut.tpLinkComms, line 61
-	handleCommsError(resp.status, message) // library marker davegut.tpLinkComms, line 62
-	return logData // library marker davegut.tpLinkComms, line 63
-} // library marker davegut.tpLinkComms, line 64
+def unknownProt(reqData) { // library marker davegut.tpLinkComms, line 37
+	Map warnData = ["<b>UnknownProtocol</b>": [data: reqData, // library marker davegut.tpLinkComms, line 38
+				    msg: "Device will not install or if installed will not work"]] // library marker davegut.tpLinkComms, line 39
+	logWarn(warnData) // library marker davegut.tpLinkComms, line 40
+} // library marker davegut.tpLinkComms, line 41
 
-//	===== Communications Error Handling ===== // library marker davegut.tpLinkComms, line 66
-//	Try a getToken??????????? // library marker davegut.tpLinkComms, line 67
-def handleCommsError(status, msg = "") { // library marker davegut.tpLinkComms, line 68
-	//	Retransmit all comms error except Switch and Level related (Hub retries for these). // library marker davegut.tpLinkComms, line 69
-	//	This is determined by state.digital // library marker davegut.tpLinkComms, line 70
-	if (status == 200) { // library marker davegut.tpLinkComms, line 71
-		setCommsError(status, "OK") // library marker davegut.tpLinkComms, line 72
-	} else { // library marker davegut.tpLinkComms, line 73
-		Map logData = [method: "handleCommsError", status: code, msg: msg] // library marker davegut.tpLinkComms, line 74
-		def count = state.errorCount + 1 // library marker davegut.tpLinkComms, line 75
-		logData << [count: count, status: status, msg: msg] // library marker davegut.tpLinkComms, line 76
-		switch(count) { // library marker davegut.tpLinkComms, line 77
-			case 1: // library marker davegut.tpLinkComms, line 78
-			case 2: // library marker davegut.tpLinkComms, line 79
-				//	errors 1 and 2, retry immediately // library marker davegut.tpLinkComms, line 80
-				runIn(1, delayedPassThrough) // library marker davegut.tpLinkComms, line 81
-				break // library marker davegut.tpLinkComms, line 82
-			case 3: // library marker davegut.tpLinkComms, line 83
-				//	error 3, login or scan find device on the lan // library marker davegut.tpLinkComms, line 84
-				//	then retry // library marker davegut.tpLinkComms, line 85
-				if (status == 403) { // library marker davegut.tpLinkComms, line 86
-					logData << [action: "attemptLogin"] // library marker davegut.tpLinkComms, line 87
-//	await device handshake result???? // library marker davegut.tpLinkComms, line 88
-					deviceHandshake() // library marker davegut.tpLinkComms, line 89
-					runIn(4, delayedPassThrough) // library marker davegut.tpLinkComms, line 90
-				} else { // library marker davegut.tpLinkComms, line 91
-					logData << [action: "Find on LAN then login"] // library marker davegut.tpLinkComms, line 92
-					configure() // library marker davegut.tpLinkComms, line 93
-//	await configure result????? // library marker davegut.tpLinkComms, line 94
-					runIn(10, delayedPassThrough) // library marker davegut.tpLinkComms, line 95
-				} // library marker davegut.tpLinkComms, line 96
-				break // library marker davegut.tpLinkComms, line 97
-			case 4: // library marker davegut.tpLinkComms, line 98
-				runIn(1, delayedPassThrough) // library marker davegut.tpLinkComms, line 99
-				break // library marker davegut.tpLinkComms, line 100
-			default: // library marker davegut.tpLinkComms, line 101
-				//	Set comms error first time errros are 5 or more. // library marker davegut.tpLinkComms, line 102
-				logData << [action: "SetCommsErrorTrue"] // library marker davegut.tpLinkComms, line 103
-				setCommsError(status, msg, 5) // library marker davegut.tpLinkComms, line 104
-		} // library marker davegut.tpLinkComms, line 105
-		state.errorCount = count // library marker davegut.tpLinkComms, line 106
-		logInfo(logData) // library marker davegut.tpLinkComms, line 107
-	} // library marker davegut.tpLinkComms, line 108
-} // library marker davegut.tpLinkComms, line 109
+def parseData(resp, protocol = getDataValue("protocol"), data = null) { // library marker davegut.tpLinkComms, line 43
+	Map logData = [method: "parseData", status: resp.status, protocol: protocol, // library marker davegut.tpLinkComms, line 44
+				   sourceMethod: data.data] // library marker davegut.tpLinkComms, line 45
+	def message = "OK" // library marker davegut.tpLinkComms, line 46
+	if (resp.status == 200) { // library marker davegut.tpLinkComms, line 47
+		if (protocol == "KLAP") { // library marker davegut.tpLinkComms, line 48
+			logData << parseKlapData(resp, data) // library marker davegut.tpLinkComms, line 49
+		} else if (protocol == "AES") { // library marker davegut.tpLinkComms, line 50
+			logData << parseAesData(resp, data) // library marker davegut.tpLinkComms, line 51
+		} else if (protocol == "vacAes") { // library marker davegut.tpLinkComms, line 52
+			logData << parseVacAesData(resp, data) // library marker davegut.tpLinkComms, line 53
+		} else if (protocol == "camera") { // library marker davegut.tpLinkComms, line 54
+			logData << parseCameraData(resp, data) // library marker davegut.tpLinkComms, line 55
+		} // library marker davegut.tpLinkComms, line 56
+	} else { // library marker davegut.tpLinkComms, line 57
+		message = resp.errorMessage // library marker davegut.tpLinkComms, line 58
+		String userMessage = "unspecified" // library marker davegut.tpLinkComms, line 59
+		if (resp.status == 403) { // library marker davegut.tpLinkComms, line 60
+			userMessage = "<b>Try again. If error persists, check your credentials</b>" // library marker davegut.tpLinkComms, line 61
+		} else if (resp.status == 408) { // library marker davegut.tpLinkComms, line 62
+			userMessage = "<b>Your router connection to ${getDataValue("baseUrl")} failed.  Run Configure.</b>" // library marker davegut.tpLinkComms, line 63
+		} else { // library marker davegut.tpLinkComms, line 64
+			userMessage = "<b>Unhandled error Lan return</b>" // library marker davegut.tpLinkComms, line 65
+		} // library marker davegut.tpLinkComms, line 66
+		logData << [respMessage: message, userMessage: userMessage] // library marker davegut.tpLinkComms, line 67
+		logDebug(logData) // library marker davegut.tpLinkComms, line 68
+	} // library marker davegut.tpLinkComms, line 69
+	handleCommsError(resp.status, message) // library marker davegut.tpLinkComms, line 70
+	return logData // library marker davegut.tpLinkComms, line 71
+} // library marker davegut.tpLinkComms, line 72
 
-def delayedPassThrough() { // library marker davegut.tpLinkComms, line 111
-	def cmdData = new JSONObject(state.lastCommand) // library marker davegut.tpLinkComms, line 112
-	def cmdBody = parseJson(cmdData.cmdBody.toString()) // library marker davegut.tpLinkComms, line 113
-	asyncSend(cmdBody, cmdData.reqData, cmdData.action) // library marker davegut.tpLinkComms, line 114
-} // library marker davegut.tpLinkComms, line 115
+private sendFindCmd(ip, port, cmdData, action, commsTo = 5, ignore = false) { // library marker davegut.tpLinkComms, line 74
+	def myHubAction = new hubitat.device.HubAction( // library marker davegut.tpLinkComms, line 75
+		cmdData, // library marker davegut.tpLinkComms, line 76
+		hubitat.device.Protocol.LAN, // library marker davegut.tpLinkComms, line 77
+		[type: hubitat.device.HubAction.Type.LAN_TYPE_UDPCLIENT, // library marker davegut.tpLinkComms, line 78
+		 destinationAddress: "${ip}:${port}", // library marker davegut.tpLinkComms, line 79
+		 encoding: hubitat.device.HubAction.Encoding.HEX_STRING, // library marker davegut.tpLinkComms, line 80
+		 ignoreResponse: ignore, // library marker davegut.tpLinkComms, line 81
+		 parseWarning: true, // library marker davegut.tpLinkComms, line 82
+		 timeout: commsTo, // library marker davegut.tpLinkComms, line 83
+		 callback: action]) // library marker davegut.tpLinkComms, line 84
+	try { // library marker davegut.tpLinkComms, line 85
+		sendHubCommand(myHubAction) // library marker davegut.tpLinkComms, line 86
+	} catch (error) { // library marker davegut.tpLinkComms, line 87
+		logWarn("sendLanCmd: command to ${ip}:${port} failed. Error = ${error}") // library marker davegut.tpLinkComms, line 88
+	} // library marker davegut.tpLinkComms, line 89
+	return // library marker davegut.tpLinkComms, line 90
+} // library marker davegut.tpLinkComms, line 91
 
-////////////////////DELETE??????? // library marker davegut.tpLinkComms, line 117
-def ping(baseUrl = getDataValue("baseUrl"), count = 1) { // library marker davegut.tpLinkComms, line 118
-	def ip = baseUrl.replace("""http://""", "").replace(":80/app", "").replace(":4433", "") // library marker davegut.tpLinkComms, line 119
-	ip = ip.replace("""https://""", "").replace(":4433", "") // library marker davegut.tpLinkComms, line 120
-	hubitat.helper.NetworkUtils.PingData pingData = hubitat.helper.NetworkUtils.ping(ip, count) // library marker davegut.tpLinkComms, line 121
-	Map pingReturn = [method: "ping", ip: ip] // library marker davegut.tpLinkComms, line 122
-	if (pingData.packetsReceived == count) { // library marker davegut.tpLinkComms, line 123
-		pingReturn << [pingStatus: "success"] // library marker davegut.tpLinkComms, line 124
-		logDebug(pingReturn) // library marker davegut.tpLinkComms, line 125
-	} else { // library marker davegut.tpLinkComms, line 126
-		pingReturn << [pingData: pingData, pingStatus: "<b>FAILED</b>.  There may be issues with your LAN."] // library marker davegut.tpLinkComms, line 127
-		logWarn(pingReturn) // library marker davegut.tpLinkComms, line 128
-	} // library marker davegut.tpLinkComms, line 129
-	return pingReturn // library marker davegut.tpLinkComms, line 130
-} // library marker davegut.tpLinkComms, line 131
+//	Unknown Protocol method // library marker davegut.tpLinkComms, line 93
+//	===== Communications Error Handling ===== // library marker davegut.tpLinkComms, line 94
+def handleCommsError(status, msg = "") { // library marker davegut.tpLinkComms, line 95
+	//	Retransmit all comms error except Switch and Level related (Hub retries for these). // library marker davegut.tpLinkComms, line 96
+	//	This is determined by state.digital // library marker davegut.tpLinkComms, line 97
+	if (status == 200) { // library marker davegut.tpLinkComms, line 98
+		setCommsError(status, "OK") // library marker davegut.tpLinkComms, line 99
+	} else { // library marker davegut.tpLinkComms, line 100
+		Map logData = [method: "handleCommsError", status: code, msg: msg] // library marker davegut.tpLinkComms, line 101
+		def count = state.errorCount + 1 // library marker davegut.tpLinkComms, line 102
+		logData << [count: count, status: status, msg: msg] // library marker davegut.tpLinkComms, line 103
+		switch(count) { // library marker davegut.tpLinkComms, line 104
+			case 1: // library marker davegut.tpLinkComms, line 105
+			case 2: // library marker davegut.tpLinkComms, line 106
+				//	errors 1 and 2, retry immediately // library marker davegut.tpLinkComms, line 107
+				runIn(1, delayedPassThrough) // library marker davegut.tpLinkComms, line 108
+				break // library marker davegut.tpLinkComms, line 109
+			case 3: // library marker davegut.tpLinkComms, line 110
+				//	error 3, login or scan find device on the lan // library marker davegut.tpLinkComms, line 111
+				//	then retry // library marker davegut.tpLinkComms, line 112
+				if (status == 403) { // library marker davegut.tpLinkComms, line 113
+					logData << [action: "attemptLogin"] // library marker davegut.tpLinkComms, line 114
+//	await device handshake result???? // library marker davegut.tpLinkComms, line 115
+					deviceHandshake() // library marker davegut.tpLinkComms, line 116
+					runIn(4, delayedPassThrough) // library marker davegut.tpLinkComms, line 117
+				} else { // library marker davegut.tpLinkComms, line 118
+					logData << [action: "Find on LAN then login"] // library marker davegut.tpLinkComms, line 119
+					configure() // library marker davegut.tpLinkComms, line 120
+//	await configure result????? // library marker davegut.tpLinkComms, line 121
+					runIn(10, delayedPassThrough) // library marker davegut.tpLinkComms, line 122
+				} // library marker davegut.tpLinkComms, line 123
+				break // library marker davegut.tpLinkComms, line 124
+			case 4: // library marker davegut.tpLinkComms, line 125
+				runIn(1, delayedPassThrough) // library marker davegut.tpLinkComms, line 126
+				break // library marker davegut.tpLinkComms, line 127
+			default: // library marker davegut.tpLinkComms, line 128
+				//	Set comms error first time errros are 5 or more. // library marker davegut.tpLinkComms, line 129
+				logData << [action: "SetCommsErrorTrue"] // library marker davegut.tpLinkComms, line 130
+				setCommsError(status, msg, 5) // library marker davegut.tpLinkComms, line 131
+		} // library marker davegut.tpLinkComms, line 132
+		state.errorCount = count // library marker davegut.tpLinkComms, line 133
+		logInfo(logData) // library marker davegut.tpLinkComms, line 134
+	} // library marker davegut.tpLinkComms, line 135
+} // library marker davegut.tpLinkComms, line 136
 
-def setCommsError(status, msg = "OK", count = state.commsError) { // library marker davegut.tpLinkComms, line 133
-	Map logData = [method: "setCommsError", status: status, errorMsg: msg, count: count] // library marker davegut.tpLinkComms, line 134
-	if (device && status == 200) { // library marker davegut.tpLinkComms, line 135
-		state.errorCount = 0 // library marker davegut.tpLinkComms, line 136
-		if (device.currentValue("commsError") == "true") { // library marker davegut.tpLinkComms, line 137
-			sendEvent(name: "commsError", value: "false") // library marker davegut.tpLinkComms, line 138
-			setPollInterval() // library marker davegut.tpLinkComms, line 139
-			unschedule("errorDeviceHandshake") // library marker davegut.tpLinkComms, line 140
-			logInfo(logData) // library marker davegut.tpLinkComms, line 141
-		} // library marker davegut.tpLinkComms, line 142
-	} else if (device) { // library marker davegut.tpLinkComms, line 143
-		if (device.currentValue("commsError") == "false" && count > 4) { // library marker davegut.tpLinkComms, line 144
-			updateAttr("commsError", "true") // library marker davegut.tpLinkComms, line 145
-			setPollInterval("30 min") // library marker davegut.tpLinkComms, line 146
-			runEvery10Minutes(errorConfigure) // library marker davegut.tpLinkComms, line 147
-			logData << [pollInterval: "30 Min", errorDeviceHandshake: "ever 10 min"] // library marker davegut.tpLinkComms, line 148
-			logWarn(logData) // library marker davegut.tpLinkComms, line 149
-			if (status == 403) { // library marker davegut.tpLinkComms, line 150
-				logWarn(logInErrorAction()) // library marker davegut.tpLinkComms, line 151
-			} else { // library marker davegut.tpLinkComms, line 152
-				logWarn(lanErrorAction()) // library marker davegut.tpLinkComms, line 153
-			} // library marker davegut.tpLinkComms, line 154
-		} else { // library marker davegut.tpLinkComms, line 155
-			logData << [error: "Unspecified Error"] // library marker davegut.tpLinkComms, line 156
-			logWarn(logData) // library marker davegut.tpLinkComms, line 157
-		} // library marker davegut.tpLinkComms, line 158
-	} // library marker davegut.tpLinkComms, line 159
-} // library marker davegut.tpLinkComms, line 160
+def delayedPassThrough() { // library marker davegut.tpLinkComms, line 138
+	def cmdData = new JSONObject(state.lastCommand) // library marker davegut.tpLinkComms, line 139
+	def cmdBody = parseJson(cmdData.cmdBody.toString()) // library marker davegut.tpLinkComms, line 140
+	asyncSend(cmdBody, cmdData.reqData, cmdData.action) // library marker davegut.tpLinkComms, line 141
+} // library marker davegut.tpLinkComms, line 142
 
-def lanErrorAction() { // library marker davegut.tpLinkComms, line 162
-	def action = "Likely cause of this error is YOUR LAN device configuration: " // library marker davegut.tpLinkComms, line 163
-	action += "a. VERIFY your device is on the DHCP list in your router, " // library marker davegut.tpLinkComms, line 164
-	action += "b. VERIFY your device is in the active device list in your router, and " // library marker davegut.tpLinkComms, line 165
-	action += "c. TRY controlling your device from the TAPO phone app." // library marker davegut.tpLinkComms, line 166
-	return action // library marker davegut.tpLinkComms, line 167
-} // library marker davegut.tpLinkComms, line 168
+def setCommsError(status, msg = "OK", count = state.commsError) { // library marker davegut.tpLinkComms, line 144
+	Map logData = [method: "setCommsError", status: status, errorMsg: msg, count: count] // library marker davegut.tpLinkComms, line 145
+	if (device && status == 200) { // library marker davegut.tpLinkComms, line 146
+		state.errorCount = 0 // library marker davegut.tpLinkComms, line 147
+		if (device.currentValue("commsError") == "true") { // library marker davegut.tpLinkComms, line 148
+			sendEvent(name: "commsError", value: "false") // library marker davegut.tpLinkComms, line 149
+			setPollInterval() // library marker davegut.tpLinkComms, line 150
+			unschedule("errorConfigure") // library marker davegut.tpLinkComms, line 151
+			logInfo(logData) // library marker davegut.tpLinkComms, line 152
+		} // library marker davegut.tpLinkComms, line 153
+	} else if (device) { // library marker davegut.tpLinkComms, line 154
+		if (device.currentValue("commsError") == "false" && count > 4) { // library marker davegut.tpLinkComms, line 155
+			updateAttr("commsError", "true") // library marker davegut.tpLinkComms, line 156
+			setPollInterval("30 min") // library marker davegut.tpLinkComms, line 157
+			runEvery10Minutes(errorConfigure) // library marker davegut.tpLinkComms, line 158
+			logData << [pollInterval: "30 Min", errorConfigure: "ever 10 min"] // library marker davegut.tpLinkComms, line 159
+			logWarn(logData) // library marker davegut.tpLinkComms, line 160
+			if (status == 403) { // library marker davegut.tpLinkComms, line 161
+				logWarn(logInErrorAction()) // library marker davegut.tpLinkComms, line 162
+			} else { // library marker davegut.tpLinkComms, line 163
+				logWarn(lanErrorAction()) // library marker davegut.tpLinkComms, line 164
+			} // library marker davegut.tpLinkComms, line 165
+		} else { // library marker davegut.tpLinkComms, line 166
+			logData << [error: "Unspecified Error"] // library marker davegut.tpLinkComms, line 167
+			logWarn(logData) // library marker davegut.tpLinkComms, line 168
+		} // library marker davegut.tpLinkComms, line 169
+	} // library marker davegut.tpLinkComms, line 170
+} // library marker davegut.tpLinkComms, line 171
 
-def logInErrorAction() { // library marker davegut.tpLinkComms, line 170
-	def action = "Likely cause is your login credentials are incorrect or the login has expired. " // library marker davegut.tpLinkComms, line 171
-	action += "a. RUN command Configure. b. If error persists, check your credentials in the App" // library marker davegut.tpLinkComms, line 172
-	return action // library marker davegut.tpLinkComms, line 173
-} // library marker davegut.tpLinkComms, line 174
-
-/////////used///// // library marker davegut.tpLinkComms, line 176
-def errorConfigure() { // library marker davegut.tpLinkComms, line 177
-	logDebug([method: "errorConfigure"]) // library marker davegut.tpLinkComms, line 178
-	configure() // library marker davegut.tpLinkComms, line 179
+def errorConfigure() { // library marker davegut.tpLinkComms, line 173
+	logDebug([method: "errorConfigure"]) // library marker davegut.tpLinkComms, line 174
+	if (device.currentValue("commsError") == "true") { // library marker davegut.tpLinkComms, line 175
+		configure() // library marker davegut.tpLinkComms, line 176
+	} else { // library marker davegut.tpLinkComms, line 177
+		unschedule("errorConfigure") // library marker davegut.tpLinkComms, line 178
+	} // library marker davegut.tpLinkComms, line 179
 } // library marker davegut.tpLinkComms, line 180
 
-//////////////////////////	CHECK IF ACTUALLY USED/WORKS. // library marker davegut.tpLinkComms, line 182
-//	===== Common UDP Communications for checking if device at IP is device in Hubitat ===== // library marker davegut.tpLinkComms, line 183
-private sendFindCmd(ip, port, cmdData, action, commsTo = 5, ignore = false) { // library marker davegut.tpLinkComms, line 184
-	def myHubAction = new hubitat.device.HubAction( // library marker davegut.tpLinkComms, line 185
-		cmdData, // library marker davegut.tpLinkComms, line 186
-		hubitat.device.Protocol.LAN, // library marker davegut.tpLinkComms, line 187
-		[type: hubitat.device.HubAction.Type.LAN_TYPE_UDPCLIENT, // library marker davegut.tpLinkComms, line 188
-		 destinationAddress: "${ip}:${port}", // library marker davegut.tpLinkComms, line 189
-		 encoding: hubitat.device.HubAction.Encoding.HEX_STRING, // library marker davegut.tpLinkComms, line 190
-		 ignoreResponse: ignore, // library marker davegut.tpLinkComms, line 191
-		 parseWarning: true, // library marker davegut.tpLinkComms, line 192
-		 timeout: commsTo, // library marker davegut.tpLinkComms, line 193
-		 callback: action]) // library marker davegut.tpLinkComms, line 194
-	try { // library marker davegut.tpLinkComms, line 195
-		sendHubCommand(myHubAction) // library marker davegut.tpLinkComms, line 196
-	} catch (error) { // library marker davegut.tpLinkComms, line 197
-		logWarn("sendLanCmd: command to ${ip}:${port} failed. Error = ${error}") // library marker davegut.tpLinkComms, line 198
-	} // library marker davegut.tpLinkComms, line 199
-	return // library marker davegut.tpLinkComms, line 200
-} // library marker davegut.tpLinkComms, line 201
+def lanErrorAction() { // library marker davegut.tpLinkComms, line 182
+	def action = "Likely cause of this error is YOUR LAN device configuration: " // library marker davegut.tpLinkComms, line 183
+	action += "a. VERIFY your device is on the DHCP list in your router, " // library marker davegut.tpLinkComms, line 184
+	action += "b. VERIFY your device is in the active device list in your router, and " // library marker davegut.tpLinkComms, line 185
+	action += "c. TRY controlling your device from the TAPO phone app." // library marker davegut.tpLinkComms, line 186
+	return action // library marker davegut.tpLinkComms, line 187
+} // library marker davegut.tpLinkComms, line 188
+
+def logInErrorAction() { // library marker davegut.tpLinkComms, line 190
+	def action = "Likely cause is your login credentials are incorrect or the login has expired. " // library marker davegut.tpLinkComms, line 191
+	action += "a. RUN command Configure. b. If error persists, check your credentials in the App" // library marker davegut.tpLinkComms, line 192
+	return action // library marker davegut.tpLinkComms, line 193
+} // library marker davegut.tpLinkComms, line 194
 
 // ~~~~~ end include (385) davegut.tpLinkComms ~~~~~
 
@@ -1160,7 +1159,7 @@ def parseKlapHandshake(resp, data) { // library marker davegut.tpLinkTransKlap, 
 								 requestContentType: "application/octet-stream"] // library marker davegut.tpLinkTransKlap, line 73
 				asynchttpPost("parseKlapHandshake2", reqParams, [data: reqData]) // library marker davegut.tpLinkTransKlap, line 74
 			} else { // library marker davegut.tpLinkTransKlap, line 75
-				logData << [respStatus: "ERROR: localAuthHash != serverHash", // library marker davegut.tpLinkTransKlap, line 76
+				logData << [respStatus: "ERROR: localAuthHash != serverHash", data: data, // library marker davegut.tpLinkTransKlap, line 76
 							action: "<b>Check credentials and try again</b>"] // library marker davegut.tpLinkTransKlap, line 77
 				logWarn(logData) // library marker davegut.tpLinkTransKlap, line 78
 			} // library marker davegut.tpLinkTransKlap, line 79
@@ -1267,7 +1266,7 @@ def listAttributes() { // library marker davegut.Logging, line 28
 } // library marker davegut.Logging, line 35
 
 def setLogsOff() { // library marker davegut.Logging, line 37
-	def logData = [logEnable: logEnable] // library marker davegut.Logging, line 38
+	def logData = [infoLog: infoLog, logEnable: logEnable] // library marker davegut.Logging, line 38
 	if (logEnable) { // library marker davegut.Logging, line 39
 		runIn(1800, debugLogOff) // library marker davegut.Logging, line 40
 		logData << [debugLogOff: "scheduled"] // library marker davegut.Logging, line 41

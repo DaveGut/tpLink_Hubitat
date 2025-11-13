@@ -55,7 +55,7 @@ def parse_get_device_info(result, data = null) {
 
 
 
-// ~~~~~ start include (258) davegut.tpLinkChildCommon ~~~~~
+// ~~~~~ start include (383) davegut.tpLinkChildCommon ~~~~~
 library ( // library marker davegut.tpLinkChildCommon, line 1
 	name: "tpLinkChildCommon", // library marker davegut.tpLinkChildCommon, line 2
 	namespace: "davegut", // library marker davegut.tpLinkChildCommon, line 3
@@ -152,9 +152,9 @@ def sendSingleCmd(request, data, action) { // library marker davegut.tpLinkChild
 	parent.asyncSend(cmdBody, device.getDeviceNetworkId(), action) // library marker davegut.tpLinkChildCommon, line 94
 } // library marker davegut.tpLinkChildCommon, line 95
 
-// ~~~~~ end include (258) davegut.tpLinkChildCommon ~~~~~
+// ~~~~~ end include (383) davegut.tpLinkChildCommon ~~~~~
 
-// ~~~~~ start include (253) davegut.Logging ~~~~~
+// ~~~~~ start include (376) davegut.Logging ~~~~~
 library ( // library marker davegut.Logging, line 1
 	name: "Logging", // library marker davegut.Logging, line 2
 	namespace: "davegut", // library marker davegut.Logging, line 3
@@ -192,7 +192,7 @@ def listAttributes() { // library marker davegut.Logging, line 28
 } // library marker davegut.Logging, line 35
 
 def setLogsOff() { // library marker davegut.Logging, line 37
-	def logData = [logEnable: logEnable] // library marker davegut.Logging, line 38
+	def logData = [infoLog: infoLog, logEnable: logEnable] // library marker davegut.Logging, line 38
 	if (logEnable) { // library marker davegut.Logging, line 39
 		runIn(1800, debugLogOff) // library marker davegut.Logging, line 40
 		logData << [debugLogOff: "scheduled"] // library marker davegut.Logging, line 41
@@ -223,4 +223,4 @@ def logWarn(msg) { log.warn "${label()}: ${msg}" } // library marker davegut.Log
 
 def logError(msg) { log.error "${label()}: ${msg}" } // library marker davegut.Logging, line 67
 
-// ~~~~~ end include (253) davegut.Logging ~~~~~
+// ~~~~~ end include (376) davegut.Logging ~~~~~
