@@ -6,7 +6,7 @@
   "documentationLink": "https://github.com/DaveGut/tpLink_Hubitat",
   "communityLink": "https://community.hubitat.com/t/tp-link-tapo-devices/121084",
   "dateReleased": "2025-11-13",
-  "releaseNotes": "Note: After update, run the Application and Scan for Devices to update the device data.\n\nApp: Added check if driver is installed for device then notify user.\nDevices: Added Preference Sync Name.\nNew Device: Tapo Camera.\nRobovac: Added new Klap over HTTPS transport capability and added Map functions.",
+  "releaseNotes": "Note: After update, run the Application and Scan for Devices to update the device data.\n\n",
   "licenseFile": "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/LICENSE",
   "apps": [
     {
@@ -169,3 +169,4 @@
     }
   ]
 }
+
