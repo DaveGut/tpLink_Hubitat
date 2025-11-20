@@ -23,7 +23,7 @@ b.	If not wired, the use of polling will have sever impact on battery time betwe
 metadata {
 	definition (name: "TpLink Camera", namespace: nameSpace(), author: "Dave Gutheinz", 
 				singleThreaded: true,
-				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_camera.groovy")
+				importUrl: "https://raw.githubusercontent.com/DaveGut/tpLink_Hubitat/main/Drivers/tpLink_Camera.groovy")
 	{
 	}
 	preferences {
@@ -448,19 +448,19 @@ def configure() { // library marker davegut.tpLinkCapConfiguration, line 12
 	String devIp = getDataValue("devIp") // library marker davegut.tpLinkCapConfiguration, line 13
 	Map logData = [method: "configure", devIp: devIp] // library marker davegut.tpLinkCapConfiguration, line 14
 	def cmdData = "0200000101e51100095c11706d6f58577b22706172616d73223a7b227273615f6b6579223a222d2d2d2d2d424547494e205055424c4943204b45592d2d2d2d2d5c6e4d494942496a414e42676b71686b6947397730424151454641414f43415138414d49494243674b43415145416d684655445279687367797073467936576c4d385c6e54646154397a61586133586a3042712f4d6f484971696d586e2b736b4e48584d525a6550564134627532416257386d79744a5033445073665173795679536e355c6e6f425841674d303149674d4f46736350316258367679784d523871614b33746e466361665a4653684d79536e31752f564f2f47474f795436507459716f384e315c6e44714d77373563334b5a4952387a4c71516f744657747239543337536e50754a7051555a7055376679574b676377716e7338785a657a78734e6a6465534171765c6e3167574e75436a5356686d437931564d49514942576d616a37414c47544971596a5442376d645348562f2b614a32564467424c6d7770344c7131664c4f6a466f5c6e33737241683144744a6b537376376a624f584d51695666453873764b6877586177717661546b5658382f7a4f44592b2f64684f5374694a4e6c466556636c35585c6e4a514944415141425c6e2d2d2d2d2d454e44205055424c4943204b45592d2d2d2d2d5c6e227d7d" // library marker davegut.tpLinkCapConfiguration, line 15
-	try { // library marker davegut.tpLinkCapConfiguration, line 16
-		if (getDataValue("power")) { // library marker davegut.tpLinkCapConfiguration, line 17
-			sendFindCmd(devIp, "20004", cmdData, "configure2", 5) // library marker davegut.tpLinkCapConfiguration, line 18
-		} else { // library marker davegut.tpLinkCapConfiguration, line 19
-			sendFindCmd(devIp, "20002", cmdData, "configure2", 5) // library marker davegut.tpLinkCapConfiguration, line 20
-		} // library marker davegut.tpLinkCapConfiguration, line 21
-		logInfo(logData) // library marker davegut.tpLinkCapConfiguration, line 22
-	} catch (err) { // library marker davegut.tpLinkCapConfiguration, line 23
+//	try { // library marker davegut.tpLinkCapConfiguration, line 16
+//		if (getDataValue("power")) { // library marker davegut.tpLinkCapConfiguration, line 17
+//			sendFindCmd(devIp, "20004", cmdData, "configure2", 5) // library marker davegut.tpLinkCapConfiguration, line 18
+//		} else { // library marker davegut.tpLinkCapConfiguration, line 19
+//			sendFindCmd(devIp, "20002", cmdData, "configure2", 5) // library marker davegut.tpLinkCapConfiguration, line 20
+//		} // library marker davegut.tpLinkCapConfiguration, line 21
+//		logInfo(logData) // library marker davegut.tpLinkCapConfiguration, line 22
+//	} catch (err) { // library marker davegut.tpLinkCapConfiguration, line 23
 		def parentChecked = parent.tpLinkCheckForDevices(5) // library marker davegut.tpLinkCapConfiguration, line 24
 		logData << [status: "FAILED", error: err, parentChecked: parentChecked] // library marker davegut.tpLinkCapConfiguration, line 25
 		logWarn(logData) // library marker davegut.tpLinkCapConfiguration, line 26
 		configure3() // library marker davegut.tpLinkCapConfiguration, line 27
-	} // library marker davegut.tpLinkCapConfiguration, line 28
+//	} // library marker davegut.tpLinkCapConfiguration, line 28
 } // library marker davegut.tpLinkCapConfiguration, line 29
 
 def configure2(response) { // library marker davegut.tpLinkCapConfiguration, line 31
@@ -828,293 +828,326 @@ import javax.crypto.spec.SecretKeySpec // library marker davegut.tpLinkCamTransp
 import javax.crypto.spec.IvParameterSpec // library marker davegut.tpLinkCamTransport, line 15
 
 def cameraHandshake(hsInput, devData = [:]) { // library marker davegut.tpLinkCamTransport, line 17
-	Map logData = [url: hsInput.url] // library marker davegut.tpLinkCamTransport, line 18
-	def warn = true // library marker davegut.tpLinkCamTransport, line 19
-//	Step 1.	Determine secureUser (userName or "admin"). // library marker davegut.tpLinkCamTransport, line 20
-	def isSecure = state.isSecure // library marker davegut.tpLinkCamTransport, line 21
-	if (isSecure != true) { // library marker davegut.tpLinkCamTransport, line 22
-		isSecure = checkSecure(hsInput) // library marker davegut.tpLinkCamTransport, line 23
-		state.isSecure = isSecure // library marker davegut.tpLinkCamTransport, line 24
-		logData << [isSecure: isSecure] // library marker davegut.tpLinkCamTransport, line 25
-	} // library marker davegut.tpLinkCamTransport, line 26
-	if (isSecure == true) { // library marker davegut.tpLinkCamTransport, line 27
-//	Step 2.	Confirm Device. // library marker davegut.tpLinkCamTransport, line 28
-		Map confData = confirmDevice(hsInput) // library marker davegut.tpLinkCamTransport, line 29
-		logData << [devConfData: confData] // library marker davegut.tpLinkCamTransport, line 30
-		if (confData.confirmed == true) { // library marker davegut.tpLinkCamTransport, line 31
-//	Step 3.	Get token data. // library marker davegut.tpLinkCamTransport, line 32
-			Map tokenData = getToken(hsInput, confData) // library marker davegut.tpLinkCamTransport, line 33
-			logData << [tokenData: tokenData] // library marker davegut.tpLinkCamTransport, line 34
-			if (tokenData.status == "OK") { // library marker davegut.tpLinkCamTransport, line 35
-//	Step 4. next action. // library marker davegut.tpLinkCamTransport, line 36
-				if (app) { // library marker davegut.tpLinkCamTransport, line 37
-					camCmdIn = [lsk: tokenData.lsk, ivb: tokenData.ivb,  // library marker davegut.tpLinkCamTransport, line 38
-								seqNo: tokenData.seqNo, apiUrl: tokenData.apiUrl, // library marker davegut.tpLinkCamTransport, line 39
-								encPwd: hsInput.pwd, cnonce: confData.cnonce] // library marker davegut.tpLinkCamTransport, line 40
-					sendCameraDataCmd(devData, camCmdIn) // library marker davegut.tpLinkCamTransport, line 41
-				} else if (device) { // library marker davegut.tpLinkCamTransport, line 42
-					device.updateSetting("nonce", [type:"password", value: confData.nonce]) // library marker davegut.tpLinkCamTransport, line 43
-					device.updateSetting("cnonce", [type:"password", value: confData.cnonce]) // library marker davegut.tpLinkCamTransport, line 44
-					device.updateSetting("lsk",[type:"password", value: tokenData.lsk]) // library marker davegut.tpLinkCamTransport, line 45
-					device.updateSetting("ivb",[type:"password", value: tokenData.ivb]) // library marker davegut.tpLinkCamTransport, line 46
-					device.updateSetting("encPwd",[type:"password", value: hsInput.encPwd]) // library marker davegut.tpLinkCamTransport, line 47
-					device.updateSetting("apiUrl",[type:"password", value: tokenData.apiUrl]) // library marker davegut.tpLinkCamTransport, line 48
-					state.seqNo = tokenData.seqNo // library marker davegut.tpLinkCamTransport, line 49
-				} // library marker davegut.tpLinkCamTransport, line 50
-				warn = false // library marker davegut.tpLinkCamTransport, line 51
-			} // library marker davegut.tpLinkCamTransport, line 52
-		} // library marker davegut.tpLinkCamTransport, line 53
-	} // library marker davegut.tpLinkCamTransport, line 54
-	if (warn == true) { logWarn([cameraHandshake: logData]) } // library marker davegut.tpLinkCamTransport, line 55
-	else {logDebug([cameraHandshake: logData]) } // library marker davegut.tpLinkCamTransport, line 56
-	return logData // library marker davegut.tpLinkCamTransport, line 57
-} // library marker davegut.tpLinkCamTransport, line 58
+//log.debug devData // library marker davegut.tpLinkCamTransport, line 18
+	Map logData = [url: hsInput.url] // library marker davegut.tpLinkCamTransport, line 19
+	if (devData != [:]) { // library marker davegut.tpLinkCamTransport, line 20
+		logData << [model: devData.model, ip: devData.ip] // library marker davegut.tpLinkCamTransport, line 21
+	}			 // library marker davegut.tpLinkCamTransport, line 22
+	def warn = true // library marker davegut.tpLinkCamTransport, line 23
+//	Step 1.	Determine secureUser (userName or "admin"). // library marker davegut.tpLinkCamTransport, line 24
+	def isSecure = state.isSecure // library marker davegut.tpLinkCamTransport, line 25
+	if (isSecure != true) { // library marker davegut.tpLinkCamTransport, line 26
+		Map secResp = checkSecure(hsInput) // library marker davegut.tpLinkCamTransport, line 27
+		isSecure = secResp.secure // library marker davegut.tpLinkCamTransport, line 28
+//		isSecure = checkSecure(hsInput) // library marker davegut.tpLinkCamTransport, line 29
+		state.isSecure = isSecure // library marker davegut.tpLinkCamTransport, line 30
+		logData << [checkSecure: secResp] // library marker davegut.tpLinkCamTransport, line 31
+	} // library marker davegut.tpLinkCamTransport, line 32
+	if (isSecure == true) { // library marker davegut.tpLinkCamTransport, line 33
+//	Step 2.	Confirm Device. // library marker davegut.tpLinkCamTransport, line 34
+		Map confData = confirmDevice(hsInput) // library marker davegut.tpLinkCamTransport, line 35
+		logData << [confirmDevice: confData] // library marker davegut.tpLinkCamTransport, line 36
+		if (confData.confirmed == true) { // library marker davegut.tpLinkCamTransport, line 37
+//	Step 3.	Get token data. // library marker davegut.tpLinkCamTransport, line 38
+			Map tokenData = getToken(hsInput, confData) // library marker davegut.tpLinkCamTransport, line 39
+			logData << [tokenData: tokenData] // library marker davegut.tpLinkCamTransport, line 40
+			if (tokenData.status == "OK") { // library marker davegut.tpLinkCamTransport, line 41
+//	Step 4. next action. // library marker davegut.tpLinkCamTransport, line 42
+				if (app) { // library marker davegut.tpLinkCamTransport, line 43
+					camCmdIn = [lsk: tokenData.lsk, ivb: tokenData.ivb,  // library marker davegut.tpLinkCamTransport, line 44
+								seqNo: tokenData.seqNo, apiUrl: tokenData.apiUrl, // library marker davegut.tpLinkCamTransport, line 45
+								encPwd: hsInput.pwd, cnonce: confData.cnonce] // library marker davegut.tpLinkCamTransport, line 46
+					sendCameraDataCmd(devData, camCmdIn) // library marker davegut.tpLinkCamTransport, line 47
+				} else if (device) { // library marker davegut.tpLinkCamTransport, line 48
+					device.updateSetting("nonce", [type:"password", value: confData.nonce]) // library marker davegut.tpLinkCamTransport, line 49
+					device.updateSetting("cnonce", [type:"password", value: confData.cnonce]) // library marker davegut.tpLinkCamTransport, line 50
+					device.updateSetting("lsk",[type:"password", value: tokenData.lsk]) // library marker davegut.tpLinkCamTransport, line 51
+					device.updateSetting("ivb",[type:"password", value: tokenData.ivb]) // library marker davegut.tpLinkCamTransport, line 52
+					device.updateSetting("encPwd",[type:"password", value: hsInput.encPwd]) // library marker davegut.tpLinkCamTransport, line 53
+					device.updateSetting("apiUrl",[type:"password", value: tokenData.apiUrl]) // library marker davegut.tpLinkCamTransport, line 54
+					state.seqNo = tokenData.seqNo // library marker davegut.tpLinkCamTransport, line 55
+				} // library marker davegut.tpLinkCamTransport, line 56
+				warn = false // library marker davegut.tpLinkCamTransport, line 57
+			} // library marker davegut.tpLinkCamTransport, line 58
+		} // library marker davegut.tpLinkCamTransport, line 59
+	} // library marker davegut.tpLinkCamTransport, line 60
+	if (warn == true) { // library marker davegut.tpLinkCamTransport, line 61
+		logWarn([cameraHandshake: logData]) // library marker davegut.tpLinkCamTransport, line 62
+	} // library marker davegut.tpLinkCamTransport, line 63
+	else { // library marker davegut.tpLinkCamTransport, line 64
+		logDebug([cameraHandshake: logData]) // library marker davegut.tpLinkCamTransport, line 65
+	} // library marker davegut.tpLinkCamTransport, line 66
+	return logData // library marker davegut.tpLinkCamTransport, line 67
+} // library marker davegut.tpLinkCamTransport, line 68
 
-def checkSecure(hsInput) { // library marker davegut.tpLinkCamTransport, line 60
-	secure = false // library marker davegut.tpLinkCamTransport, line 61
-	Map cmdBody = [method: "login", params: [encrypt_type: "3",  username: hsInput.user]] // library marker davegut.tpLinkCamTransport, line 62
-	Map respData = postSync(cmdBody, hsInput.url) // library marker davegut.tpLinkCamTransport, line 63
-	if (respData.error_code == -40413 && respData.result && respData.result.data // library marker davegut.tpLinkCamTransport, line 64
-		&& respData.result.data.encrypt_type.contains("3")) { // library marker davegut.tpLinkCamTransport, line 65
-		secure = true // library marker davegut.tpLinkCamTransport, line 66
-	} // library marker davegut.tpLinkCamTransport, line 67
-	return secure // library marker davegut.tpLinkCamTransport, line 68
-} // library marker davegut.tpLinkCamTransport, line 69
+def checkSecure(hsInput) { // library marker davegut.tpLinkCamTransport, line 70
+	Map secResp = [:] // library marker davegut.tpLinkCamTransport, line 71
+	secure = false // library marker davegut.tpLinkCamTransport, line 72
+	Map cmdBody = [method: "login", params: [encrypt_type: "3",  username: hsInput.user]] // library marker davegut.tpLinkCamTransport, line 73
+	Map respData = postSync(cmdBody, hsInput.url) // library marker davegut.tpLinkCamTransport, line 74
+	if (respData.error_code == -40413 && respData.result && respData.result.data // library marker davegut.tpLinkCamTransport, line 75
+		&& respData.result.data.encrypt_type.contains("3")) { // library marker davegut.tpLinkCamTransport, line 76
+		secure = true // library marker davegut.tpLinkCamTransport, line 77
+	} else { // library marker davegut.tpLinkCamTransport, line 78
+		secResp << [invalidUser: getNote("checkUser")] // library marker davegut.tpLinkCamTransport, line 79
+	} // library marker davegut.tpLinkCamTransport, line 80
+	secResp << [secure: secure] // library marker davegut.tpLinkCamTransport, line 81
+	return secResp // library marker davegut.tpLinkCamTransport, line 82
+} // library marker davegut.tpLinkCamTransport, line 83
 
-def confirmDevice(hsInput) { // library marker davegut.tpLinkCamTransport, line 71
-	String cnonce = getSeed(8).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 72
-	Map cmdBody = [method: "login", // library marker davegut.tpLinkCamTransport, line 73
-				   params: [cnonce: cnonce, encrypt_type: "3",  username: hsInput.user]] // library marker davegut.tpLinkCamTransport, line 74
-	Map respData = postSync(cmdBody, hsInput.url) // library marker davegut.tpLinkCamTransport, line 75
-	Map confData = [confirmed: false] // library marker davegut.tpLinkCamTransport, line 76
-	if (!respData.status) { // library marker davegut.tpLinkCamTransport, line 77
-		Map results = respData.result.data // library marker davegut.tpLinkCamTransport, line 78
-		if (respData.error_code == -40413 && results.code == -40401 &&  // library marker davegut.tpLinkCamTransport, line 79
-			results.encrypt_type.toString().contains("3")) { // library marker davegut.tpLinkCamTransport, line 80
-			String noncesPwdHash = cnonce + hsInput.pwd + results.nonce // library marker davegut.tpLinkCamTransport, line 81
-			String testHash = mdEncode("SHA-256", noncesPwdHash.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 82
-			String checkData = testHash + results.nonce + cnonce // library marker davegut.tpLinkCamTransport, line 83
-			if (checkData == results.device_confirm) { // library marker davegut.tpLinkCamTransport, line 84
-				confData << [confirmed: true, nonce: results.nonce, cnonce: cnonce] // library marker davegut.tpLinkCamTransport, line 85
-			} else { // library marker davegut.tpLinkCamTransport, line 86
-				Map logData = [confirmDevice: [devErrCode:  // library marker davegut.tpLinkCamTransport, line 87
-							   respData.error_code, confirmed: false,  // library marker davegut.tpLinkCamTransport, line 88
-							   message: "Data confirm between device and Hubitat failed."]] // library marker davegut.tpLinkCamTransport, line 89
-				logWarn(logData) // library marker davegut.tpLinkCamTransport, line 90
-			} // library marker davegut.tpLinkCamTransport, line 91
-		} else { // library marker davegut.tpLinkCamTransport, line 92
-			Map logData = [confirmDevice: [devErrCode: respData.error_code, // library marker davegut.tpLinkCamTransport, line 93
-						   confirmed: false, message: "Device returned invalid errorCode"]] // library marker davegut.tpLinkCamTransport, line 94
-			logWarn(logData) // library marker davegut.tpLinkCamTransport, line 95
-		} // library marker davegut.tpLinkCamTransport, line 96
-	} // library marker davegut.tpLinkCamTransport, line 97
-	return confData // library marker davegut.tpLinkCamTransport, line 98
-} // library marker davegut.tpLinkCamTransport, line 99
+def confirmDevice(hsInput) { // library marker davegut.tpLinkCamTransport, line 85
+	String cnonce = getSeed(8).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 86
+	Map cmdBody = [method: "login", // library marker davegut.tpLinkCamTransport, line 87
+				   params: [cnonce: cnonce, encrypt_type: "3",  username: hsInput.user]] // library marker davegut.tpLinkCamTransport, line 88
+	Map respData = postSync(cmdBody, hsInput.url) // library marker davegut.tpLinkCamTransport, line 89
+	def confirmed = false // library marker davegut.tpLinkCamTransport, line 90
+	Map confData = [:] // library marker davegut.tpLinkCamTransport, line 91
+	if (respData.result) { // library marker davegut.tpLinkCamTransport, line 92
+		Map results = respData.result.data // library marker davegut.tpLinkCamTransport, line 93
+		if (respData.error_code == -40413 && results.code == -40401 &&  // library marker davegut.tpLinkCamTransport, line 94
+			results.encrypt_type.toString().contains("3")) { // library marker davegut.tpLinkCamTransport, line 95
+			String noncesPwdHash = cnonce + hsInput.pwd + results.nonce // library marker davegut.tpLinkCamTransport, line 96
+			String testHash = mdEncode("SHA-256", noncesPwdHash.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 97
+			String checkData = testHash + results.nonce + cnonce // library marker davegut.tpLinkCamTransport, line 98
+			if (checkData == results.device_confirm) { // library marker davegut.tpLinkCamTransport, line 99
+				confData << [nonce: results.nonce, cnonce: cnonce] // library marker davegut.tpLinkCamTransport, line 100
+				confirmed = true // library marker davegut.tpLinkCamTransport, line 101
+			} else { // library marker davegut.tpLinkCamTransport, line 102
+				confData << [error: "checkData and deviceData mismatch"] // library marker davegut.tpLinkCamTransport, line 103
+			} // library marker davegut.tpLinkCamTransport, line 104
+		} else { // library marker davegut.tpLinkCamTransport, line 105
+			confData << [error_code: respData.error_code, code: results.code, // library marker davegut.tpLinkCamTransport, line 106
+						 encrypt_type: results.encrypt_type, error: "invalid data to continue"] // library marker davegut.tpLinkCamTransport, line 107
+		} // library marker davegut.tpLinkCamTransport, line 108
+	} else { // library marker davegut.tpLinkCamTransport, line 109
+		confData << [respData: respData, error: "no respData.results in return."] // library marker davegut.tpLinkCamTransport, line 110
+	} // library marker davegut.tpLinkCamTransport, line 111
+	confData << [confirmed: confirmed] // library marker davegut.tpLinkCamTransport, line 112
+	if (confirmed == false) { // library marker davegut.tpLinkCamTransport, line 113
+		confData << [checkPwd: getNote("checkPwd"), thirdParty: getNote("thirdParty")] // library marker davegut.tpLinkCamTransport, line 114
+	} // library marker davegut.tpLinkCamTransport, line 115
+return confData // library marker davegut.tpLinkCamTransport, line 116
+} // library marker davegut.tpLinkCamTransport, line 117
 
-def getToken(hsInput, confData) { // library marker davegut.tpLinkCamTransport, line 101
-	Map tokenData = [:] // library marker davegut.tpLinkCamTransport, line 102
-	String digestPwdHex = hsInput.pwd + confData.cnonce + confData.nonce // library marker davegut.tpLinkCamTransport, line 103
-	String digestPwd = mdEncode("SHA-256", digestPwdHex.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 104
-	String fullDigestPwdHex = digestPwd + confData.cnonce + confData.nonce // library marker davegut.tpLinkCamTransport, line 105
-	String fullDigestPwd = new String(fullDigestPwdHex.getBytes(), "UTF-8") // library marker davegut.tpLinkCamTransport, line 106
-	Map cmdBody = [ // library marker davegut.tpLinkCamTransport, line 107
-		method: "login", // library marker davegut.tpLinkCamTransport, line 108
-		params: [cnonce: confData.cnonce,  // library marker davegut.tpLinkCamTransport, line 109
-				 encrypt_type: "3", // library marker davegut.tpLinkCamTransport, line 110
-				 digest_passwd: fullDigestPwd, // library marker davegut.tpLinkCamTransport, line 111
-				 username: hsInput.user // library marker davegut.tpLinkCamTransport, line 112
-			]] // library marker davegut.tpLinkCamTransport, line 113
-	Map respData = postSync(cmdBody, hsInput.url) // library marker davegut.tpLinkCamTransport, line 114
-	Map logData = [errorCode: respData.error_code] // library marker davegut.tpLinkCamTransport, line 115
-	if (respData.error_code == 0) { // library marker davegut.tpLinkCamTransport, line 116
-		Map result = respData.result // library marker davegut.tpLinkCamTransport, line 117
-		if (result != null) { // library marker davegut.tpLinkCamTransport, line 118
-			if (result.start_seq != null) { // library marker davegut.tpLinkCamTransport, line 119
-				if (result.user_group == "root") { // library marker davegut.tpLinkCamTransport, line 120
-					byte[] lsk = genEncryptToken("lsk", hsInput.pwd, confData.nonce, confData.cnonce) // library marker davegut.tpLinkCamTransport, line 121
-					byte[] ivb = genEncryptToken("ivb", hsInput.pwd, confData.nonce, confData.cnonce) // library marker davegut.tpLinkCamTransport, line 122
-					String apiUrl = "${hsInput.url}/stok=${result.stok}/ds" // library marker davegut.tpLinkCamTransport, line 123
-					tokenData << [seqNo: result.start_seq, lsk: lsk, ivb: ivb, // library marker davegut.tpLinkCamTransport, line 124
-								  apiUrl: apiUrl, status: "OK"] // library marker davegut.tpLinkCamTransport, line 125
-				} else { // library marker davegut.tpLinkCamTransport, line 126
-					tokenData << [status: "invalidUserGroup"] // library marker davegut.tpLinkCamTransport, line 127
-				} // library marker davegut.tpLinkCamTransport, line 128
-			} else { // library marker davegut.tpLinkCamTransport, line 129
-				tokenData << [status: "nullStartSeq"] // library marker davegut.tpLinkCamTransport, line 130
-			} // library marker davegut.tpLinkCamTransport, line 131
-		} else { // library marker davegut.tpLinkCamTransport, line 132
-			tokenData << [status: "nullDataFrom Device", respData: respData] // library marker davegut.tpLinkCamTransport, line 133
-		} // library marker davegut.tpLinkCamTransport, line 134
-	} else { // library marker davegut.tpLinkCamTransport, line 135
-		tokenData << [status: "credentialError"] // library marker davegut.tpLinkCamTransport, line 136
-	} // library marker davegut.tpLinkCamTransport, line 137
-	if (tokenData.status != "OK") { // library marker davegut.tpLinkCamTransport, line 138
-		logData << [tokenData: tokenData, respData: respData] // library marker davegut.tpLinkCamTransport, line 139
-		logWarn([getToken: logData]) // library marker davegut.tpLinkCamTransport, line 140
-	} // library marker davegut.tpLinkCamTransport, line 141
-	return tokenData // library marker davegut.tpLinkCamTransport, line 142
-} // library marker davegut.tpLinkCamTransport, line 143
+def getToken(hsInput, confData) { // library marker davegut.tpLinkCamTransport, line 119
+	Map tokenData = [:] // library marker davegut.tpLinkCamTransport, line 120
+	String digestPwdHex = hsInput.pwd + confData.cnonce + confData.nonce // library marker davegut.tpLinkCamTransport, line 121
+	String digestPwd = mdEncode("SHA-256", digestPwdHex.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 122
+	String fullDigestPwdHex = digestPwd + confData.cnonce + confData.nonce // library marker davegut.tpLinkCamTransport, line 123
+	String fullDigestPwd = new String(fullDigestPwdHex.getBytes(), "UTF-8") // library marker davegut.tpLinkCamTransport, line 124
+	Map cmdBody = [ // library marker davegut.tpLinkCamTransport, line 125
+		method: "login", // library marker davegut.tpLinkCamTransport, line 126
+		params: [cnonce: confData.cnonce,  // library marker davegut.tpLinkCamTransport, line 127
+				 encrypt_type: "3", // library marker davegut.tpLinkCamTransport, line 128
+				 digest_passwd: fullDigestPwd, // library marker davegut.tpLinkCamTransport, line 129
+				 username: hsInput.user // library marker davegut.tpLinkCamTransport, line 130
+			]] // library marker davegut.tpLinkCamTransport, line 131
+	Map respData = postSync(cmdBody, hsInput.url) // library marker davegut.tpLinkCamTransport, line 132
+	Map logData = [errorCode: respData.error_code] // library marker davegut.tpLinkCamTransport, line 133
+	if (respData.error_code == 0) { // library marker davegut.tpLinkCamTransport, line 134
+		Map result = respData.result // library marker davegut.tpLinkCamTransport, line 135
+		if (result != null) { // library marker davegut.tpLinkCamTransport, line 136
+			if (result.start_seq != null) { // library marker davegut.tpLinkCamTransport, line 137
+				if (result.user_group == "root") { // library marker davegut.tpLinkCamTransport, line 138
+					byte[] lsk = genEncryptToken("lsk", hsInput.pwd, confData.nonce, confData.cnonce) // library marker davegut.tpLinkCamTransport, line 139
+					byte[] ivb = genEncryptToken("ivb", hsInput.pwd, confData.nonce, confData.cnonce) // library marker davegut.tpLinkCamTransport, line 140
+					String apiUrl = "${hsInput.url}/stok=${result.stok}/ds" // library marker davegut.tpLinkCamTransport, line 141
+					tokenData << [seqNo: result.start_seq, lsk: lsk, ivb: ivb, // library marker davegut.tpLinkCamTransport, line 142
+								  apiUrl: apiUrl, status: "OK"] // library marker davegut.tpLinkCamTransport, line 143
+				} else { // library marker davegut.tpLinkCamTransport, line 144
+					tokenData << [status: "invalidUserGroup"] // library marker davegut.tpLinkCamTransport, line 145
+				} // library marker davegut.tpLinkCamTransport, line 146
+			} else { // library marker davegut.tpLinkCamTransport, line 147
+				tokenData << [status: "nullStartSeq"] // library marker davegut.tpLinkCamTransport, line 148
+			} // library marker davegut.tpLinkCamTransport, line 149
+		} else { // library marker davegut.tpLinkCamTransport, line 150
+			tokenData << [status: "nullDataFrom Device", respData: respData] // library marker davegut.tpLinkCamTransport, line 151
+		} // library marker davegut.tpLinkCamTransport, line 152
+	} else { // library marker davegut.tpLinkCamTransport, line 153
+		tokenData << [status: "credentialError"] // library marker davegut.tpLinkCamTransport, line 154
+	} // library marker davegut.tpLinkCamTransport, line 155
+	if (tokenData.status != "OK") { // library marker davegut.tpLinkCamTransport, line 156
+		tokenData << [respData: respData, tokenErr: getNote("tokenErr")] // library marker davegut.tpLinkCamTransport, line 157
+//		logData << [tokenData: tokenData, respData: respData] // library marker davegut.tpLinkCamTransport, line 158
+//		logWarn([getToken: logData]) // library marker davegut.tpLinkCamTransport, line 159
+	} // library marker davegut.tpLinkCamTransport, line 160
+	return tokenData // library marker davegut.tpLinkCamTransport, line 161
+} // library marker davegut.tpLinkCamTransport, line 162
 
-def genEncryptToken(tokenType, pwd, nonce, cnonce) { // library marker davegut.tpLinkCamTransport, line 145
-	String hashedKeyHex = cnonce + pwd + nonce // library marker davegut.tpLinkCamTransport, line 146
-	String hashedKey = mdEncode("SHA-256", hashedKeyHex.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 147
-	String tokenHex = tokenType + cnonce + nonce + hashedKey // library marker davegut.tpLinkCamTransport, line 148
-	byte[] tokenFull = mdEncode("SHA-256", tokenHex.getBytes()) // library marker davegut.tpLinkCamTransport, line 149
-	return tokenFull[0..15] // library marker davegut.tpLinkCamTransport, line 150
-} // library marker davegut.tpLinkCamTransport, line 151
+def genEncryptToken(tokenType, pwd, nonce, cnonce) { // library marker davegut.tpLinkCamTransport, line 164
+	String hashedKeyHex = cnonce + pwd + nonce // library marker davegut.tpLinkCamTransport, line 165
+	String hashedKey = mdEncode("SHA-256", hashedKeyHex.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 166
+	String tokenHex = tokenType + cnonce + nonce + hashedKey // library marker davegut.tpLinkCamTransport, line 167
+	byte[] tokenFull = mdEncode("SHA-256", tokenHex.getBytes()) // library marker davegut.tpLinkCamTransport, line 168
+	return tokenFull[0..15] // library marker davegut.tpLinkCamTransport, line 169
+} // library marker davegut.tpLinkCamTransport, line 170
 
-def shortHandshake() { // library marker davegut.tpLinkCamTransport, line 153
-	String pwd = parent.encPasswordCam // library marker davegut.tpLinkCamTransport, line 154
-	String url = getDataValue("baseUrl") // library marker davegut.tpLinkCamTransport, line 155
-	Map logData = [:] // library marker davegut.tpLinkCamTransport, line 156
-	String digestPwdHex = pwd + cnonce + nonce // library marker davegut.tpLinkCamTransport, line 157
-	String digestPwd = mdEncode("SHA-256", digestPwdHex.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 158
-	String fullDigestPwdHex = digestPwd + cnonce + nonce // library marker davegut.tpLinkCamTransport, line 159
-	String fullDigestPwd = new String(fullDigestPwdHex.getBytes(), "UTF-8") // library marker davegut.tpLinkCamTransport, line 160
-	Map cmdBody = [ // library marker davegut.tpLinkCamTransport, line 161
-		method: "login", // library marker davegut.tpLinkCamTransport, line 162
-		params: [cnonce: cnonce,  // library marker davegut.tpLinkCamTransport, line 163
-				 encrypt_type: "3", // library marker davegut.tpLinkCamTransport, line 164
-				 digest_passwd: fullDigestPwd, // library marker davegut.tpLinkCamTransport, line 165
-				 username: parent.userName // library marker davegut.tpLinkCamTransport, line 166
-			]] // library marker davegut.tpLinkCamTransport, line 167
-	Map respData = postSync(cmdBody, url) // library marker davegut.tpLinkCamTransport, line 168
+def getNote(noteId) { // library marker davegut.tpLinkCamTransport, line 172
+	String note = "Undefined note." // library marker davegut.tpLinkCamTransport, line 173
+	if (noteId == "checkPwd") { // library marker davegut.tpLinkCamTransport, line 174
+		note = "<b>Check password. Must not have spaces. Certain special characters also cause failure.</b>" // library marker davegut.tpLinkCamTransport, line 175
+	} else if (noteId == "thirdParty") { // library marker davegut.tpLinkCamTransport, line 176
+		note = "<b>Check Tapo app setting Third-Party Services for on.  If on toggle off then on.</b>" // library marker davegut.tpLinkCamTransport, line 177
+	} else if (noteId == "checkUser") { // library marker davegut.tpLinkCamTransport, line 178
+		note = "<b>Check username. No spaces. Alternate username admin may also work.</b>" // library marker davegut.tpLinkCamTransport, line 179
+	} else if (noteId == "tokenErr") { // library marker davegut.tpLinkCamTransport, line 180
+		note = "<b>Try again in 10 minutes. If error persists, contact developer.</b>" // library marker davegut.tpLinkCamTransport, line 181
+	} // library marker davegut.tpLinkCamTransport, line 182
+	return note // library marker davegut.tpLinkCamTransport, line 183
+} // library marker davegut.tpLinkCamTransport, line 184
 
-	logData << [errorCode: respData.error_code] // library marker davegut.tpLinkCamTransport, line 170
-	String tokenStatus = "OK" // library marker davegut.tpLinkCamTransport, line 171
-	if (respData.error_code == 0) { // library marker davegut.tpLinkCamTransport, line 172
-		Map result = respData.result // library marker davegut.tpLinkCamTransport, line 173
-		if (result != null) { // library marker davegut.tpLinkCamTransport, line 174
-			if (result.start_seq != null) { // library marker davegut.tpLinkCamTransport, line 175
-				if (result.user_group == "root") { // library marker davegut.tpLinkCamTransport, line 176
-					byte[] lsk = genEncryptToken("lsk", pwd, nonce, cnonce) // library marker davegut.tpLinkCamTransport, line 177
-					byte[] ivb = genEncryptToken("ivb", pwd, nonce, cnonce) // library marker davegut.tpLinkCamTransport, line 178
-					String apiUrl = "${url}/stok=${result.stok}/ds" // library marker davegut.tpLinkCamTransport, line 179
-logData << [seqNo: result.start_seq, lsk: lsk, ivb: ivb, apiUrl: apiUrl] // library marker davegut.tpLinkCamTransport, line 180
-					device.updateSetting("lsk",[type:"password", value: lsk]) // library marker davegut.tpLinkCamTransport, line 181
-					device.updateSetting("ivb",[type:"password", value: ivb]) // library marker davegut.tpLinkCamTransport, line 182
-					device.updateSetting("apiUrl",[type:"password", value: apiUrl]) // library marker davegut.tpLinkCamTransport, line 183
-					state.seqNo = result.start_seq // library marker davegut.tpLinkCamTransport, line 184
-				} else { // library marker davegut.tpLinkCamTransport, line 185
-					tokenStatus = "invalidUserGroup" // library marker davegut.tpLinkCamTransport, line 186
-				} // library marker davegut.tpLinkCamTransport, line 187
-			} else { // library marker davegut.tpLinkCamTransport, line 188
-				tokenStatus = "nullStartSeq" // library marker davegut.tpLinkCamTransport, line 189
-			} // library marker davegut.tpLinkCamTransport, line 190
-		} else { // library marker davegut.tpLinkCamTransport, line 191
-			tokenStatus = "nullDataFrom Device" // library marker davegut.tpLinkCamTransport, line 192
-		} // library marker davegut.tpLinkCamTransport, line 193
-	} else { // library marker davegut.tpLinkCamTransport, line 194
-		tokenStatus ="credentialError" // library marker davegut.tpLinkCamTransport, line 195
-	} // library marker davegut.tpLinkCamTransport, line 196
-	if (tokenStatus != "OK") { // library marker davegut.tpLinkCamTransport, line 197
-		Map hsInput = [url: url, user: parent.userName, pwd: pwd] // library marker davegut.tpLinkCamTransport, line 198
-		logData << [respData: respData, cameraHandshake: cameraHandshake(hsInput)] // library marker davegut.tpLinkCamTransport, line 199
-		logWarn([shortHandshake: logData]) // library marker davegut.tpLinkCamTransport, line 200
-	} // library marker davegut.tpLinkCamTransport, line 201
-	return logData // library marker davegut.tpLinkCamTransport, line 202
-} // library marker davegut.tpLinkCamTransport, line 203
+def shortHandshake() { // library marker davegut.tpLinkCamTransport, line 186
+	String pwd = parent.encPasswordCam // library marker davegut.tpLinkCamTransport, line 187
+	String url = getDataValue("baseUrl") // library marker davegut.tpLinkCamTransport, line 188
+	Map logData = [:] // library marker davegut.tpLinkCamTransport, line 189
+	String digestPwdHex = pwd + cnonce + nonce // library marker davegut.tpLinkCamTransport, line 190
+	String digestPwd = mdEncode("SHA-256", digestPwdHex.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 191
+	String fullDigestPwdHex = digestPwd + cnonce + nonce // library marker davegut.tpLinkCamTransport, line 192
+	String fullDigestPwd = new String(fullDigestPwdHex.getBytes(), "UTF-8") // library marker davegut.tpLinkCamTransport, line 193
+	Map cmdBody = [ // library marker davegut.tpLinkCamTransport, line 194
+		method: "login", // library marker davegut.tpLinkCamTransport, line 195
+		params: [cnonce: cnonce,  // library marker davegut.tpLinkCamTransport, line 196
+				 encrypt_type: "3", // library marker davegut.tpLinkCamTransport, line 197
+				 digest_passwd: fullDigestPwd, // library marker davegut.tpLinkCamTransport, line 198
+				 username: parent.userName // library marker davegut.tpLinkCamTransport, line 199
+			]] // library marker davegut.tpLinkCamTransport, line 200
+	Map respData = postSync(cmdBody, url) // library marker davegut.tpLinkCamTransport, line 201
 
-//	===== Sync Communications ===== // library marker davegut.tpLinkCamTransport, line 205
-def getCamHeaders() { // library marker davegut.tpLinkCamTransport, line 206
-	Map headers = [ // library marker davegut.tpLinkCamTransport, line 207
-		"Accept": "application/json", // library marker davegut.tpLinkCamTransport, line 208
-		"Accept-Encoding": "gzip, deflate", // library marker davegut.tpLinkCamTransport, line 209
-		"User-Agent": "Tapo CameraClient Android", // library marker davegut.tpLinkCamTransport, line 210
-		"Connection": "close", // library marker davegut.tpLinkCamTransport, line 211
-		"requestByApp": "true", // library marker davegut.tpLinkCamTransport, line 212
-		"Content-Type": "application/json; charset=UTF-8" // library marker davegut.tpLinkCamTransport, line 213
-		] // library marker davegut.tpLinkCamTransport, line 214
-	return headers // library marker davegut.tpLinkCamTransport, line 215
-} // library marker davegut.tpLinkCamTransport, line 216
+	logData << [errorCode: respData.error_code] // library marker davegut.tpLinkCamTransport, line 203
+	String tokenStatus = "OK" // library marker davegut.tpLinkCamTransport, line 204
+	if (respData.error_code == 0) { // library marker davegut.tpLinkCamTransport, line 205
+		Map result = respData.result // library marker davegut.tpLinkCamTransport, line 206
+		if (result != null) { // library marker davegut.tpLinkCamTransport, line 207
+			if (result.start_seq != null) { // library marker davegut.tpLinkCamTransport, line 208
+				if (result.user_group == "root") { // library marker davegut.tpLinkCamTransport, line 209
+					byte[] lsk = genEncryptToken("lsk", pwd, nonce, cnonce) // library marker davegut.tpLinkCamTransport, line 210
+					byte[] ivb = genEncryptToken("ivb", pwd, nonce, cnonce) // library marker davegut.tpLinkCamTransport, line 211
+					String apiUrl = "${url}/stok=${result.stok}/ds" // library marker davegut.tpLinkCamTransport, line 212
+logData << [seqNo: result.start_seq, lsk: lsk, ivb: ivb, apiUrl: apiUrl] // library marker davegut.tpLinkCamTransport, line 213
+					device.updateSetting("lsk",[type:"password", value: lsk]) // library marker davegut.tpLinkCamTransport, line 214
+					device.updateSetting("ivb",[type:"password", value: ivb]) // library marker davegut.tpLinkCamTransport, line 215
+					device.updateSetting("apiUrl",[type:"password", value: apiUrl]) // library marker davegut.tpLinkCamTransport, line 216
+					state.seqNo = result.start_seq // library marker davegut.tpLinkCamTransport, line 217
+				} else { // library marker davegut.tpLinkCamTransport, line 218
+					tokenStatus = "invalidUserGroup" // library marker davegut.tpLinkCamTransport, line 219
+				} // library marker davegut.tpLinkCamTransport, line 220
+			} else { // library marker davegut.tpLinkCamTransport, line 221
+				tokenStatus = "nullStartSeq" // library marker davegut.tpLinkCamTransport, line 222
+			} // library marker davegut.tpLinkCamTransport, line 223
+		} else { // library marker davegut.tpLinkCamTransport, line 224
+			tokenStatus = "nullDataFrom Device" // library marker davegut.tpLinkCamTransport, line 225
+		} // library marker davegut.tpLinkCamTransport, line 226
+	} else { // library marker davegut.tpLinkCamTransport, line 227
+		tokenStatus ="credentialError" // library marker davegut.tpLinkCamTransport, line 228
+	} // library marker davegut.tpLinkCamTransport, line 229
+	if (tokenStatus != "OK") { // library marker davegut.tpLinkCamTransport, line 230
+		Map hsInput = [url: url, user: parent.userName, pwd: pwd] // library marker davegut.tpLinkCamTransport, line 231
+		logData << [respData: respData, cameraHandshake: cameraHandshake(hsInput)] // library marker davegut.tpLinkCamTransport, line 232
+		logWarn([shortHandshake: logData]) // library marker davegut.tpLinkCamTransport, line 233
+	} // library marker davegut.tpLinkCamTransport, line 234
+	return logData // library marker davegut.tpLinkCamTransport, line 235
+} // library marker davegut.tpLinkCamTransport, line 236
 
-def postSync(cmdBody, baseUrl) { // library marker davegut.tpLinkCamTransport, line 218
-	Map respData = [:] // library marker davegut.tpLinkCamTransport, line 219
-	Map heads = getCamHeaders() // library marker davegut.tpLinkCamTransport, line 220
-	Map httpParams = [uri: baseUrl, // library marker davegut.tpLinkCamTransport, line 221
-					 body: JsonOutput.toJson(cmdBody), // library marker davegut.tpLinkCamTransport, line 222
-					 contentType: "application/json", // library marker davegut.tpLinkCamTransport, line 223
-					 requestContentType: "application/json", // library marker davegut.tpLinkCamTransport, line 224
-					 timeout: 10, // library marker davegut.tpLinkCamTransport, line 225
-					 ignoreSSLIssues: true, // library marker davegut.tpLinkCamTransport, line 226
-					 headers: heads // library marker davegut.tpLinkCamTransport, line 227
-					 ] // library marker davegut.tpLinkCamTransport, line 228
-	try { // library marker davegut.tpLinkCamTransport, line 229
-		httpPostJson(httpParams) { resp -> // library marker davegut.tpLinkCamTransport, line 230
-			if (resp.status == 200) { // library marker davegut.tpLinkCamTransport, line 231
-				respData << resp.data // library marker davegut.tpLinkCamTransport, line 232
-			} else { // library marker davegut.tpLinkCamTransport, line 233
-				respData << [status: resp.status, errorData: resp.properties, // library marker davegut.tpLinkCamTransport, line 234
-							 action: "<b>Check IP Address</b>"] // library marker davegut.tpLinkCamTransport, line 235
-				logWarn(respData) // library marker davegut.tpLinkCamTransport, line 236
-			} // library marker davegut.tpLinkCamTransport, line 237
-		} // library marker davegut.tpLinkCamTransport, line 238
-	} catch (err) { // library marker davegut.tpLinkCamTransport, line 239
-		respData << [status: "httpPostJson error", error: err] // library marker davegut.tpLinkCamTransport, line 240
-		logWarn(respData) // library marker davegut.tpLinkCamTransport, line 241
-	} // library marker davegut.tpLinkCamTransport, line 242
-	return respData // library marker davegut.tpLinkCamTransport, line 243
-} // library marker davegut.tpLinkCamTransport, line 244
+//	===== Sync Communications ===== // library marker davegut.tpLinkCamTransport, line 238
+def getCamHeaders() { // library marker davegut.tpLinkCamTransport, line 239
+	Map headers = [ // library marker davegut.tpLinkCamTransport, line 240
+		"Accept": "application/json", // library marker davegut.tpLinkCamTransport, line 241
+		"Accept-Encoding": "gzip, deflate", // library marker davegut.tpLinkCamTransport, line 242
+		"User-Agent": "Tapo CameraClient Android", // library marker davegut.tpLinkCamTransport, line 243
+		"Connection": "close", // library marker davegut.tpLinkCamTransport, line 244
+		"requestByApp": "true", // library marker davegut.tpLinkCamTransport, line 245
+		"Content-Type": "application/json; charset=UTF-8" // library marker davegut.tpLinkCamTransport, line 246
+		] // library marker davegut.tpLinkCamTransport, line 247
+	return headers // library marker davegut.tpLinkCamTransport, line 248
+} // library marker davegut.tpLinkCamTransport, line 249
 
-def getCameraParams(cmdBody, reqData) { // library marker davegut.tpLinkCamTransport, line 246
-	byte[] encKey = new JsonSlurper().parseText(lsk) // library marker davegut.tpLinkCamTransport, line 247
-	byte[] encIv = new JsonSlurper().parseText(ivb) // library marker davegut.tpLinkCamTransport, line 248
-	def cmdStr = JsonOutput.toJson(cmdBody) // library marker davegut.tpLinkCamTransport, line 249
-	Map reqBody = [method: "securePassthrough", // library marker davegut.tpLinkCamTransport, line 250
-				   params: [request: aesEncrypt(cmdStr, encKey, encIv)]] // library marker davegut.tpLinkCamTransport, line 251
-	String cmdData = new groovy.json.JsonBuilder(reqBody).toString() // library marker davegut.tpLinkCamTransport, line 252
-	Integer seqNumber = state.seqNo // library marker davegut.tpLinkCamTransport, line 253
-	String initTagHex = parent.encPasswordCam + cnonce // library marker davegut.tpLinkCamTransport, line 254
-	String initTag = mdEncode("SHA-256", initTagHex.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 255
-	String tagString = initTag + cmdData + seqNumber // library marker davegut.tpLinkCamTransport, line 256
-	String tag =  mdEncode("SHA-256", tagString.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 257
-	Map heads = getCamHeaders() // library marker davegut.tpLinkCamTransport, line 258
-	heads << ["Tapo_tag": tag, Seq: seqNumber] // library marker davegut.tpLinkCamTransport, line 259
-	Map reqParams = [uri: apiUrl, // library marker davegut.tpLinkCamTransport, line 260
-					 body: cmdData, // library marker davegut.tpLinkCamTransport, line 261
-					 contentType: "application/json", // library marker davegut.tpLinkCamTransport, line 262
-					 requestContentType: "application/json", // library marker davegut.tpLinkCamTransport, line 263
-					 timeout: 15, // library marker davegut.tpLinkCamTransport, line 264
-					 ignoreSSLIssues: true, // library marker davegut.tpLinkCamTransport, line 265
-					 headers: heads // library marker davegut.tpLinkCamTransport, line 266
-					] // library marker davegut.tpLinkCamTransport, line 267
-	return reqParams // library marker davegut.tpLinkCamTransport, line 268
-} // library marker davegut.tpLinkCamTransport, line 269
+def postSync(cmdBody, baseUrl) { // library marker davegut.tpLinkCamTransport, line 251
+	Map respData = [:] // library marker davegut.tpLinkCamTransport, line 252
+	Map heads = getCamHeaders() // library marker davegut.tpLinkCamTransport, line 253
+	Map httpParams = [uri: baseUrl, // library marker davegut.tpLinkCamTransport, line 254
+					 body: JsonOutput.toJson(cmdBody), // library marker davegut.tpLinkCamTransport, line 255
+					 contentType: "application/json", // library marker davegut.tpLinkCamTransport, line 256
+					 requestContentType: "application/json", // library marker davegut.tpLinkCamTransport, line 257
+					 timeout: 10, // library marker davegut.tpLinkCamTransport, line 258
+					 ignoreSSLIssues: true, // library marker davegut.tpLinkCamTransport, line 259
+					 headers: heads // library marker davegut.tpLinkCamTransport, line 260
+					 ] // library marker davegut.tpLinkCamTransport, line 261
+	try { // library marker davegut.tpLinkCamTransport, line 262
+		httpPostJson(httpParams) { resp -> // library marker davegut.tpLinkCamTransport, line 263
+			if (resp.status == 200) { // library marker davegut.tpLinkCamTransport, line 264
+				respData << resp.data // library marker davegut.tpLinkCamTransport, line 265
+			} else { // library marker davegut.tpLinkCamTransport, line 266
+				respData << [status: resp.status, errorData: resp.properties, // library marker davegut.tpLinkCamTransport, line 267
+							 action: "<b>Check IP Address</b>"] // library marker davegut.tpLinkCamTransport, line 268
+				logWarn(respData) // library marker davegut.tpLinkCamTransport, line 269
+			} // library marker davegut.tpLinkCamTransport, line 270
+		} // library marker davegut.tpLinkCamTransport, line 271
+	} catch (err) { // library marker davegut.tpLinkCamTransport, line 272
+		respData << [status: "httpPostJson error", error: err] // library marker davegut.tpLinkCamTransport, line 273
+		logWarn(respData) // library marker davegut.tpLinkCamTransport, line 274
+	} // library marker davegut.tpLinkCamTransport, line 275
+	return respData // library marker davegut.tpLinkCamTransport, line 276
+} // library marker davegut.tpLinkCamTransport, line 277
 
-def parseCameraData(resp, data) { // library marker davegut.tpLinkCamTransport, line 271
-	Map parseData = [sourceMethod: data.data, jsonErrCode: resp.json.error_code] // library marker davegut.tpLinkCamTransport, line 272
-	state.seqNo += 1 // library marker davegut.tpLinkCamTransport, line 273
-	if (resp.json.error_code == 0) { // library marker davegut.tpLinkCamTransport, line 274
-		try { // library marker davegut.tpLinkCamTransport, line 275
-			byte[] encKey = new JsonSlurper().parseText(lsk) // library marker davegut.tpLinkCamTransport, line 276
-			byte[] encIv = new JsonSlurper().parseText(ivb) // library marker davegut.tpLinkCamTransport, line 277
-			Map cmdResp = new JsonSlurper().parseText(aesDecrypt(resp.json.result.response, // library marker davegut.tpLinkCamTransport, line 278
-															 	encKey, encIv)) // library marker davegut.tpLinkCamTransport, line 279
-			parseData << [parseStatus: "OK", cmdResp: cmdResp] // library marker davegut.tpLinkCamTransport, line 280
-			state.protoError = false // library marker davegut.tpLinkCamTransport, line 281
-		} catch (err) { // library marker davegut.tpLinkCamTransport, line 282
-			parseData << [parseStatus: "Decrypt Error", error: err] // library marker davegut.tpLinkCamTransport, line 283
-       } // library marker davegut.tpLinkCamTransport, line 284
-	} else { // library marker davegut.tpLinkCamTransport, line 285
-		parseData << [parseStatus: "Protocol Error"] // library marker davegut.tpLinkCamTransport, line 286
-	} // library marker davegut.tpLinkCamTransport, line 287
-	if (parseData.parseStatus != "OK") { // library marker davegut.tpLinkCamTransport, line 288
-		if (state.protoError == false) { // library marker davegut.tpLinkCamTransport, line 289
-			parseData << [nextMeth: "resolveProtocolError"] // library marker davegut.tpLinkCamTransport, line 290
-			resolveProtocolError() // library marker davegut.tpLinkCamTransport, line 291
-		} // library marker davegut.tpLinkCamTransport, line 292
-	} // library marker davegut.tpLinkCamTransport, line 293
-	return parseData // library marker davegut.tpLinkCamTransport, line 294
-} // library marker davegut.tpLinkCamTransport, line 295
+def getCameraParams(cmdBody, reqData) { // library marker davegut.tpLinkCamTransport, line 279
+	byte[] encKey = new JsonSlurper().parseText(lsk) // library marker davegut.tpLinkCamTransport, line 280
+	byte[] encIv = new JsonSlurper().parseText(ivb) // library marker davegut.tpLinkCamTransport, line 281
+	def cmdStr = JsonOutput.toJson(cmdBody) // library marker davegut.tpLinkCamTransport, line 282
+	Map reqBody = [method: "securePassthrough", // library marker davegut.tpLinkCamTransport, line 283
+				   params: [request: aesEncrypt(cmdStr, encKey, encIv)]] // library marker davegut.tpLinkCamTransport, line 284
+	String cmdData = new groovy.json.JsonBuilder(reqBody).toString() // library marker davegut.tpLinkCamTransport, line 285
+	Integer seqNumber = state.seqNo // library marker davegut.tpLinkCamTransport, line 286
+	String initTagHex = parent.encPasswordCam + cnonce // library marker davegut.tpLinkCamTransport, line 287
+	String initTag = mdEncode("SHA-256", initTagHex.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 288
+	String tagString = initTag + cmdData + seqNumber // library marker davegut.tpLinkCamTransport, line 289
+	String tag =  mdEncode("SHA-256", tagString.getBytes()).encodeHex().toString().toUpperCase() // library marker davegut.tpLinkCamTransport, line 290
+	Map heads = getCamHeaders() // library marker davegut.tpLinkCamTransport, line 291
+	heads << ["Tapo_tag": tag, Seq: seqNumber] // library marker davegut.tpLinkCamTransport, line 292
+	Map reqParams = [uri: apiUrl, // library marker davegut.tpLinkCamTransport, line 293
+					 body: cmdData, // library marker davegut.tpLinkCamTransport, line 294
+					 contentType: "application/json", // library marker davegut.tpLinkCamTransport, line 295
+					 requestContentType: "application/json", // library marker davegut.tpLinkCamTransport, line 296
+					 timeout: 15, // library marker davegut.tpLinkCamTransport, line 297
+					 ignoreSSLIssues: true, // library marker davegut.tpLinkCamTransport, line 298
+					 headers: heads // library marker davegut.tpLinkCamTransport, line 299
+					] // library marker davegut.tpLinkCamTransport, line 300
+	return reqParams // library marker davegut.tpLinkCamTransport, line 301
+} // library marker davegut.tpLinkCamTransport, line 302
 
-//	Run deviceHandshake then retry command // library marker davegut.tpLinkCamTransport, line 297
-def resolveProtocolError() { // library marker davegut.tpLinkCamTransport, line 298
-	Map logData = [method: "resolveProtocolError", lastCmd: state.lastCommand] // library marker davegut.tpLinkCamTransport, line 299
-	state.protoError = true // library marker davegut.tpLinkCamTransport, line 300
-	deviceHandshake() // library marker davegut.tpLinkCamTransport, line 301
-	runIn(4, delayedPassThrough) // library marker davegut.tpLinkCamTransport, line 302
-	logDebug(logData) // library marker davegut.tpLinkCamTransport, line 303
-} // library marker davegut.tpLinkCamTransport, line 304
+def parseCameraData(resp, data) { // library marker davegut.tpLinkCamTransport, line 304
+	Map parseData = [sourceMethod: data.data, jsonErrCode: resp.json.error_code] // library marker davegut.tpLinkCamTransport, line 305
+	state.seqNo += 1 // library marker davegut.tpLinkCamTransport, line 306
+	if (resp.json.error_code == 0) { // library marker davegut.tpLinkCamTransport, line 307
+		try { // library marker davegut.tpLinkCamTransport, line 308
+			byte[] encKey = new JsonSlurper().parseText(lsk) // library marker davegut.tpLinkCamTransport, line 309
+			byte[] encIv = new JsonSlurper().parseText(ivb) // library marker davegut.tpLinkCamTransport, line 310
+			Map cmdResp = new JsonSlurper().parseText(aesDecrypt(resp.json.result.response, // library marker davegut.tpLinkCamTransport, line 311
+															 	encKey, encIv)) // library marker davegut.tpLinkCamTransport, line 312
+			parseData << [parseStatus: "OK", cmdResp: cmdResp] // library marker davegut.tpLinkCamTransport, line 313
+			state.protoError = false // library marker davegut.tpLinkCamTransport, line 314
+		} catch (err) { // library marker davegut.tpLinkCamTransport, line 315
+			parseData << [parseStatus: "Decrypt Error", error: err] // library marker davegut.tpLinkCamTransport, line 316
+       } // library marker davegut.tpLinkCamTransport, line 317
+	} else { // library marker davegut.tpLinkCamTransport, line 318
+		parseData << [parseStatus: "Protocol Error"] // library marker davegut.tpLinkCamTransport, line 319
+	} // library marker davegut.tpLinkCamTransport, line 320
+	if (parseData.parseStatus != "OK") { // library marker davegut.tpLinkCamTransport, line 321
+		if (state.protoError == false) { // library marker davegut.tpLinkCamTransport, line 322
+			parseData << [nextMeth: "resolveProtocolError"] // library marker davegut.tpLinkCamTransport, line 323
+			resolveProtocolError() // library marker davegut.tpLinkCamTransport, line 324
+		} // library marker davegut.tpLinkCamTransport, line 325
+	} // library marker davegut.tpLinkCamTransport, line 326
+	return parseData // library marker davegut.tpLinkCamTransport, line 327
+} // library marker davegut.tpLinkCamTransport, line 328
+
+//	Run deviceHandshake then retry command // library marker davegut.tpLinkCamTransport, line 330
+def resolveProtocolError() { // library marker davegut.tpLinkCamTransport, line 331
+	Map logData = [method: "resolveProtocolError", lastCmd: state.lastCommand] // library marker davegut.tpLinkCamTransport, line 332
+	state.protoError = true // library marker davegut.tpLinkCamTransport, line 333
+	deviceHandshake() // library marker davegut.tpLinkCamTransport, line 334
+	runIn(4, delayedPassThrough) // library marker davegut.tpLinkCamTransport, line 335
+	logDebug(logData) // library marker davegut.tpLinkCamTransport, line 336
+} // library marker davegut.tpLinkCamTransport, line 337
 
 
 // ~~~~~ end include (389) davegut.tpLinkCamTransport ~~~~~
