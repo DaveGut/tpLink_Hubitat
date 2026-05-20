@@ -39,6 +39,7 @@ Installation via manual direct links:
 ## Before Hubitat Installation
 The device must be installed into the Tapo (or Kasa) phone application and SET UP on you LAN prior to installing into Hubitat.
 * Using the Tapo Phone App (or Kasa), install the device via the manufacturer's instructions.
+* Disable Login Security (two-factor authentication) in Tapo app. Go to ME -> View Account -> Login Security
 * Enable third party services.  Using the Tapo Phone App (or Kasa), go to ME > Third Party Services > Third-Party-Compatibility and turn on.
 * In your Router, set a DHCP Reservation (Static IP Address) for the device.  This assures the IP does not change periodically causing potential failure in Hubitat control and status.
 * If devices are alreay installed, TEST the device via the Tapo phone app.  This assures the device is currently on your LAN.
